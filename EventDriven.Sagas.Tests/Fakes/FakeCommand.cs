@@ -1,7 +1,12 @@
-﻿namespace EventDriven.Sagas.Tests.Fakes;
+﻿using EventDriven.Sagas.Abstractions;
 
-public class FakeCommand
+namespace EventDriven.Sagas.Tests.Fakes;
+
+public class FakeCommand : ISagaCommand<string, string>
 {
-    public string Name { get; set; } = null!;
-    public string Value { get; set; } = null!;
+    public string? Name { get; set; }
+
+    public string ExpectedResult { get; set; } = null!;
+
+    public string Payload { get; set; } = null!;
 }

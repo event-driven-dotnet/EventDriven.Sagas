@@ -28,15 +28,5 @@ public enum SagaState
     /// <summary>
     /// Compensated saga state.
     /// </summary>
-    Compensated,
-
-    /// <summary>
-    /// Cancelling saga state.
-    /// </summary>
-    Cancelling,
-
-    /// <summary>
-    /// Cancelled saga state.
-    /// </summary>
-    Cancelled
+    Compensated
 }

@@ -13,17 +13,7 @@ public class SagaAction
     /// <summary>
     /// Saga action command.
     /// </summary>
-    public string Command { get; set; } = null!;
-
-    /// <summary>
-    /// Saga action expected result.
-    /// </summary>
-    public string ExpectedResult { get; set; } = null!;
-
-    /// <summary>
-    /// Saga action actual result.
-    /// </summary>
-    public string? ActualResult { get; set; }
+    public ISagaCommand Command { get; set; } = null!;
 
     /// <summary>
     /// Saga action timeout.
