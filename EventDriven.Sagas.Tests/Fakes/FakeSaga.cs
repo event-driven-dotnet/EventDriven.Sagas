@@ -12,18 +12,24 @@ public class FakeSaga : Saga,
     ICommandResultProcessor<Inventory>
 {
     private readonly ISagaCommandDispatcher _commandDispatcher;
+    private readonly int _cancelOnStep;
+    private readonly CancellationTokenSource? _tokenSource;
 
-    public FakeSaga(Dictionary<int, SagaStep> steps, ISagaCommandDispatcher commandDispatcher)
+    public FakeSaga(Dictionary<int, SagaStep> steps, ISagaCommandDispatcher commandDispatcher,
+        int cancelOnStep = 0, CancellationTokenSource? tokenSource = null)
     {
         _commandDispatcher = commandDispatcher;
+        _cancelOnStep = cancelOnStep;
+        _tokenSource = tokenSource;
         Steps = steps;
     }
 
     public override async Task StartSagaAsync(CancellationToken cancellationToken = default)
     {
-        // Set state and current step
+        // Set state, current step, cancellation token
         State = SagaState.Executing;
         CurrentStep = 1;
+        CancellationToken = cancellationToken;
 
         // Dispatch current step command
         await ExecuteCurrentActionAsync();
@@ -31,6 +37,7 @@ public class FakeSaga : Saga,
 
     protected override async Task ExecuteCurrentActionAsync()
     {
+        if (CurrentStep == _cancelOnStep && _tokenSource != null) _tokenSource.Cancel();
         var action = Steps[CurrentStep].Action;
         action.State = ActionState.Running;
         action.Started = DateTime.UtcNow;
@@ -69,8 +76,9 @@ public class FakeSaga : Saga,
         else if (commandResult is Inventory inventory) result = inventory.Stock;
 
         // Evaluate result
+        var isCancelled = !compensating && CancellationToken.IsCancellationRequested;
         var action = compensating ? Steps[CurrentStep].CompensatingAction : Steps[CurrentStep].Action;
-        var commandSuccessful = string.Compare(result,
+        var commandSuccessful = !isCancelled && string.Compare(result,
             ((FakeCommand)action.Command).ExpectedResult, StringComparison.OrdinalIgnoreCase) == 0;
 
         // Check timeout
@@ -80,12 +88,26 @@ public class FakeSaga : Saga,
         if (commandTimedOut) commandSuccessful = false;
 
         // Transition action state
-        action.State = commandSuccessful ? ActionState.Succeeded : ActionState.Failed;
-        if (!commandSuccessful && result != null)
+        action.State = ActionState.Succeeded;
+        if (!commandSuccessful)
         {
-            action.StateInfo = !commandTimedOut
-                ? $"Unexpected result: '{result}'."
-                : $"Duration of '{action.Duration!.Value:c}' exceeded timeout of '{action.Timeout!.Value:c}'";
+            if (isCancelled)
+            {
+                action.State = ActionState.Cancelled;
+                action.StateInfo = "Cancellation requested.";
+            }
+            else if (!commandTimedOut)
+            {
+                action.State = ActionState.Failed;
+                action.StateInfo = result != null ? $"Unexpected result: '{result}'." : "Unexpected result.";
+            }
+            else
+            {
+                action.State = ActionState.TimedOut;
+                action.StateInfo =
+                    $"Duration of '{action.Duration!.Value:c}' exceeded timeout of '{action.Timeout!.Value:c}'";
+            }
+
             var commandName = action.Command.Name ?? "No name";
             StateInfo = $"Step {CurrentStep} command '{commandName}' failed. {action.StateInfo}";
         }

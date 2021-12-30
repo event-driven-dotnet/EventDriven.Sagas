@@ -26,9 +26,9 @@ public enum ActionState
     Failed,
 
     /// <summary>
-    /// Cancelling action state.
+    /// Timed out action state.
     /// </summary>
-    Cancelling,
+    TimedOut,
 
     /// <summary>
     /// Cancelled action state.

@@ -26,6 +26,11 @@ public abstract class Saga
     public int CurrentStep { get; set; }
 
     /// <summary>
+    /// Cancellation token.
+    /// </summary>
+    protected CancellationToken CancellationToken = default;
+
+    /// <summary>
     /// Steps performed by the saga.
     /// </summary>
     public Dictionary<int, SagaStep> Steps { get; set; } = new();

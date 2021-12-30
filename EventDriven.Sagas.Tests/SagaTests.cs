@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions;
 using EventDriven.Sagas.Tests.Fakes;
@@ -183,16 +184,19 @@ namespace EventDriven.Sagas.Tests
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(3)]
-        [InlineData(4)]
-        public async Task SagaShouldFailOnStep(int step)
+        [InlineData(1, false)]
+        [InlineData(1, true)]
+        [InlineData(2, false)]
+        [InlineData(3, false)]
+        [InlineData(4, false)]
+        public async Task SagaShouldFailOnStep(int step, bool cancel)
         {
             // Arrange
+            var tokenSource = new CancellationTokenSource();
             var dispatcher = new InMemoryCommandDispatcher();
             var steps = new Dictionary<int, SagaStep>(_steps.Where(s => s.Key <= step));
-            var saga = new FakeSaga(steps, dispatcher);
+            var cancelOnStep = cancel ? step : 0;
+            var saga = new FakeSaga(steps, dispatcher, cancelOnStep, tokenSource);
             var order = new Order();
             var customer = new Customer();
             var inventory = new Inventory();
@@ -202,7 +206,7 @@ namespace EventDriven.Sagas.Tests
             ((FakeCommand)steps[step].Action.Command).Payload = "Foo";
 
             // Act
-            await saga.StartSagaAsync();
+            await saga.StartSagaAsync(tokenSource.Token);
 
             // Assert
             var expectedOrderState = "Initial";
@@ -213,36 +217,37 @@ namespace EventDriven.Sagas.Tests
             var expectedStateInfos = Enumerable.Empty<string?>();
             var stateInfos = steps.Select(s => s.Value.Action.StateInfo);
             string? expectedSagaState = null;
+            var stateMessage = cancel ? "Cancellation requested." : "Unexpected result: 'Foo'.";
 
             switch (step)
             {
                 case 1:
                     expectedActionStates = new List<ActionState>
-                        { ActionState.Failed };
+                        { cancel ? ActionState.Cancelled : ActionState.Failed };
                     expectedStateInfos = new List<string?>
-                        { "Unexpected result: 'Foo'." };
-                    expectedSagaState = "Step 1 command 'SetStatePending' failed. Unexpected result: 'Foo'.";
+                        { stateMessage };
+                    expectedSagaState = $"Step 1 command 'SetStatePending' failed. {stateMessage}";
                     break;
                 case 2:
                     expectedActionStates = new List<ActionState>
-                        { ActionState.Succeeded, ActionState.Failed };
+                        { ActionState.Succeeded, cancel ? ActionState.Cancelled : ActionState.Failed };
                     expectedStateInfos = new List<string?>
-                        { null, "Unexpected result: 'Foo'." };
-                    expectedSagaState = "Step 2 command 'ReserveCredit' failed. Unexpected result: 'Foo'.";
+                        { null, stateMessage };
+                    expectedSagaState = $"Step 2 command 'ReserveCredit' failed. {stateMessage}";
                     break;
                 case 3:
                     expectedActionStates = new List<ActionState>
-                        { ActionState.Succeeded, ActionState.Succeeded, ActionState.Failed };
+                        { ActionState.Succeeded, ActionState.Succeeded, cancel ? ActionState.Cancelled : ActionState.Failed };
                     expectedStateInfos = new List<string?>
-                        { null, null, "Unexpected result: 'Foo'." };
-                    expectedSagaState = "Step 3 command 'ReserveInventory' failed. Unexpected result: 'Foo'.";
+                        { null, null, stateMessage };
+                    expectedSagaState = $"Step 3 command 'ReserveInventory' failed. {stateMessage}";
                     break;
                 case 4:
                     expectedActionStates = new List<ActionState>
-                        { ActionState.Succeeded, ActionState.Succeeded, ActionState.Succeeded, ActionState.Failed };
+                        { ActionState.Succeeded, ActionState.Succeeded, ActionState.Succeeded, cancel ? ActionState.Cancelled : ActionState.Failed };
                     expectedStateInfos = new List<string?>
-                        { null, null, null, "Unexpected result: 'Foo'." };
-                    expectedSagaState = "Step 4 command 'SetStateCreated' failed. Unexpected result: 'Foo'.";
+                        { null, null, null, stateMessage };
+                    expectedSagaState = $"Step 4 command 'SetStateCreated' failed. {stateMessage}";
                     break;
             }
 
