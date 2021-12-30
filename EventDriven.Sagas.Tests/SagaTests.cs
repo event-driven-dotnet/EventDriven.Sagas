@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -139,30 +140,46 @@ namespace EventDriven.Sagas.Tests
             var expectedOrderState = "Initial";
             var expectedCustomerCredit = "Available";
             var expectedInventoryStock = "Available";
+            var expectedActionStates = Enumerable.Empty<ActionState>();
+            var actionStates = steps.Select(s => s.Value.Action.State);
+            var compensatingActionStates = steps.Select(s => s.Value.CompensatingAction.State);
+            var expectedCompensatingActionStates = Enumerable.Empty<ActionState>();
+
             switch (step)
             {
                 case 1:
                     expectedOrderState = "Pending";
+                    expectedActionStates = Enumerable.Repeat(ActionState.Succeeded, 1);
+                    expectedCompensatingActionStates = Enumerable.Repeat(ActionState.Initial, 1);
                     break;
                 case 2:
                     expectedOrderState = "Pending";
                     expectedCustomerCredit = "Reserved";
+                    expectedActionStates = Enumerable.Repeat(ActionState.Succeeded, 2);
+                    expectedCompensatingActionStates = Enumerable.Repeat(ActionState.Initial, 2);
                     break;
                 case 3:
                     expectedOrderState = "Pending";
                     expectedCustomerCredit = "Reserved";
                     expectedInventoryStock = "Reserved";
+                    expectedActionStates = Enumerable.Repeat(ActionState.Succeeded, 3);
+                    expectedCompensatingActionStates = Enumerable.Repeat(ActionState.Initial, 3);
                     break;
                 case 4:
                     expectedOrderState = "Created";
                     expectedCustomerCredit = "Reserved";
                     expectedInventoryStock = "Reserved";
+                    expectedActionStates = Enumerable.Repeat(ActionState.Succeeded, 4);
+                    expectedCompensatingActionStates = Enumerable.Repeat(ActionState.Initial, 4);
                     break;
             }
+
             Assert.Equal(expectedOrderState, order.State);
             Assert.Equal(expectedCustomerCredit, customer.Credit);
             Assert.Equal(expectedInventoryStock, inventory.Stock);
             Assert.Equal(SagaState.Executed, saga.State);
+            Assert.Equal(expectedActionStates, actionStates);
+            Assert.Equal(expectedCompensatingActionStates, compensatingActionStates);
         }
 
         [Theory]
@@ -188,14 +205,54 @@ namespace EventDriven.Sagas.Tests
             await saga.StartSagaAsync();
 
             // Assert
-            //Assert.Equal("Initial", order.State);
             var expectedOrderState = "Initial";
             var expectedCustomerCredit = "Available";
             var expectedInventoryStock = "Available";
+            var expectedActionStates = Enumerable.Empty<ActionState>();
+            var actionStates = steps.Select(s => s.Value.Action.State);
+            var expectedStateInfos = Enumerable.Empty<string?>();
+            var stateInfos = steps.Select(s => s.Value.Action.StateInfo);
+            string? expectedSagaState = null;
+
+            switch (step)
+            {
+                case 1:
+                    expectedActionStates = new List<ActionState>
+                        { ActionState.Failed };
+                    expectedStateInfos = new List<string?>
+                        { "Unexpected result: 'Foo'." };
+                    expectedSagaState = "Step 1 command 'SetStatePending' failed. Unexpected result: 'Foo'.";
+                    break;
+                case 2:
+                    expectedActionStates = new List<ActionState>
+                        { ActionState.Succeeded, ActionState.Failed };
+                    expectedStateInfos = new List<string?>
+                        { null, "Unexpected result: 'Foo'." };
+                    expectedSagaState = "Step 2 command 'ReserveCredit' failed. Unexpected result: 'Foo'.";
+                    break;
+                case 3:
+                    expectedActionStates = new List<ActionState>
+                        { ActionState.Succeeded, ActionState.Succeeded, ActionState.Failed };
+                    expectedStateInfos = new List<string?>
+                        { null, null, "Unexpected result: 'Foo'." };
+                    expectedSagaState = "Step 3 command 'ReserveInventory' failed. Unexpected result: 'Foo'.";
+                    break;
+                case 4:
+                    expectedActionStates = new List<ActionState>
+                        { ActionState.Succeeded, ActionState.Succeeded, ActionState.Succeeded, ActionState.Failed };
+                    expectedStateInfos = new List<string?>
+                        { null, null, null, "Unexpected result: 'Foo'." };
+                    expectedSagaState = "Step 4 command 'SetStateCreated' failed. Unexpected result: 'Foo'.";
+                    break;
+            }
+
             Assert.Equal(expectedOrderState, order.State);
             Assert.Equal(expectedCustomerCredit, customer.Credit);
             Assert.Equal(expectedInventoryStock, inventory.Stock);
             Assert.Equal(SagaState.Compensated, saga.State);
+            Assert.Equal(expectedActionStates, actionStates);
+            Assert.Equal(expectedStateInfos, stateInfos);
+            Assert.Equal(expectedSagaState, saga.StateInfo);
         }
     }
 }

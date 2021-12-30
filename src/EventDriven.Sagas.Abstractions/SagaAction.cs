@@ -39,4 +39,9 @@ public class SagaAction
     /// When the action completed.
     /// </summary>
     public DateTime? Completed { get; set; }
+
+    /// <summary>
+    /// Saga action duration.
+    /// </summary>
+    public TimeSpan? Duration { get; set; }
 }
