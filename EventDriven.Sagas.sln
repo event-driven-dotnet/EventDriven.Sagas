@@ -14,11 +14,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{7340565F-A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reference-architecture", "reference-architecture", "{2F6C2678-B38D-4784-AEDA-1DF293E1296A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.Abstractions", "src\EventDriven.Sagas.Abstractions\EventDriven.Sagas.Abstractions.csproj", "{56917503-E11F-4707-88C0-913209154C7F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventDriven.Sagas.Abstractions", "src\EventDriven.Sagas.Abstractions\EventDriven.Sagas.Abstractions.csproj", "{56917503-E11F-4707-88C0-913209154C7F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.Tests", "EventDriven.Sagas.Tests\EventDriven.Sagas.Tests.csproj", "{25AB0593-C9FF-4DB6-9024-EBE0996DA153}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventDriven.Sagas.Tests", "EventDriven.Sagas.Tests\EventDriven.Sagas.Tests.csproj", "{25AB0593-C9FF-4DB6-9024-EBE0996DA153}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService", "reference-architecture\OrderService\OrderService.csproj", "{1871EEB6-BAA8-4F4A-BA0A-25FB8171F1EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderService", "reference-architecture\OrderService\OrderService.csproj", "{1871EEB6-BAA8-4F4A-BA0A-25FB8171F1EC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventDriven.DDD.Abstractions", "..\EventDriven.DDD.Abstractions\src\EventDriven.DDD.Abstractions\EventDriven.DDD.Abstractions.csproj", "{526AB4B5-7EDA-48CD-A2E0-BD4019CCC1E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +40,10 @@ Global
 		{1871EEB6-BAA8-4F4A-BA0A-25FB8171F1EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1871EEB6-BAA8-4F4A-BA0A-25FB8171F1EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1871EEB6-BAA8-4F4A-BA0A-25FB8171F1EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{526AB4B5-7EDA-48CD-A2E0-BD4019CCC1E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{526AB4B5-7EDA-48CD-A2E0-BD4019CCC1E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{526AB4B5-7EDA-48CD-A2E0-BD4019CCC1E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{526AB4B5-7EDA-48CD-A2E0-BD4019CCC1E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
