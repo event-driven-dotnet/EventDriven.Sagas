@@ -1,4 +1,6 @@
-﻿namespace EventDriven.Sagas.Abstractions;
+﻿using EventDriven.Sagas.Abstractions.Commands;
+
+namespace EventDriven.Sagas.Abstractions;
 
 /// <summary>
 /// An action performed in a saga step.

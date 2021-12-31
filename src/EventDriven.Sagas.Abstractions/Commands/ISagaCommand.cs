@@ -1,4 +1,4 @@
-﻿namespace EventDriven.Sagas.Abstractions;
+﻿namespace EventDriven.Sagas.Abstractions.Commands;
 
 /// <summary>
 /// Saga command.
@@ -6,7 +6,7 @@
 public interface ISagaCommand
 {
     /// <summary>
-    /// Command name.
+    /// Optional command name.
     /// </summary>
     public string? Name { get; set; }
 }

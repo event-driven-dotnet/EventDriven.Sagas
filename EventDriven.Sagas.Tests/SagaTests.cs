@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -10,111 +11,6 @@ namespace EventDriven.Sagas.Tests
 {
     public class SagaTests
     {
-        private readonly Dictionary<int, SagaStep> _steps;
-
-        public SagaTests()
-        {
-            _steps = new Dictionary<int, SagaStep>
-            {
-                {   1,
-                    new SagaStep
-                    {
-                        Sequence = 1,
-                        Action = new SagaAction
-                        {
-                            Command = new FakeCommand
-                            {
-                                Name = "SetStatePending",
-                                Payload = "Pending",
-                                ExpectedResult = "Pending"
-                            }
-                        },
-                        CompensatingAction = new SagaAction
-                        {
-                            Command = new FakeCommand
-                            {
-                                Name = "SetStateInitial",
-                                Payload = "Initial",
-                                ExpectedResult = "Initial"
-                            }
-                        }
-                    }
-                },
-                {   2,
-                    new SagaStep
-                    {
-                        Sequence = 2,
-                        Action = new SagaAction
-                        {
-                            Command = new FakeCommand
-                            {
-                                Name = "ReserveCredit",
-                                Payload = "Reserved",
-                                ExpectedResult = "Reserved"
-                            }
-                        },
-                        CompensatingAction = new SagaAction
-                        {
-                            Command = new FakeCommand
-                            {
-                                Name = "ReleaseCredit",
-                                Payload = "Available",
-                                ExpectedResult = "Available"
-                            }
-                        }
-                    }
-                },
-                {   3,
-                    new SagaStep
-                    {
-                        Sequence = 3,
-                        Action = new SagaAction
-                        {
-                            Command = new FakeCommand
-                            {
-                                Name = "ReserveInventory",
-                                Payload = "Reserved",
-                                ExpectedResult = "Reserved"
-                            }
-                        },
-                        CompensatingAction = new SagaAction
-                        {
-                            Command = new FakeCommand
-                            {
-                                Name = "ReleaseInventory",
-                                Payload = "Available",
-                                ExpectedResult = "Available"
-                            }
-                        }
-                    }
-                },
-                {   4,
-                    new SagaStep
-                    {
-                        Sequence = 4,
-                        Action = new SagaAction
-                        {
-                            Command = new FakeCommand
-                            {
-                                Name = "SetStateCreated",
-                                Payload = "Created",
-                                ExpectedResult = "Created"
-                            }
-                        },
-                        CompensatingAction = new SagaAction
-                        {
-                            Command = new FakeCommand
-                            {
-                                Name = "SetStateInitial",
-                                Payload = "Initial",
-                                ExpectedResult = "Initial"
-                            }
-                        }
-                    }
-                },
-            };
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
@@ -124,7 +20,9 @@ namespace EventDriven.Sagas.Tests
         {
             // Arrange
             var dispatcher = new InMemoryCommandDispatcher();
-            var steps = new Dictionary<int, SagaStep>(_steps.Where(s => s.Key <= step));
+            var configRepo = new FakeSagaConfigRepository();
+            var config = await configRepo.GetSagaConfigurationAsync(Guid.Empty);
+            var steps = new Dictionary<int, SagaStep>(config.Steps.Where(s => s.Key <= step));
             var saga = new FakeSaga(steps, dispatcher);
             var order = new Order();
             var customer = new Customer();
@@ -193,7 +91,9 @@ namespace EventDriven.Sagas.Tests
             // Arrange
             var tokenSource = new CancellationTokenSource();
             var dispatcher = new InMemoryCommandDispatcher();
-            var steps = new Dictionary<int, SagaStep>(_steps.Where(s => s.Key <= step));
+            var configRepo = new FakeSagaConfigRepository();
+            var config = await configRepo.GetSagaConfigurationAsync(Guid.Empty);
+            var steps = new Dictionary<int, SagaStep>(config.Steps.Where(s => s.Key <= step));
             var cancelOnStep = cancel ? step : 0;
             var saga = new FakeSaga(steps, dispatcher, cancelOnStep, tokenSource);
             var order = new Order();

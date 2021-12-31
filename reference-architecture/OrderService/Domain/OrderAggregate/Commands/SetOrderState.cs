@@ -1,5 +1,6 @@
 ﻿using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions;
+using EventDriven.Sagas.Abstractions.Commands;
 
 namespace OrderService.Domain.OrderAggregate.Commands;
 

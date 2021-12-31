@@ -1,10 +1,27 @@
-﻿namespace EventDriven.Sagas.Abstractions;
+﻿using EventDriven.Sagas.Abstractions.Repositories;
+
+namespace EventDriven.Sagas.Abstractions;
 
 /// <summary>
 /// Enables the execution of atomic operations which span multiple services.
 /// </summary>
 public abstract class Saga
 {
+    /// <summary>
+    /// Optional saga configuration identifier.
+    /// </summary>
+    public Guid? SagaConfigId { get; set; }
+
+    /// <summary>
+    /// Optional configuration repository.
+    /// </summary>
+    public ISagaConfigRepository? ConfigRepository { get; set; }
+
+    /// <summary>
+    /// Cancellation token.
+    /// </summary>
+    protected CancellationToken CancellationToken = default;
+
     /// <summary>
     /// Saga identifier.
     /// </summary>
@@ -26,39 +43,41 @@ public abstract class Saga
     public int CurrentStep { get; set; }
 
     /// <summary>
-    /// Cancellation token.
-    /// </summary>
-    protected CancellationToken CancellationToken = default;
-
-    /// <summary>
     /// Steps performed by the saga.
     /// </summary>
     public Dictionary<int, SagaStep> Steps { get; set; } = new();
 
     /// <summary>
-    /// Start the saga.
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Result of the asynchronous operation.</returns>
-    public abstract Task StartSagaAsync(CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Execute the current action.
     /// </summary>
-    /// <returns>Result of the asynchronous operation.</returns>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected abstract Task ExecuteCurrentActionAsync();
 
     /// <summary>
     /// Execute the current compensating action.
     /// </summary>
-    /// <returns>Result of the asynchronous operation.</returns>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected abstract Task ExecuteCurrentCompensatingActionAsync();
+
+    /// <summary>
+    /// Configure saga steps.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    protected virtual async Task ConfigureSteps()
+    {
+        if (SagaConfigId != null && ConfigRepository != null)
+        {
+            var sagaConfig = await ConfigRepository
+                .GetSagaConfigurationAsync(SagaConfigId.GetValueOrDefault());
+            Steps = sagaConfig.Steps;
+        }
+    }
 
     /// <summary>
     /// Transition saga state.
     /// </summary>
     /// <param name="commandSuccessful">True if command was successful.</param>
-    /// <returns>Result of the asynchronous operation.</returns>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     protected virtual async Task TransitionSagaStateAsync(bool commandSuccessful)
     {
         switch (State)
@@ -100,5 +119,24 @@ public abstract class Saga
             default:
                 return;
         }
+    }
+
+    /// <summary>
+    /// Start the saga.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public virtual async Task StartSagaAsync(CancellationToken cancellationToken = default)
+    {
+        // Set steps from config
+        await ConfigureSteps();
+
+        // Set state, current step, cancellation token
+        State = SagaState.Executing;
+        CurrentStep = 1;
+        CancellationToken = cancellationToken;
+
+        // Dispatch current step command
+        await ExecuteCurrentActionAsync();
     }
 }

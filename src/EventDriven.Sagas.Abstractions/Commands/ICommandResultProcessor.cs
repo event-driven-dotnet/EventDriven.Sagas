@@ -1,4 +1,4 @@
-﻿namespace EventDriven.Sagas.Abstractions;
+﻿namespace EventDriven.Sagas.Abstractions.Commands;
 
 /// <summary>
 /// Processor of a command result.
@@ -10,6 +10,6 @@ public interface ICommandResultProcessor<in TResult>
     /// </summary>
     /// <param name="commandResult">Command result</param>
     /// <param name="compensating">True if compensating command.</param>
-    /// <returns>Result of the asynchronous operation.</returns>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     Task ProcessCommandResultAsync(TResult commandResult, bool compensating);
 }

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions;
+using EventDriven.Sagas.Abstractions.Commands;
 
 namespace EventDriven.Sagas.Tests.Fakes;
 

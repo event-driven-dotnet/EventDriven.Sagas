@@ -1,4 +1,4 @@
-﻿namespace EventDriven.Sagas.Abstractions;
+﻿namespace EventDriven.Sagas.Abstractions.Commands;
 
 /// <summary>
 /// Dispatches saga commands.
@@ -10,6 +10,6 @@ public interface ISagaCommandDispatcher
     /// </summary>
     /// <param name="command">Saga command</param>
     /// <param name="compensating">True if compensating command.</param>
-    /// <returns>Result of the asynchronous operation.</returns>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     Task DispatchAsync(ISagaCommand command, bool compensating);
 }

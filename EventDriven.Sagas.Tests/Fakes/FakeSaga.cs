@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions;
+using EventDriven.Sagas.Abstractions.Commands;
 
 namespace EventDriven.Sagas.Tests.Fakes;
 
@@ -11,9 +12,9 @@ public class FakeSaga : Saga,
     ICommandResultProcessor<Customer>,
     ICommandResultProcessor<Inventory>
 {
-    private readonly ISagaCommandDispatcher _commandDispatcher;
     private readonly int _cancelOnStep;
     private readonly CancellationTokenSource? _tokenSource;
+    private readonly ISagaCommandDispatcher _commandDispatcher;
 
     public FakeSaga(Dictionary<int, SagaStep> steps, ISagaCommandDispatcher commandDispatcher,
         int cancelOnStep = 0, CancellationTokenSource? tokenSource = null)
@@ -22,17 +23,6 @@ public class FakeSaga : Saga,
         _cancelOnStep = cancelOnStep;
         _tokenSource = tokenSource;
         Steps = steps;
-    }
-
-    public override async Task StartSagaAsync(CancellationToken cancellationToken = default)
-    {
-        // Set state, current step, cancellation token
-        State = SagaState.Executing;
-        CurrentStep = 1;
-        CancellationToken = cancellationToken;
-
-        // Dispatch current step command
-        await ExecuteCurrentActionAsync();
     }
 
     protected override async Task ExecuteCurrentActionAsync()
