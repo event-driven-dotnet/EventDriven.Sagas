@@ -11,6 +11,12 @@ public class SagaConfiguration
     public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
+    /// Represents a unique ID that must change atomically with each store of the entity
+    /// to its underlying storage medium.
+    /// </summary>
+    public string ETag { get; set; } = null!;
+
+    /// <summary>
     /// Optional saga configuration name.
     /// </summary>
     public string? Name { get; set; }

@@ -18,22 +18,22 @@ public interface ISagaConfigRepository
     /// <summary>
     /// Add a new saga configuration.
     /// </summary>
-    /// <param name="sagaConfiguration">A new saga configuration.</param>
+    /// <param name="entity">A new saga configuration.</param>
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// The task result contains the added saga configuration.
     /// </returns>
-    Task<SagaConfiguration> AddSagaConfigurationAsync(SagaConfiguration sagaConfiguration);
+    Task<SagaConfiguration> AddSagaConfigurationAsync(SagaConfiguration entity);
 
     /// <summary>
     /// Update an existing saga configuration.
     /// </summary>
-    /// <param name="sagaConfiguration">An existing saga configuration.</param>
+    /// <param name="entity">An existing saga configuration.</param>
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// The task result contains the updated saga configuration.
     /// </returns>
-    Task<SagaConfiguration> UpdateSagaConfigurationAsync(SagaConfiguration sagaConfiguration);
+    Task<SagaConfiguration> UpdateSagaConfigurationAsync(SagaConfiguration entity);
 
     /// <summary>
     /// Remove an existing saga configuration.

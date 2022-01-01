@@ -1,35 +1,53 @@
 ﻿using EventDriven.DDD.Abstractions.Commands;
+using OrderService.Domain.OrderAggregate.Sagas.CreateOrder;
+using OrderService.Repositories;
 
 namespace OrderService.Domain.OrderAggregate.Commands;
 
 public class OrderCommandHandler :
     ICommandHandler<Order, CreateOrder>,
-    ICommandHandler<Order, SetOrderState>
+    ICommandHandler<Order, GetOrderState>,
+    ICommandHandler<Order, SetOrderStatePending>
 {
-    private Order _order = null!;
+    //private Order _order = null!;
+    private readonly IOrderRepository _repository;
     private readonly ILogger<OrderCommandHandler> _logger;
+    private readonly CreateOrderSaga _createOrderSaga;
 
     public OrderCommandHandler(
+        IOrderRepository repository,
+        CreateOrderSaga createOrderSaga,
         ILogger<OrderCommandHandler> logger)
     {
+        _repository = repository;
         _logger = logger;
+        _createOrderSaga = createOrderSaga;
     }
 
-    public Task<CommandResult<Order>> Handle(CreateOrder command)
+    public async Task<CommandResult<Order>> Handle(CreateOrder command)
     {
         _logger.LogInformation("Handling command: {CommandName}", nameof(CreateOrder));
-        _order = command.Order;
+        var order = await _repository.AddOrder(command.Order);
 
-        // TODO: Start create order saga
-        throw new NotImplementedException();
+        // Start saga to create an order
+        await _createOrderSaga.StartSagaAsync();
+        return new CommandResult<Order>(CommandOutcome.Accepted, order);
     }
 
-    public Task<CommandResult<Order>> Handle(SetOrderState command)
+    public async Task<CommandResult<Order>> Handle(GetOrderState command)
     {
-        _logger.LogInformation("Handling command: {CommandName}", nameof(CreateOrder));
-        _order.State = command.Payload;
+        _logger.LogInformation("Handling command: {CommandName}", nameof(GetOrderState));
+        var order = await _repository.GetOrder(command.EntityId);
+        return new CommandResult<Order>(CommandOutcome.Accepted, order);
+    }
 
-        // TODO: Set order state
-        throw new NotImplementedException();
+    public async Task<CommandResult<Order>> Handle(SetOrderStatePending command)
+    {
+        _logger.LogInformation("Handling command: {CommandName}", nameof(SetOrderStatePending));
+
+        var order = await _repository.GetOrder(command.EntityId);
+        var updatedOrder = await _repository.UpdateOrderState(order, OrderState.Pending);
+        await _createOrderSaga.ProcessCommandResultAsync(updatedOrder, false);
+        return new CommandResult<Order>(CommandOutcome.Accepted, updatedOrder);
     }
 }

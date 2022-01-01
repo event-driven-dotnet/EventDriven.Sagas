@@ -1,5 +1,4 @@
-﻿using EventDriven.Sagas.Abstractions;
-using EventDriven.Sagas.Abstractions.Commands;
+﻿using EventDriven.Sagas.Abstractions.Commands;
 using OrderService.Domain.OrderAggregate.Commands;
 
 namespace OrderService.Domain.OrderAggregate.Sagas.CreateOrder;
@@ -15,12 +14,13 @@ public class CreateOrderCommandDispatcher : ISagaCommandDispatcher
 
     public async Task DispatchAsync(ISagaCommand command, bool compensating)
     {
-        // Based on command name, dispatch to handler
+        // Based on command name, dispatch command to handler
         switch (command.Name)
         {
             case "SetStatePending":
-                await _orderCommandHandler.Handle(new SetOrderState
+                await _orderCommandHandler.Handle(new SetOrderStatePending
                 {
+                    //Order = command.
                     Name = command.Name,
                     Payload = OrderState.Pending
                 });

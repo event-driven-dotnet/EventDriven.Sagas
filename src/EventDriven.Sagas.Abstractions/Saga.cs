@@ -8,6 +8,22 @@ namespace EventDriven.Sagas.Abstractions;
 public abstract class Saga
 {
     /// <summary>
+    /// Saga identifier.
+    /// </summary>
+    public Guid Id { get; set; } = Guid.NewGuid();
+
+    /// <summary>
+    /// Represents a unique ID that must change atomically with each store of the entity
+    /// to its underlying storage medium.
+    /// </summary>
+    public string ETag { get; set; } = null!;
+
+    /// <summary>
+    /// Cancellation token.
+    /// </summary>
+    protected CancellationToken CancellationToken;
+
+    /// <summary>
     /// Optional saga configuration identifier.
     /// </summary>
     public Guid? SagaConfigId { get; set; }
@@ -16,16 +32,6 @@ public abstract class Saga
     /// Optional configuration repository.
     /// </summary>
     public ISagaConfigRepository? ConfigRepository { get; set; }
-
-    /// <summary>
-    /// Cancellation token.
-    /// </summary>
-    protected CancellationToken CancellationToken = default;
-
-    /// <summary>
-    /// Saga identifier.
-    /// </summary>
-    public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
     /// State of the saga.
