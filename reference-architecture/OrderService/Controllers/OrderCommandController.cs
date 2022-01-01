@@ -8,13 +8,13 @@ using OrderService.Helpers;
 namespace OrderService.Controllers
 {
     [ApiController]
-    [Route("order")]
-    public class OrderController : ControllerBase
+    [Route("api/order")]
+    public class OrderCommandController : ControllerBase
     {
         private readonly OrderCommandHandler _commandHandler;
         private readonly IMapper _mapper;
 
-        public OrderController(OrderCommandHandler commandHandler, IMapper mapper)
+        public OrderCommandController(OrderCommandHandler commandHandler, IMapper mapper)
         {
             _commandHandler = commandHandler;
             _mapper = mapper;
@@ -31,19 +31,6 @@ namespace OrderService.Controllers
                 return result.ToActionResult();
             var orderOut = _mapper.Map<DTO.Write.Order>(result.Entity);
             return new CreatedResult($"api/order/{orderOut.Id}", orderOut);
-        }
-
-        // Get api/order/status
-        [HttpGet]
-        [Route("status")]
-        public async Task<IActionResult> Get(Guid orderId)
-        {
-            var result = await _commandHandler.Handle(new GetOrderState(orderId));
-
-            if (result.Outcome != CommandOutcome.Accepted)
-                return result.ToActionResult();
-            var orderOut = _mapper.Map<DTO.Write.Order>(result.Entity);
-            return new OkObjectResult(orderOut);
         }
     }
 }
