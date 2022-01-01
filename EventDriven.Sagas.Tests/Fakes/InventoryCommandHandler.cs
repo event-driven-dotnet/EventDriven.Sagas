@@ -20,7 +20,7 @@ public class InventoryCommandHandler : ISagaCommandHandler
     {
         if (command.Name!.EndsWith("Inventory"))
         {
-            var payload = ((FakeCommand)command).Payload;
+            var payload = ((FakeCommand)command).Result;
             _inventory.Stock = payload;
             await _resultProcessor.ProcessCommandResultAsync(_inventory, compensating);
         }

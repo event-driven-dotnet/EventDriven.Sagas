@@ -15,11 +15,14 @@ public class FakeSaga : Saga,
     private readonly int _cancelOnStep;
     private readonly CancellationTokenSource? _tokenSource;
     private readonly ISagaCommandDispatcher _commandDispatcher;
+    private readonly ICommandResultEvaluator<string?, string?> _resultEvaluator;
 
     public FakeSaga(Dictionary<int, SagaStep> steps, ISagaCommandDispatcher commandDispatcher,
-        int cancelOnStep = 0, CancellationTokenSource? tokenSource = null)
+        ICommandResultEvaluator<string?, string?> resultEvaluator, int cancelOnStep = 0,
+        CancellationTokenSource? tokenSource = null)
     {
         _commandDispatcher = commandDispatcher;
+        _resultEvaluator = resultEvaluator;
         _cancelOnStep = cancelOnStep;
         _tokenSource = tokenSource;
         Steps = steps;
@@ -43,66 +46,19 @@ public class FakeSaga : Saga,
     }
 
     public async Task ProcessCommandResultAsync(Order commandResult, bool compensating)
-    {
-        await ProcessCommandResultLocalAsync(commandResult, compensating);    
-    }
+        => await ProcessCommandResultAsync(Steps[CurrentStep], compensating);
 
     public async Task ProcessCommandResultAsync(Customer commandResult, bool compensating)
-    {
-        await ProcessCommandResultLocalAsync(commandResult, compensating);
-    }
+        => await ProcessCommandResultAsync(Steps[CurrentStep], compensating);
 
     public async Task ProcessCommandResultAsync(Inventory commandResult, bool compensating)
+        => await ProcessCommandResultAsync(Steps[CurrentStep], compensating);
+
+    private async Task ProcessCommandResultAsync(SagaStep step, bool compensating)
     {
-        await ProcessCommandResultLocalAsync(commandResult, compensating);
-    }
-
-    private async Task ProcessCommandResultLocalAsync<TEntity>(TEntity commandResult, bool compensating)
-    {
-        // Get result
-        string? result = null;
-        if (commandResult is Order order) result = order.State;
-        else if (commandResult is Customer customer) result = customer.Credit;
-        else if (commandResult is Inventory inventory) result = inventory.Stock;
-
-        // Evaluate result
-        var isCancelled = !compensating && CancellationToken.IsCancellationRequested;
-        var action = compensating ? Steps[CurrentStep].CompensatingAction : Steps[CurrentStep].Action;
-        var commandSuccessful = !isCancelled && string.Compare(result,
-            ((FakeCommand)action.Command).ExpectedResult, StringComparison.OrdinalIgnoreCase) == 0;
-
-        // Check timeout
-        action.Completed = DateTime.UtcNow;
-        action.Duration = action.Completed - action.Started;
-        var commandTimedOut = commandSuccessful && action.Timeout != null && action.Duration > action.Timeout;
-        if (commandTimedOut) commandSuccessful = false;
-
-        // Transition action state
-        action.State = ActionState.Succeeded;
-        if (!commandSuccessful)
-        {
-            if (isCancelled)
-            {
-                action.State = ActionState.Cancelled;
-                action.StateInfo = "Cancellation requested.";
-            }
-            else if (!commandTimedOut)
-            {
-                action.State = ActionState.Failed;
-                action.StateInfo = result != null ? $"Unexpected result: '{result}'." : "Unexpected result.";
-            }
-            else
-            {
-                action.State = ActionState.TimedOut;
-                action.StateInfo =
-                    $"Duration of '{action.Duration!.Value:c}' exceeded timeout of '{action.Timeout!.Value:c}'";
-            }
-
-            var commandName = action.Command.Name ?? "No name";
-            StateInfo = $"Step {CurrentStep} command '{commandName}' failed. {action.StateInfo}";
-        }
-
-        // Transition saga state
+        var commandSuccessful = await _resultEvaluator.EvaluateStepResultAsync(
+            Steps[CurrentStep], compensating, CancellationToken);
+        StateInfo = _resultEvaluator.SagaStateInfo;
         await TransitionSagaStateAsync(commandSuccessful);
     }
 }

@@ -8,6 +8,6 @@ public record SetOrderStatePending : Command,
 {
     public Order Order { get; set; } = null!;
     public string? Name { get; set; } = "SetStatePending";
-    public OrderState Payload { get; set; }
+    public OrderState Result { get; set; }
     public OrderState ExpectedResult { get; set; }
 }

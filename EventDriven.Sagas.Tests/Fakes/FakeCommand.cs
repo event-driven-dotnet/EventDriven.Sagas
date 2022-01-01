@@ -9,5 +9,5 @@ public class FakeCommand : ISagaCommand<string, string>
 
     public string ExpectedResult { get; set; } = null!;
 
-    public string Payload { get; set; } = null!;
+    public string Result { get; set; } = null!;
 }

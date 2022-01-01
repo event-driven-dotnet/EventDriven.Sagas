@@ -22,7 +22,7 @@ public class CreateOrderCommandDispatcher : ISagaCommandDispatcher
                 {
                     //Order = command.
                     Name = command.Name,
-                    Payload = OrderState.Pending
+                    Result = OrderState.Pending
                 });
                 break;
         }

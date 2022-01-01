@@ -19,7 +19,7 @@ public class CustomerCommandHandler : ISagaCommandHandler
     {
         if (command.Name!.EndsWith("Credit"))
         {
-            var payload = ((FakeCommand)command).Payload;
+            var payload = ((FakeCommand)command).Result;
             _customer.Credit = payload;
             await _resultProcessor.ProcessCommandResultAsync(_customer, compensating);
         }

@@ -14,17 +14,17 @@ public interface ISagaCommand
 /// <summary>
 /// Generic saga command.
 /// </summary>
-/// <typeparam name="TPayload">Payload type.</typeparam>
-/// <typeparam name="TResult">Expected result</typeparam>
-public interface ISagaCommand<TPayload, TResult> : ISagaCommand
+/// <typeparam name="TResult">Command result type.</typeparam>
+/// <typeparam name="TExpectedResult">Command expected result type.</typeparam>
+public interface ISagaCommand<TResult, TExpectedResult> : ISagaCommand
 {
     /// <summary>
-    /// Command payload
+    /// Command result.
     /// </summary>
-    public TPayload Payload { get; set; }
+    public TResult Result { get; set; }
 
     /// <summary>
     /// Command expected result.
     /// </summary>
-    public TResult ExpectedResult { get; set; }
+    public TExpectedResult ExpectedResult { get; set; }
 }

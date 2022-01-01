@@ -21,7 +21,7 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
                             Command = new FakeCommand
                             {
                                 Name = "SetStatePending",
-                                Payload = "Pending",
+                                Result = "Pending",
                                 ExpectedResult = "Pending"
                             }
                         },
@@ -30,7 +30,7 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
                             Command = new FakeCommand
                             {
                                 Name = "SetStateInitial",
-                                Payload = "Initial",
+                                Result = "Initial",
                                 ExpectedResult = "Initial"
                             }
                         }
@@ -45,7 +45,7 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
                             Command = new FakeCommand
                             {
                                 Name = "ReserveCredit",
-                                Payload = "Reserved",
+                                Result = "Reserved",
                                 ExpectedResult = "Reserved"
                             }
                         },
@@ -54,7 +54,7 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
                             Command = new FakeCommand
                             {
                                 Name = "ReleaseCredit",
-                                Payload = "Available",
+                                Result = "Available",
                                 ExpectedResult = "Available"
                             }
                         }
@@ -69,7 +69,7 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
                             Command = new FakeCommand
                             {
                                 Name = "ReserveInventory",
-                                Payload = "Reserved",
+                                Result = "Reserved",
                                 ExpectedResult = "Reserved"
                             }
                         },
@@ -78,7 +78,7 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
                             Command = new FakeCommand
                             {
                                 Name = "ReleaseInventory",
-                                Payload = "Available",
+                                Result = "Available",
                                 ExpectedResult = "Available"
                             }
                         }
@@ -93,7 +93,7 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
                             Command = new FakeCommand
                             {
                                 Name = "SetStateCreated",
-                                Payload = "Created",
+                                Result = "Created",
                                 ExpectedResult = "Created"
                             }
                         },
@@ -102,7 +102,7 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
                             Command = new FakeCommand
                             {
                                 Name = "SetStateInitial",
-                                Payload = "Initial",
+                                Result = "Initial",
                                 ExpectedResult = "Initial"
                             }
                         }

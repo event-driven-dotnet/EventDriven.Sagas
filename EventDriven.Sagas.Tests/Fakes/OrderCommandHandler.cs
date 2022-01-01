@@ -18,7 +18,7 @@ public class OrderCommandHandler : ISagaCommandHandler
     {
         if (command.Name!.StartsWith("SetState"))
         {
-            var payload = ((FakeCommand)command).Payload;
+            var payload = ((FakeCommand)command).Result;
             _order.State = payload;
             await _resultProcessor.ProcessCommandResultAsync(_order, compensating);
         }

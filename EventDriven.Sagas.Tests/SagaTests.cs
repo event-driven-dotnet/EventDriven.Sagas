@@ -21,9 +21,10 @@ namespace EventDriven.Sagas.Tests
             // Arrange
             var dispatcher = new InMemoryCommandDispatcher();
             var configRepo = new FakeSagaConfigRepository();
+            var resultEvaluator = new FakeCommandResultEvaluator();
             var config = await configRepo.GetSagaConfigurationAsync(Guid.Empty);
             var steps = new Dictionary<int, SagaStep>(config.Steps.Where(s => s.Key <= step));
-            var saga = new FakeSaga(steps, dispatcher);
+            var saga = new FakeSaga(steps, dispatcher, resultEvaluator);
             var order = new Order();
             var customer = new Customer();
             var inventory = new Inventory();
@@ -92,22 +93,25 @@ namespace EventDriven.Sagas.Tests
             var tokenSource = new CancellationTokenSource();
             var dispatcher = new InMemoryCommandDispatcher();
             var configRepo = new FakeSagaConfigRepository();
+            var resultEvaluator = new FakeCommandResultEvaluator();
             var config = await configRepo.GetSagaConfigurationAsync(Guid.Empty);
             var steps = new Dictionary<int, SagaStep>(config.Steps.Where(s => s.Key <= step));
             var cancelOnStep = cancel ? step : 0;
-            var saga = new FakeSaga(steps, dispatcher, cancelOnStep, tokenSource);
+            var saga = new FakeSaga(steps, dispatcher, resultEvaluator, cancelOnStep, tokenSource);
             var order = new Order();
             var customer = new Customer();
             var inventory = new Inventory();
             dispatcher.OrderCommandHandler = new OrderCommandHandler(order, saga);
             dispatcher.CustomerCommandHandler = new CustomerCommandHandler(customer, saga);
             dispatcher.InventoryCommandHandler = new InventoryCommandHandler(inventory, saga);
-            ((FakeCommand)steps[step].Action.Command).Payload = "Foo";
+            ((FakeCommand)steps[step].Action.Command).Result = "Foo";
 
             // Act
             await saga.StartSagaAsync(tokenSource.Token);
 
             // Assert
+            string? expectedStateInfo;
+            string? expectedSagaState = null;
             var expectedOrderState = "Initial";
             var expectedCustomerCredit = "Available";
             var expectedInventoryStock = "Available";
@@ -115,38 +119,41 @@ namespace EventDriven.Sagas.Tests
             var actionStates = steps.Select(s => s.Value.Action.State);
             var expectedStateInfos = Enumerable.Empty<string?>();
             var stateInfos = steps.Select(s => s.Value.Action.StateInfo);
-            string? expectedSagaState = null;
-            var stateMessage = cancel ? "Cancellation requested." : "Unexpected result: 'Foo'.";
+            string cancelMessage = "Cancellation requested.";
 
             switch (step)
             {
                 case 1:
                     expectedActionStates = new List<ActionState>
                         { cancel ? ActionState.Cancelled : ActionState.Failed };
+                    expectedStateInfo = cancel ? cancelMessage : "'Foo' returned when 'Pending' was expected.";
                     expectedStateInfos = new List<string?>
-                        { stateMessage };
-                    expectedSagaState = $"Step 1 command 'SetStatePending' failed. {stateMessage}";
+                        { expectedStateInfo };
+                    expectedSagaState = $"Step 1 command 'SetStatePending' failed. {expectedStateInfo}";
                     break;
                 case 2:
                     expectedActionStates = new List<ActionState>
                         { ActionState.Succeeded, cancel ? ActionState.Cancelled : ActionState.Failed };
+                    expectedStateInfo = cancel ? cancelMessage : "'Foo' returned when 'Reserved' was expected.";
                     expectedStateInfos = new List<string?>
-                        { null, stateMessage };
-                    expectedSagaState = $"Step 2 command 'ReserveCredit' failed. {stateMessage}";
+                        { null, expectedStateInfo };
+                    expectedSagaState = $"Step 2 command 'ReserveCredit' failed. {expectedStateInfo}";
                     break;
                 case 3:
                     expectedActionStates = new List<ActionState>
                         { ActionState.Succeeded, ActionState.Succeeded, cancel ? ActionState.Cancelled : ActionState.Failed };
+                    expectedStateInfo = cancel ? cancelMessage : "'Foo' returned when 'Reserved' was expected.";
                     expectedStateInfos = new List<string?>
-                        { null, null, stateMessage };
-                    expectedSagaState = $"Step 3 command 'ReserveInventory' failed. {stateMessage}";
+                        { null, null, expectedStateInfo };
+                    expectedSagaState = $"Step 3 command 'ReserveInventory' failed. {expectedStateInfo}";
                     break;
                 case 4:
                     expectedActionStates = new List<ActionState>
                         { ActionState.Succeeded, ActionState.Succeeded, ActionState.Succeeded, cancel ? ActionState.Cancelled : ActionState.Failed };
+                    expectedStateInfo = cancel ? cancelMessage : "'Foo' returned when 'Created' was expected.";
                     expectedStateInfos = new List<string?>
-                        { null, null, null, stateMessage };
-                    expectedSagaState = $"Step 4 command 'SetStateCreated' failed. {stateMessage}";
+                        { null, null, null, expectedStateInfo };
+                    expectedSagaState = $"Step 4 command 'SetStateCreated' failed. {expectedStateInfo}";
                     break;
             }
 
