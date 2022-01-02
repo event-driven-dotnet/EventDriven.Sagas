@@ -1,5 +1,4 @@
-﻿using EventDriven.Sagas.Abstractions;
-using EventDriven.Sagas.Abstractions.Commands;
+﻿using EventDriven.Sagas.Abstractions.Commands;
 
 namespace EventDriven.Sagas.Tests.Fakes;
 

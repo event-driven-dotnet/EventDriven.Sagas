@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\EventDriven.Sagas.Abstractions\EventDriven.Sagas.Abstractions.csproj" />
+    <ProjectReference Include="..\TestClient\TestClient.csproj" />
   </ItemGroup>
 
   <ItemGroup>
