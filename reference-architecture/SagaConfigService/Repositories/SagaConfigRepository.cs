@@ -1,4 +1,4 @@
-﻿using EventDriven.Sagas.Abstractions.Repositories;
+﻿using SagaConfigService.Entities;
 using URF.Core.Abstractions;
 
 namespace SagaConfigService.Repositories;

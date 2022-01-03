@@ -1,4 +1,7 @@
-﻿using EventDriven.Sagas.Abstractions;
+﻿using System.Text.Json;
+using AutoMapper;
+using EventDriven.Sagas.Abstractions;
+using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using TestClient.Configuration;
 using TestClient.DTO.Write;
 using TestClient.Helpers;
+using TestClient.Serialization;
 using TestClient.Services;
 
 var host = Host
@@ -14,9 +18,10 @@ var host = Host
     {
         var config = services.BuildServiceProvider()
             .GetRequiredService<IConfiguration>();
-        services.AddConfigSettings<SagaConfigServiceSettings>(config);
-        services.AddConfigSettings<OrderServiceSettings>(config);
+        services.AddAppSettings<SagaConfigServiceSettings>(config);
+        services.AddAppSettings<OrderServiceSettings>(config);
         services.AddHttpClient();
+        services.AddAutoMapper(typeof(Program));
         services.AddTransient<SagaConfigService>();
         services.AddTransient<OrderService>();
     })
@@ -25,19 +30,37 @@ var host = Host
 var settings = host.Services.GetRequiredService<SagaConfigServiceSettings>();
 
 Console.WriteLine("Add / update saga configuration? {Y} {N}");
-var key1 = Console.ReadKey();
-if (key1.Key == ConsoleKey.Y)
+// TODO: Fix auto mapping profile in SagaConfigService
+// var key1 = Console.ReadKey().Key;
+var key1 = ConsoleKey.N;
+if (key1 == ConsoleKey.Y)
 {
     // Get saga config
+    SagaConfiguration? localSagaConfig = null;
+    if (settings.CreateSagaConfig)
+    {
+        localSagaConfig = CreateSagaConfig(settings.SagaConfigId);
+        SaveLocalSagaConfig(localSagaConfig);
+    }
+
+    if (localSagaConfig == null)
+    {
+        localSagaConfig = ReadLocalSagaConfig();
+        if (localSagaConfig == null)
+        {
+            Console.WriteLine("SagaConfig.json not found.");
+            return;
+        }
+    }
+
     var sagaConfigService = host.Services.GetRequiredService<SagaConfigService>();
-    var response = await sagaConfigService.GetSagaConfiguration(settings.SagaConfigId);
+    var response = await sagaConfigService.UpsertSagaConfiguration(localSagaConfig);
 
     // If none add, otherwise update
-    var sagaConfig = GetSagaConfiguration(settings.SagaConfigId);
     if (response == null)
-        await sagaConfigService.PostSagaConfiguration(sagaConfig);
+        await sagaConfigService.PostSagaConfiguration(localSagaConfig);
     else
-        await sagaConfigService.PutSagaConfiguration(sagaConfig);
+        await sagaConfigService.PutSagaConfiguration(localSagaConfig);
 }
 
 // Create an order
@@ -51,9 +74,9 @@ var order = new Order
     OrderDate = DateTime.Now,
     OrderItems = new List<OrderItem>
     {
-        new(Guid.NewGuid(),"Espresso", 1M),
-        new(Guid.NewGuid(),"Cappuccino", 2M),
-        new(Guid.NewGuid(),"Latte", 3M),
+        new(Guid.NewGuid(), "Espresso", 1M),
+        new(Guid.NewGuid(), "Cappuccino", 2M),
+        new(Guid.NewGuid(), "Latte", 3M),
     }
 };
 
@@ -70,107 +93,128 @@ while (!Console.KeyAvailable)
     Console.WriteLine($"Order state: {orderState}");
 }
 
-static SagaConfiguration GetSagaConfiguration(Guid id)
+void SaveLocalSagaConfig(SagaConfiguration sagaConfig)
 {
-    var steps = new Dictionary<int, SagaStep>
-            {
-                {   1,
-                    new SagaStep
-                    {
-                        Sequence = 1,
-                        Action = new SagaAction
-                        {
-                            Command = new SetStateCommand
-                            {
-                                Name = "SetStatePending",
-                                Result = OrderState.Pending,
-                                ExpectedResult = OrderState.Pending
-                            }
-                        },
-                        CompensatingAction = new SagaAction
-                        {
-                            Command = new SetStateCommand
-                            {
-                                Name = "SetStateInitial",
-                                Result = OrderState.Initial,
-                                ExpectedResult = OrderState.Initial
-                            }
-                        }
-                    }
-                },
-                //{   2,
-                //    new SagaStep
-                //    {
-                //        Sequence = 2,
-                //        Action = new SagaAction
-                //        {
-                //            Command = new FakeCommand
-                //            {
-                //                Name = "ReserveCredit",
-                //                Result = "Reserved",
-                //                ExpectedResult = "Reserved"
-                //            }
-                //        },
-                //        CompensatingAction = new SagaAction
-                //        {
-                //            Command = new FakeCommand
-                //            {
-                //                Name = "ReleaseCredit",
-                //                Result = "Available",
-                //                ExpectedResult = "Available"
-                //            }
-                //        }
-                //    }
-                //},
-                //{   3,
-                //    new SagaStep
-                //    {
-                //        Sequence = 3,
-                //        Action = new SagaAction
-                //        {
-                //            Command = new FakeCommand
-                //            {
-                //                Name = "ReserveInventory",
-                //                Result = "Reserved",
-                //                ExpectedResult = "Reserved"
-                //            }
-                //        },
-                //        CompensatingAction = new SagaAction
-                //        {
-                //            Command = new FakeCommand
-                //            {
-                //                Name = "ReleaseInventory",
-                //                Result = "Available",
-                //                ExpectedResult = "Available"
-                //            }
-                //        }
-                //    }
-                //},
-                //{   4,
-                //    new SagaStep
-                //    {
-                //        Sequence = 4,
-                //        Action = new SagaAction
-                //        {
-                //            Command = new SetStateCommand
-                //            {
-                //                Name = "SetStateCreated",
-                //                Result = OrderState.Created,
-                //                ExpectedResult = OrderState.Created
-                //            }
-                //        },
-                //        CompensatingAction = new SagaAction
-                //        {
-                //            Command = new SetStateCommand
-                //            {
-                //                Name = "SetStateInitial",
-                //                Result = OrderState.Initial,
-                //                ExpectedResult = OrderState.Initial
-                //            }
-                //        }
-                //    }
-                //},
-            };
-    return new SagaConfiguration { Steps = steps };
+    var mapper = host.Services.GetRequiredService<IMapper>();
+    var serializableSagaConfig = mapper.Map<SerializableSagaConfiguration>(sagaConfig);
+    var options = new JsonSerializerOptions
+    {
+        WriteIndented = true
+    };
+    var json = JsonSerializer.Serialize(serializableSagaConfig, options);
+    File.WriteAllText(settings.SagaConfigPath, json);
 }
 
+SagaConfiguration? ReadLocalSagaConfig()
+{
+    if (settings?.SagaConfigPath == null) return null;
+    var json = File.ReadAllText(settings.SagaConfigPath);
+    var options = new JsonSerializerOptions
+    {
+        Converters = { new InterfaceConverterFactory<SetStateCommand, ISagaCommand>() }
+    };
+    return JsonSerializer.Deserialize<SagaConfiguration>(json, options);
+}
+
+SagaConfiguration CreateSagaConfig(Guid id)
+{
+    var steps = new Dictionary<int, SagaStep>
+    {
+        {
+            1,
+            new SagaStep
+            {
+                Sequence = 1,
+                Action = new SagaAction
+                {
+                    Command = new SetStateCommand
+                    {
+                        Name = "SetStatePending",
+                        ExpectedResult = OrderState.Pending
+                    }
+                },
+                CompensatingAction = new SagaAction
+                {
+                    Command = new SetStateCommand
+                    {
+                        Name = "SetStateInitial",
+                        ExpectedResult = OrderState.Initial
+                    }
+                }
+            }
+        },
+        //{   2,
+        //    new SagaStep
+        //    {
+        //        Sequence = 2,
+        //        Action = new SagaAction
+        //        {
+        //            Command = new FakeCommand
+        //            {
+        //                Name = "ReserveCredit",
+        //                Result = "Reserved",
+        //                ExpectedResult = "Reserved"
+        //            }
+        //        },
+        //        CompensatingAction = new SagaAction
+        //        {
+        //            Command = new FakeCommand
+        //            {
+        //                Name = "ReleaseCredit",
+        //                Result = "Available",
+        //                ExpectedResult = "Available"
+        //            }
+        //        }
+        //    }
+        //},
+        //{   3,
+        //    new SagaStep
+        //    {
+        //        Sequence = 3,
+        //        Action = new SagaAction
+        //        {
+        //            Command = new FakeCommand
+        //            {
+        //                Name = "ReserveInventory",
+        //                Result = "Reserved",
+        //                ExpectedResult = "Reserved"
+        //            }
+        //        },
+        //        CompensatingAction = new SagaAction
+        //        {
+        //            Command = new FakeCommand
+        //            {
+        //                Name = "ReleaseInventory",
+        //                Result = "Available",
+        //                ExpectedResult = "Available"
+        //            }
+        //        }
+        //    }
+        //},
+        //{   4,
+        //    new SagaStep
+        //    {
+        //        Sequence = 4,
+        //        Action = new SagaAction
+        //        {
+        //            Command = new SetStateCommand
+        //            {
+        //                Name = "SetStateCreated",
+        //                Result = OrderState.Created,
+        //                ExpectedResult = OrderState.Created
+        //            }
+        //        },
+        //        CompensatingAction = new SagaAction
+        //        {
+        //            Command = new SetStateCommand
+        //            {
+        //                Name = "SetStateInitial",
+        //                Result = OrderState.Initial,
+        //                ExpectedResult = OrderState.Initial
+        //            }
+        //        }
+        //    }
+        //},
+    };
+    return new SagaConfiguration { Id = id, Steps = steps, Name = "CreateOrderSaga"};
+}

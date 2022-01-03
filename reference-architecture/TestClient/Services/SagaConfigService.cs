@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using EventDriven.Sagas.Abstractions.Repositories;
 using TestClient.Configuration;
 
@@ -21,11 +22,23 @@ public class SagaConfigService
     {
         var httpClient = _httpClientFactory.CreateClient();
         httpClient.BaseAddress = _baseAddress;
-        var request = new HttpRequestMessage(HttpMethod.Get, new Uri(id.ToString()));
+        var request = new HttpRequestMessage(HttpMethod.Get, id.ToString());
         using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadFromJsonAsync<SagaConfiguration>();
+        SagaConfiguration? content = null;
+        if (response.StatusCode != HttpStatusCode.NoContent)
+            content = await response.Content.ReadFromJsonAsync<SagaConfiguration>();
         return content;
+    }
+
+    public async Task<SagaConfiguration?> UpsertSagaConfiguration(SagaConfiguration sagaConfig)
+    {
+        var result = await GetSagaConfiguration(sagaConfig.Id);
+        if (result == null)
+            result = await PostSagaConfiguration(sagaConfig);
+        else
+            result = await PutSagaConfiguration(sagaConfig);
+        return result;
     }
 
     public async Task<SagaConfiguration?> PostSagaConfiguration(SagaConfiguration sagaConfig)
@@ -35,7 +48,9 @@ public class SagaConfigService
         var response = await httpClient
             .PostAsJsonAsync("", sagaConfig);
         response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadFromJsonAsync<SagaConfiguration>();
+        SagaConfiguration? content = null;
+        if (response.StatusCode != HttpStatusCode.NoContent)
+            content = await response.Content.ReadFromJsonAsync<SagaConfiguration>();
         return content;
     }
 
@@ -46,18 +61,22 @@ public class SagaConfigService
         var response = await httpClient
             .PutAsJsonAsync("", sagaConfig);
         response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadFromJsonAsync<SagaConfiguration>();
+        SagaConfiguration? content = null;
+        if (response.StatusCode != HttpStatusCode.NoContent)
+            content = await response.Content.ReadFromJsonAsync<SagaConfiguration>();
         return content;
     }
 
-    public async Task<int> DeleteSagaConfiguration(Guid id)
+    public async Task<int?> DeleteSagaConfiguration(Guid id)
     {
         var httpClient = _httpClientFactory.CreateClient();
         httpClient.BaseAddress = _baseAddress;
         var response = await httpClient
-            .DeleteAsync(new Uri(id.ToString()));
+            .DeleteAsync(id.ToString());
         response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadFromJsonAsync<int>();
+        int? content = null;
+        if (response.StatusCode != HttpStatusCode.NoContent)
+            content = await response.Content.ReadFromJsonAsync<int>();
         return content;
     }
 }

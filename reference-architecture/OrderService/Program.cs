@@ -1,6 +1,7 @@
 using EventDriven.Sagas.Abstractions;
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Repositories;
+using MongoDB.Driver;
 using OrderService.Domain.OrderAggregate.Sagas.CreateOrder;
 using OrderService.Repositories;
 
@@ -12,6 +13,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(Program));
 
 // Add Saga
 builder.Services.AddSingleton<ISagaCommandDispatcher, CreateOrderCommandDispatcher>();

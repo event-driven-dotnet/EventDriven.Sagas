@@ -1,7 +1,7 @@
-using EventDriven.Sagas.Abstractions.Repositories;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using SagaConfigService.Configuration;
+using SagaConfigService.Entities;
 using SagaConfigService.Repositories;
 using URF.Core.Abstractions;
 using URF.Core.Mongo;
@@ -22,6 +22,7 @@ builder.Services.AddSingleton(sp =>
     sp.GetRequiredService<IOptions<SagaConfigDatabaseSettings>>().Value);
 
 // Registrations
+builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddSingleton(sp =>
 {
     var settings = sp.GetRequiredService<SagaConfigDatabaseSettings>();

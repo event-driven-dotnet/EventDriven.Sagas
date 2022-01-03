@@ -1,0 +1,39 @@
+{
+  "Steps": {
+    "1": {
+      "Action": {
+        "Command": {
+          "Name": "SetStatePending",
+          "Result": 0,
+          "ExpectedResult": 1
+        },
+        "Id": "6fa362f5-a813-451a-93a4-73e01b566ceb",
+        "Timeout": null,
+        "State": 0,
+        "StateInfo": null,
+        "Started": null,
+        "Completed": null,
+        "Duration": null
+      },
+      "CompensatingAction": {
+        "Command": {
+          "Name": "SetStateInitial",
+          "Result": 0,
+          "ExpectedResult": 0
+        },
+        "Id": "17f0216f-e926-4329-8f94-97b5d5cb09fd",
+        "Timeout": null,
+        "State": 0,
+        "StateInfo": null,
+        "Started": null,
+        "Completed": null,
+        "Duration": null
+      },
+      "Id": "e09bebb5-af2c-4812-b390-c8c228bd77af",
+      "Sequence": 1
+    }
+  },
+  "Id": "d89ffb1e-7481-4111-a4dd-ac5123217293",
+  "ETag": "00000000-0000-0000-0000-000000000000",
+  "Name": "CreateOrderSaga"
+}

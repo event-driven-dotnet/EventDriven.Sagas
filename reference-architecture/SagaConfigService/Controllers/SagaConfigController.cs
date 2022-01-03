@@ -1,7 +1,8 @@
-﻿using EventDriven.Sagas.Abstractions.Repositories;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using SagaConfigService.Repositories;
+using DTO = SagaConfigService.DTO;
+using Entities = SagaConfigService.Entities;
 
 namespace SagaConfigService.Controllers
 {
@@ -9,10 +10,12 @@ namespace SagaConfigService.Controllers
     [ApiController]
     public class SagaConfigController : ControllerBase
     {
+        private readonly IMapper _mapper;
         private readonly ISagaConfigRepository _configRepository;
 
-        public SagaConfigController(ISagaConfigRepository configRepository)
+        public SagaConfigController(IMapper mapper, ISagaConfigRepository configRepository)
         {
+            _mapper = mapper;
             _configRepository = configRepository;
         }
 
@@ -21,23 +24,49 @@ namespace SagaConfigService.Controllers
         public async Task<IActionResult> Get(Guid id)
         {
             var result = await _configRepository.GetSagaConfigurationAsync(id);
-            return Ok(result);
+            // TODO: Fix conversion of Command from BsonDocument to Json
+            var sagaConfigOut = _mapper.Map<DTO.SagaConfiguration>(result);
+            return Ok(sagaConfigOut);
         }
 
         // POST api/<SagaConfigController>
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] SagaConfiguration value)
+        public async Task<IActionResult> Post([FromBody] DTO.SagaConfiguration value)
         {
-            var result = await _configRepository.AddSagaConfigurationAsync(value);
-            return CreatedAtAction(nameof(Get), new { id = value.Id }, result);
+            var sagaConfigIn = _mapper.Map<Entities.SagaConfiguration>(value);
+            try
+            {
+                var result = await _configRepository.AddSagaConfigurationAsync(sagaConfigIn);
+                // TODO: Fix conversion of Command from BsonDocument to Json
+                // var sagaConfigOut = _mapper.Map<DTO.SagaConfiguration>(result);
+                value.ETag = result.ETag;
+                return CreatedAtAction(nameof(Get), new { id = value.Id }, value); // sagaConfigOut
+            }
+            catch (ConcurrencyException e)
+            {
+                Console.WriteLine(e);
+                return Conflict();
+            }
         }
 
         // PUT api/<SagaConfigController>/5
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] SagaConfiguration value)
+        public async Task<IActionResult> Put([FromBody] DTO.SagaConfiguration value)
         {
-            var result = await _configRepository.UpdateSagaConfigurationAsync(value);
-            return Ok(result);
+            var sagaConfigIn = _mapper.Map<Entities.SagaConfiguration>(value);
+            try
+            {
+                var result = await _configRepository.UpdateSagaConfigurationAsync(sagaConfigIn);
+                // TODO: Fix conversion of Command from BsonDocument to Json
+                // var sagaConfigOut = _mapper.Map<DTO.SagaConfiguration>(result);
+                value.ETag = result.ETag;
+                return Ok(value); // sagaConfigOut
+            }
+            catch (ConcurrencyException e)
+            {
+                Console.WriteLine(e);
+                return Conflict();
+            }
         }
 
         // DELETE api/<SagaConfigController>/5

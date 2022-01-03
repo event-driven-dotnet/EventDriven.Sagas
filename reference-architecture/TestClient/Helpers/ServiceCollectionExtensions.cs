@@ -6,7 +6,7 @@ namespace TestClient.Helpers;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddConfigSettings<TSettings>(this IServiceCollection services, IConfiguration config)
+    public static IServiceCollection AddAppSettings<TSettings>(this IServiceCollection services, IConfiguration config)
         where TSettings : class
     {
         services.Configure<TSettings>(
