@@ -1,4 +1,5 @@
-﻿using EventDriven.Sagas.Abstractions.Repositories;
+﻿using EventDriven.Sagas.Abstractions;
+using EventDriven.Sagas.Abstractions.Repositories;
 using URF.Core.Abstractions;
 
 namespace OrderService.Repositories;

@@ -1,4 +1,4 @@
-﻿namespace EventDriven.Sagas.Abstractions.Repositories;
+﻿namespace EventDriven.Sagas.Abstractions;
 
 /// <summary>
 /// Saga configuration.

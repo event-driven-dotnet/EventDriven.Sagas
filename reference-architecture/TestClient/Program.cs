@@ -1,16 +1,15 @@
-﻿using System.Text.Json;
-using AutoMapper;
-using EventDriven.Sagas.Abstractions;
-using EventDriven.Sagas.Abstractions.Commands;
-using EventDriven.Sagas.Abstractions.Repositories;
+﻿using System.Text.Encodings.Web;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TestClient.Configuration;
-using TestClient.DTO.Write;
+using TestClient.DTO;
 using TestClient.Helpers;
-using TestClient.Serialization;
 using TestClient.Services;
+
+// Debug toggle
+var debug = true;
 
 var host = Host
     .CreateDefaultBuilder(args)
@@ -21,7 +20,6 @@ var host = Host
         services.AddAppSettings<SagaConfigServiceSettings>(config);
         services.AddAppSettings<OrderServiceSettings>(config);
         services.AddHttpClient();
-        services.AddAutoMapper(typeof(Program));
         services.AddTransient<SagaConfigService>();
         services.AddTransient<OrderService>();
     })
@@ -29,20 +27,19 @@ var host = Host
 
 var settings = host.Services.GetRequiredService<SagaConfigServiceSettings>();
 
-Console.WriteLine("Add / update saga configuration? {Y} {N}");
-// TODO: Fix auto mapping profile in SagaConfigService
-// var key1 = Console.ReadKey().Key;
-var key1 = ConsoleKey.N;
+Console.WriteLine("Create saga configuration? {Y} {N}");
+SagaConfiguration? localSagaConfig = null;
+var key1 = debug ? ConsoleKey.Y : Console.ReadKey().Key;
 if (key1 == ConsoleKey.Y)
 {
-    // Get saga config
-    SagaConfiguration? localSagaConfig = null;
-    if (settings.CreateSagaConfig)
-    {
-        localSagaConfig = CreateSagaConfig(settings.SagaConfigId);
-        SaveLocalSagaConfig(localSagaConfig);
-    }
+    localSagaConfig = CreateSagaConfig(settings.SagaConfigId);
+    SaveLocalSagaConfig(localSagaConfig);
+}
 
+Console.WriteLine("\nUpdate saga configuration? {Y} {N}");
+var key2 = debug ? ConsoleKey.Y : Console.ReadKey().Key;
+if (key2 == ConsoleKey.Y)
+{
     if (localSagaConfig == null)
     {
         localSagaConfig = ReadLocalSagaConfig();
@@ -54,13 +51,7 @@ if (key1 == ConsoleKey.Y)
     }
 
     var sagaConfigService = host.Services.GetRequiredService<SagaConfigService>();
-    var response = await sagaConfigService.UpsertSagaConfiguration(localSagaConfig);
-
-    // If none add, otherwise update
-    if (response == null)
-        await sagaConfigService.PostSagaConfiguration(localSagaConfig);
-    else
-        await sagaConfigService.PutSagaConfiguration(localSagaConfig);
+    await sagaConfigService.UpsertSagaConfiguration(localSagaConfig);
 }
 
 // Create an order
@@ -95,25 +86,19 @@ while (!Console.KeyAvailable)
 
 void SaveLocalSagaConfig(SagaConfiguration sagaConfig)
 {
-    var mapper = host.Services.GetRequiredService<IMapper>();
-    var serializableSagaConfig = mapper.Map<SerializableSagaConfiguration>(sagaConfig);
     var options = new JsonSerializerOptions
     {
-        WriteIndented = true
+        WriteIndented = true,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
     };
-    var json = JsonSerializer.Serialize(serializableSagaConfig, options);
+    var json = JsonSerializer.Serialize(sagaConfig, options);
     File.WriteAllText(settings.SagaConfigPath, json);
 }
 
 SagaConfiguration? ReadLocalSagaConfig()
 {
-    if (settings?.SagaConfigPath == null) return null;
     var json = File.ReadAllText(settings.SagaConfigPath);
-    var options = new JsonSerializerOptions
-    {
-        Converters = { new InterfaceConverterFactory<SetStateCommand, ISagaCommand>() }
-    };
-    return JsonSerializer.Deserialize<SagaConfiguration>(json, options);
+    return JsonSerializer.Deserialize<SagaConfiguration>(json);
 }
 
 SagaConfiguration CreateSagaConfig(Guid id)
@@ -127,19 +112,19 @@ SagaConfiguration CreateSagaConfig(Guid id)
                 Sequence = 1,
                 Action = new SagaAction
                 {
-                    Command = new SetStateCommand
+                    Command = JsonSerializer.Serialize(new SetStateCommand
                     {
                         Name = "SetStatePending",
                         ExpectedResult = OrderState.Pending
-                    }
+                    })
                 },
                 CompensatingAction = new SagaAction
                 {
-                    Command = new SetStateCommand
+                    Command = JsonSerializer.Serialize(new SetStateCommand
                     {
                         Name = "SetStateInitial",
                         ExpectedResult = OrderState.Initial
-                    }
+                    })
                 }
             }
         },

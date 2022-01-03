@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
 using TestClient.Configuration;
-using TestClient.DTO.Write;
+using TestClient.DTO;
 
 namespace TestClient.Services;
 

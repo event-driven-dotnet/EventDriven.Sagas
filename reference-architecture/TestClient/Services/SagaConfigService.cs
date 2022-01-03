@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using EventDriven.Sagas.Abstractions.Repositories;
 using TestClient.Configuration;
+using TestClient.DTO;
 
 namespace TestClient.Services;
 
@@ -37,7 +37,11 @@ public class SagaConfigService
         if (result == null)
             result = await PostSagaConfiguration(sagaConfig);
         else
+        {
+            sagaConfig.ETag = result.ETag;
             result = await PutSagaConfiguration(sagaConfig);
+        }
+
         return result;
     }
 

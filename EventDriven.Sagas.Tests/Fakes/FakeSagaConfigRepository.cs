@@ -107,7 +107,7 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
                             }
                         }
                     }
-                },
+                }
             };
         var config = new SagaConfiguration { Steps = steps };
         return Task.FromResult(config);

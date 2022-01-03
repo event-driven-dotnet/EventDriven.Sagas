@@ -1,4 +1,4 @@
-﻿namespace TestClient.DTO.Write;
+﻿namespace TestClient.DTO;
 
 public enum OrderState
 {

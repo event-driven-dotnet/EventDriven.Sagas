@@ -2,12 +2,8 @@
   "Steps": {
     "1": {
       "Action": {
-        "Command": {
-          "Name": "SetStatePending",
-          "Result": 0,
-          "ExpectedResult": 1
-        },
-        "Id": "6fa362f5-a813-451a-93a4-73e01b566ceb",
+        "Command": "{\"Name\":\"SetStatePending\",\"Result\":0,\"ExpectedResult\":1}",
+        "Id": "9d792e25-22b7-4a34-a527-1e033cc15f28",
         "Timeout": null,
         "State": 0,
         "StateInfo": null,
@@ -16,12 +12,8 @@
         "Duration": null
       },
       "CompensatingAction": {
-        "Command": {
-          "Name": "SetStateInitial",
-          "Result": 0,
-          "ExpectedResult": 0
-        },
-        "Id": "17f0216f-e926-4329-8f94-97b5d5cb09fd",
+        "Command": "{\"Name\":\"SetStateInitial\",\"Result\":0,\"ExpectedResult\":0}",
+        "Id": "8e2f2cac-2af5-4af5-b0f4-040a3b948099",
         "Timeout": null,
         "State": 0,
         "StateInfo": null,
@@ -29,7 +21,7 @@
         "Completed": null,
         "Duration": null
       },
-      "Id": "e09bebb5-af2c-4812-b390-c8c228bd77af",
+      "Id": "e0cc04fc-d634-4ea0-8077-c5f02f7a5344",
       "Sequence": 1
     }
   },

@@ -1,6 +1,6 @@
 ﻿using EventDriven.Sagas.Abstractions.Commands;
 
-namespace TestClient.DTO.Write;
+namespace TestClient.DTO;
 
 public class SetStateCommand : ISagaCommand<OrderState, OrderState>
 {
