@@ -36,7 +36,8 @@ public static class ServiceCollectionExtensions
     {
         var sagaConfigOptions = new SagaConfigurationOptions();
         configure(sagaConfigOptions);
-        services.Configure(configure);
+        services.AddSingleton(sagaConfigOptions);
+        services.AddSingleton<TSaga>();
         return services;
     }
 }

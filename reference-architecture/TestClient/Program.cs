@@ -8,9 +8,6 @@ using TestClient.DTO;
 using TestClient.Helpers;
 using TestClient.Services;
 
-// Debug toggle
-const bool debug = true;
-
 var host = Host
     .CreateDefaultBuilder(args)
     .ConfigureServices(services =>
@@ -29,7 +26,7 @@ var settings = host.Services.GetRequiredService<SagaConfigServiceSettings>();
 
 Console.WriteLine("Create saga configuration? {Y} {N}");
 SagaConfiguration? localSagaConfig = null;
-var key1 = debug ? ConsoleKey.N : Console.ReadKey(true).Key;
+var key1 = settings.Debug ? ConsoleKey.N : Console.ReadKey(true).Key;
 Console.WriteLine(key1);
 if (key1 == ConsoleKey.Y)
 {
@@ -38,7 +35,7 @@ if (key1 == ConsoleKey.Y)
 }
 
 Console.WriteLine("\nUpdate saga configuration? {Y} {N}");
-var key2 = debug ? ConsoleKey.N : Console.ReadKey(true).Key;
+var key2 = settings.Debug ? ConsoleKey.N : Console.ReadKey(true).Key;
 Console.WriteLine(key2);
 if (key2 == ConsoleKey.Y)
 {

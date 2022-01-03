@@ -31,7 +31,7 @@ namespace SagaConfigService.Controllers
             try
             {
                 var result = await _configRepository.AddSagaConfigurationAsync(value);
-                return CreatedAtAction(nameof(Get), new { id = value.Id }, value);
+                return CreatedAtAction(nameof(Get), new { id = value.Id }, result);
             }
             catch (ConcurrencyException e)
             {

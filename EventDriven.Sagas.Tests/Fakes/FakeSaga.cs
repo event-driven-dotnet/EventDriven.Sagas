@@ -58,7 +58,7 @@ public class FakeSaga : Saga,
     private async Task ProcessCommandResultAsync(SagaStep step, bool compensating)
     {
         var commandSuccessful = await _resultEvaluator.EvaluateStepResultAsync(
-            Steps[CurrentStep], compensating, CancellationToken);
+            step, compensating, CancellationToken);
         StateInfo = _resultEvaluator.SagaStateInfo;
         await TransitionSagaStateAsync(commandSuccessful);
     }

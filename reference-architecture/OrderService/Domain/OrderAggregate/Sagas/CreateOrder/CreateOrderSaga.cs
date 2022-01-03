@@ -44,7 +44,7 @@ public class CreateOrderSaga : Saga,
     private async Task ProcessCommandResultAsync(SagaStep step, bool compensating)
     {
         var commandSuccessful = await _orderStateEvaluator.EvaluateStepResultAsync(
-            Steps[CurrentStep], compensating, CancellationToken);
+            step, compensating, CancellationToken);
         StateInfo = _orderStateEvaluator.SagaStateInfo;
         await TransitionSagaStateAsync(commandSuccessful);
     }

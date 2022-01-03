@@ -11,10 +11,10 @@ namespace OrderService.Controllers
     [Route("api/order")]
     public class OrderCommandController : ControllerBase
     {
-        private readonly OrderCommandHandler _commandHandler;
+        private readonly CreateOrderCommandHandler _commandHandler;
         private readonly IMapper _mapper;
 
-        public OrderCommandController(OrderCommandHandler commandHandler, IMapper mapper)
+        public OrderCommandController(CreateOrderCommandHandler commandHandler, IMapper mapper)
         {
             _commandHandler = commandHandler;
             _mapper = mapper;

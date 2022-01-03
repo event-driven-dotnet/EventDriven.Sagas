@@ -1,15 +1,16 @@
-﻿using EventDriven.Sagas.Abstractions.Commands;
+﻿using EventDriven.DDD.Abstractions.Commands;
+using EventDriven.Sagas.Abstractions.Commands;
 using OrderService.Domain.OrderAggregate.Commands;
 
 namespace OrderService.Domain.OrderAggregate.Sagas.CreateOrder;
 
-public class CreateOrderCommandDispatcher : ISagaCommandDispatcher
+public class OrderCommandDispatcher : ISagaCommandDispatcher
 {
-    private readonly OrderCommandHandler _orderCommandHandler;
+    private readonly ICommandHandler<Order, SetOrderStatePending> _commandHandler;
 
-    public CreateOrderCommandDispatcher(OrderCommandHandler orderCommandHandler)
+    public OrderCommandDispatcher(ICommandHandler<Order, SetOrderStatePending> commandHandler)
     {
-        _orderCommandHandler = orderCommandHandler;
+        _commandHandler = commandHandler;
     }
 
     public async Task DispatchAsync(ISagaCommand command, bool compensating)
@@ -18,9 +19,9 @@ public class CreateOrderCommandDispatcher : ISagaCommandDispatcher
         switch (command.Name)
         {
             case "SetStatePending":
-                await _orderCommandHandler.Handle(new SetOrderStatePending
+                await _commandHandler.Handle(new SetOrderStatePending
                 {
-                    //Order = command.
+                    // TODO: Pass order or order id?
                     Name = command.Name,
                     Result = OrderState.Pending
                 });
