@@ -24,5 +24,5 @@ public class SagaConfiguration
     /// <summary>
     /// Steps performed by the saga.
     /// </summary>
-    public Dictionary<int, SagaStep> Steps { get; set; } = null!;
+    public Dictionary<string, SagaStep> Steps { get; set; } = null!;
 }

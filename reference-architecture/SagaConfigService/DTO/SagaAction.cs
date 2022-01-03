@@ -13,7 +13,7 @@ public class SagaAction
     /// <summary>
     /// Saga action command.
     /// </summary>
-    public object Command { get; set; } = null!;
+    public string Command { get; set; } = null!;
 
     /// <summary>
     /// Saga action timeout.

@@ -1,4 +1,4 @@
-﻿using SagaConfigService.Entities;
+﻿using SagaConfigService.DTO;
 
 namespace SagaConfigService.Repositories;
 

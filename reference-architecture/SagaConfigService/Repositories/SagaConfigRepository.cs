@@ -1,4 +1,4 @@
-﻿using SagaConfigService.Entities;
+﻿using SagaConfigService.DTO;
 using URF.Core.Abstractions;
 
 namespace SagaConfigService.Repositories;

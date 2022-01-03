@@ -29,7 +29,7 @@ var settings = host.Services.GetRequiredService<SagaConfigServiceSettings>();
 
 Console.WriteLine("Create saga configuration? {Y} {N}");
 SagaConfiguration? localSagaConfig = null;
-var key1 = debug ? ConsoleKey.Y : Console.ReadKey().Key;
+var key1 = debug ? ConsoleKey.N : Console.ReadKey().Key;
 if (key1 == ConsoleKey.Y)
 {
     localSagaConfig = CreateSagaConfig(settings.SagaConfigId);
@@ -37,7 +37,7 @@ if (key1 == ConsoleKey.Y)
 }
 
 Console.WriteLine("\nUpdate saga configuration? {Y} {N}");
-var key2 = debug ? ConsoleKey.Y : Console.ReadKey().Key;
+var key2 = debug ? ConsoleKey.N : Console.ReadKey().Key;
 if (key2 == ConsoleKey.Y)
 {
     if (localSagaConfig == null)
