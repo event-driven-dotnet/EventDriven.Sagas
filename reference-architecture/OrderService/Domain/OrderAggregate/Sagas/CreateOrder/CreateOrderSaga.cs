@@ -1,5 +1,6 @@
 ﻿using EventDriven.Sagas.Abstractions;
 using EventDriven.Sagas.Abstractions.Commands;
+using EventDriven.Sagas.Abstractions.Repositories;
 
 namespace OrderService.Domain.OrderAggregate.Sagas.CreateOrder;
 
@@ -11,10 +12,14 @@ public class CreateOrderSaga : Saga,
 
     public CreateOrderSaga(
         ISagaCommandDispatcher commandDispatcher,
-        ICommandResultEvaluator<OrderState, OrderState> orderStateEvaluator)
+        ICommandResultEvaluator<OrderState, OrderState> orderStateEvaluator,
+        ISagaConfigRepository sagaConfigRepository,
+        SagaConfigurationOptions sagaConfigOptions)
+        : base(sagaConfigOptions)
     {
         _commandDispatcher = commandDispatcher;
         _orderStateEvaluator = orderStateEvaluator;
+        SagaConfigRepository = sagaConfigRepository;
     }
 
     protected override async Task ExecuteCurrentActionAsync()

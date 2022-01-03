@@ -8,7 +8,7 @@ namespace EventDriven.Sagas.Tests.Fakes;
 
 public class FakeSagaConfigRepository : ISagaConfigRepository
 {
-    public Task<SagaConfiguration> GetSagaConfigurationAsync(Guid id)
+    public Task<SagaConfiguration?> GetSagaConfigurationAsync(Guid id)
     {
         var steps = new Dictionary<int, SagaStep>
             {
@@ -110,7 +110,7 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
                 }
             };
         var config = new SagaConfiguration { Steps = steps };
-        return Task.FromResult(config);
+        return Task.FromResult<SagaConfiguration?>(config);
     }
 
     public Task<SagaConfiguration> AddSagaConfigurationAsync(SagaConfiguration entity)

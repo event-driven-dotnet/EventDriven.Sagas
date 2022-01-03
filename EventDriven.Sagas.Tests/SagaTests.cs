@@ -23,7 +23,8 @@ namespace EventDriven.Sagas.Tests
             var configRepo = new FakeSagaConfigRepository();
             var resultEvaluator = new FakeCommandResultEvaluator();
             var config = await configRepo.GetSagaConfigurationAsync(Guid.Empty);
-            var steps = new Dictionary<int, SagaStep>(config.Steps.Where(s => s.Key <= step));
+            var steps = new Dictionary<int, SagaStep>(config?.Steps.Where(s => s.Key <= step)
+                ?? Array.Empty<KeyValuePair<int, SagaStep>>());
             var saga = new FakeSaga(steps, dispatcher, resultEvaluator);
             var order = new Order();
             var customer = new Customer();
@@ -95,7 +96,8 @@ namespace EventDriven.Sagas.Tests
             var configRepo = new FakeSagaConfigRepository();
             var resultEvaluator = new FakeCommandResultEvaluator();
             var config = await configRepo.GetSagaConfigurationAsync(Guid.Empty);
-            var steps = new Dictionary<int, SagaStep>(config.Steps.Where(s => s.Key <= step));
+            var steps = new Dictionary<int, SagaStep>(config?.Steps.Where(s => s.Key <= step)
+                ?? Array.Empty<KeyValuePair<int, SagaStep>>());
             var cancelOnStep = cancel ? step : 0;
             var saga = new FakeSaga(steps, dispatcher, resultEvaluator, cancelOnStep, tokenSource);
             var order = new Order();

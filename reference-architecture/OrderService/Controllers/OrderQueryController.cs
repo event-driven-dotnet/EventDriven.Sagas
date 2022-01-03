@@ -1,7 +1,5 @@
-using EventDriven.DDD.Abstractions.Commands;
 using Microsoft.AspNetCore.Mvc;
-using OrderService.Domain.OrderAggregate.Commands;
-using OrderService.Helpers;
+using OrderService.Repositories;
 
 namespace OrderService.Controllers
 {
@@ -9,23 +7,30 @@ namespace OrderService.Controllers
     [Route("api/order")]
     public class OrderQueryController : ControllerBase
     {
-        private readonly OrderCommandHandler _commandHandler;
+        private readonly IOrderRepository _repository;
 
-        public OrderQueryController(OrderCommandHandler commandHandler)
+        public OrderQueryController(IOrderRepository repository)
         {
-            _commandHandler = commandHandler;
+            _repository = repository;
         }
 
-        // Get api/order/status
-        [HttpGet]
-        [Route("state")]
-        public async Task<IActionResult> GetOrderState(Guid orderId)
+        // GET api/order/d89ffb1e-7481-4111-a4dd-ac5123217293
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> Get(Guid id)
         {
-            var result = await _commandHandler.Handle(new GetOrderState(orderId));
+            var result = await _repository.GetOrderAsync(id);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
 
-            if (result.Outcome != CommandOutcome.Accepted)
-                return result.ToActionResult();
-            return new OkObjectResult(result.Entity?.State);
+        // Get api/order/status/d89ffb1e-7481-4111-a4dd-ac5123217293
+        [HttpGet]
+        [Route("state/{id:guid}")]
+        public async Task<IActionResult> GetOrderState(Guid id)
+        {
+            var orderState = await _repository.GetOrderStateAsync(id);
+            if (orderState == null) return NotFound();
+            return Ok(orderState);
         }
     }
 }

@@ -4,9 +4,10 @@ namespace OrderService.Repositories;
 
 public interface IOrderRepository
 {
-    Task<Order> GetOrder(Guid id);
-    Task<Order> AddOrder(Order entity);
-    Task<Order> UpdateOrder(Order entity);
+    Task<Order?> GetOrderAsync(Guid id);
+    Task<Order> AddOrderAsync(Order entity);
+    Task<Order> UpdateOrderAsync(Order entity);
     Task<int> RemoveOrder(Guid id);
-    Task<Order> UpdateOrderState(Order entity, OrderState orderState);
+    Task<OrderState?> GetOrderStateAsync(Guid id);
+    Task<Order> UpdateOrderStateAsync(Order entity, OrderState orderState);
 }

@@ -20,6 +20,7 @@ public class FakeSaga : Saga,
     public FakeSaga(Dictionary<int, SagaStep> steps, ISagaCommandDispatcher commandDispatcher,
         ICommandResultEvaluator<string?, string?> resultEvaluator, int cancelOnStep = 0,
         CancellationTokenSource? tokenSource = null)
+        : base(new SagaConfigurationOptions())
     {
         _commandDispatcher = commandDispatcher;
         _resultEvaluator = resultEvaluator;

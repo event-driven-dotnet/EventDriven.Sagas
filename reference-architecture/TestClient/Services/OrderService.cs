@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using TestClient.Configuration;
 using TestClient.DTO;
 
@@ -24,7 +25,9 @@ public class OrderService
         var request = new HttpRequestMessage(HttpMethod.Get, new Uri(id.ToString()));
         using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadFromJsonAsync<OrderState>();
+        OrderState? content = null;
+        if (response.StatusCode != HttpStatusCode.NoContent)
+            content = await response.Content.ReadFromJsonAsync<OrderState>();
         return content;
     }
 
@@ -35,7 +38,9 @@ public class OrderService
         var response = await httpClient
             .PostAsJsonAsync("", order);
         response.EnsureSuccessStatusCode();
-        var content = await response.Content.ReadFromJsonAsync<Order>();
+        Order? content = null;
+        if (response.StatusCode != HttpStatusCode.NoContent)
+            content = await response.Content.ReadFromJsonAsync<Order>();
         return content;
     }
 }

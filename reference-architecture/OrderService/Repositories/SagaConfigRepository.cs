@@ -7,17 +7,14 @@ namespace OrderService.Repositories;
 public class SagaConfigRepository : ISagaConfigRepository
 {
     private readonly IDocumentRepository<SagaConfiguration> _documentRepository;
-    private readonly ILogger<SagaConfigRepository> _logger;
 
     public SagaConfigRepository(
-        IDocumentRepository<SagaConfiguration> documentRepository,
-        ILogger<SagaConfigRepository> logger)
+        IDocumentRepository<SagaConfiguration> documentRepository)
     {
         _documentRepository = documentRepository;
-        _logger = logger;
     }
 
-    public async Task<SagaConfiguration> GetSagaConfigurationAsync(Guid id)
+    public async Task<SagaConfiguration?> GetSagaConfigurationAsync(Guid id)
         => await _documentRepository.FindOneAsync(e => e.Id == id);
 
     public async Task<SagaConfiguration> AddSagaConfigurationAsync(SagaConfiguration entity)

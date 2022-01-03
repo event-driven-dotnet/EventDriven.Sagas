@@ -13,7 +13,7 @@ public interface ISagaConfigRepository
     /// A task that represents the asynchronous operation.
     /// The task result contains the saga configuration.
     /// </returns>
-    Task<SagaConfiguration> GetSagaConfigurationAsync(Guid id);
+    Task<SagaConfiguration?> GetSagaConfigurationAsync(Guid id);
 
     /// <summary>
     /// Add a new saga configuration.

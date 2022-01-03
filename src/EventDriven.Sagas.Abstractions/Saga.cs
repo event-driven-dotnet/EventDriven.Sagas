@@ -8,15 +8,13 @@ namespace EventDriven.Sagas.Abstractions;
 public abstract class Saga
 {
     /// <summary>
-    /// Saga identifier.
+    /// Saga protected constructor.
     /// </summary>
-    public Guid Id { get; set; } = Guid.NewGuid();
-
-    /// <summary>
-    /// Represents a unique ID that must change atomically with each store of the entity
-    /// to its underlying storage medium.
-    /// </summary>
-    public string ETag { get; set; } = null!;
+    /// <param name="sagaConfigOptions">Saga configuration options.</param>
+    protected Saga(SagaConfigurationOptions sagaConfigOptions)
+    {
+        SagaConfigOptions = sagaConfigOptions;
+    }
 
     /// <summary>
     /// Cancellation token.
@@ -26,12 +24,23 @@ public abstract class Saga
     /// <summary>
     /// Optional saga configuration identifier.
     /// </summary>
-    public Guid? SagaConfigId { get; set; }
+    protected SagaConfigurationOptions SagaConfigOptions { get; set; }
 
     /// <summary>
-    /// Optional configuration repository.
+    /// Optional saga configuration repository.
     /// </summary>
-    public ISagaConfigRepository? ConfigRepository { get; set; }
+    protected ISagaConfigRepository? SagaConfigRepository { get; set; }
+
+    /// <summary>
+    /// Saga identifier.
+    /// </summary>
+    public Guid Id { get; set; } = Guid.NewGuid();
+
+    /// <summary>
+    /// Represents a unique ID that must change atomically with each store of the entity
+    /// to its underlying storage medium.
+    /// </summary>
+    public string ETag { get; set; } = null!;
 
     /// <summary>
     /// State of the saga.
@@ -71,11 +80,11 @@ public abstract class Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected virtual async Task ConfigureSteps()
     {
-        if (SagaConfigId != null && ConfigRepository != null)
+        if (SagaConfigOptions.SagaConfigId != null && SagaConfigRepository != null)
         {
-            var sagaConfig = await ConfigRepository
-                .GetSagaConfigurationAsync(SagaConfigId.GetValueOrDefault());
-            Steps = sagaConfig.Steps;
+            var sagaConfig = await SagaConfigRepository
+                .GetSagaConfigurationAsync(SagaConfigOptions.SagaConfigId.GetValueOrDefault());
+            if (sagaConfig != null) Steps = sagaConfig.Steps;
         }
     }
 

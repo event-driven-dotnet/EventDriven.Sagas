@@ -9,7 +9,7 @@ using TestClient.Helpers;
 using TestClient.Services;
 
 // Debug toggle
-var debug = true;
+const bool debug = true;
 
 var host = Host
     .CreateDefaultBuilder(args)
@@ -29,7 +29,8 @@ var settings = host.Services.GetRequiredService<SagaConfigServiceSettings>();
 
 Console.WriteLine("Create saga configuration? {Y} {N}");
 SagaConfiguration? localSagaConfig = null;
-var key1 = debug ? ConsoleKey.N : Console.ReadKey().Key;
+var key1 = debug ? ConsoleKey.N : Console.ReadKey(true).Key;
+Console.WriteLine(key1);
 if (key1 == ConsoleKey.Y)
 {
     localSagaConfig = CreateSagaConfig(settings.SagaConfigId);
@@ -37,7 +38,8 @@ if (key1 == ConsoleKey.Y)
 }
 
 Console.WriteLine("\nUpdate saga configuration? {Y} {N}");
-var key2 = debug ? ConsoleKey.N : Console.ReadKey().Key;
+var key2 = debug ? ConsoleKey.N : Console.ReadKey(true).Key;
+Console.WriteLine(key2);
 if (key2 == ConsoleKey.Y)
 {
     if (localSagaConfig == null)
@@ -76,7 +78,9 @@ var result = await orderService.CreateOrder(order);
 Console.WriteLine($"Create Order Saga started. Order state: {result?.State}");
 
 // Monitor status
-Console.WriteLine("\nMonitoring status. Press any key to exit.");
+Console.WriteLine("\nPress Enter to monitor status.");
+Console.ReadLine();
+Console.WriteLine("Monitoring status. Press any key to exit.");
 while (!Console.KeyAvailable)
 {
     await Task.Delay(TimeSpan.FromSeconds(3));

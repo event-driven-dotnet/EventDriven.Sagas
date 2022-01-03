@@ -15,15 +15,16 @@ namespace SagaConfigService.Controllers
             _configRepository = configRepository;
         }
 
-        // GET api/<SagaConfigController>/
+        // GET api/sagaconfig/d89ffb1e-7481-4111-a4dd-ac5123217293
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(Guid id)
         {
             var result = await _configRepository.GetSagaConfigurationAsync(id);
+            if (result == null) return NotFound();
             return Ok(result);
         }
 
-        // POST api/<SagaConfigController>
+        // POST api/sagaconfig
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] SagaConfiguration value)
         {
@@ -39,7 +40,7 @@ namespace SagaConfigService.Controllers
             }
         }
 
-        // PUT api/<SagaConfigController>/5
+        // PUT api/sagaconfig
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] SagaConfiguration value)
         {
@@ -55,7 +56,7 @@ namespace SagaConfigService.Controllers
             }
         }
 
-        // DELETE api/<SagaConfigController>/5
+        // DELETE api/<sagaconfig/d89ffb1e-7481-4111-a4dd-ac5123217293
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
