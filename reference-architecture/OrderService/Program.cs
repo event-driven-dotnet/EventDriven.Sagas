@@ -1,16 +1,14 @@
 using EventDriven.DDD.Abstractions.Commands;
+using EventDriven.DependencyInjection;
+using EventDriven.DependencyInjection.URF.Mongo;
 using EventDriven.Sagas.Abstractions;
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Repositories;
-using Microsoft.Extensions.Options;
-using MongoDB.Driver;
 using OrderService.Configuration;
 using OrderService.Domain.OrderAggregate;
 using OrderService.Domain.OrderAggregate.Commands;
 using OrderService.Domain.OrderAggregate.Sagas.CreateOrder;
 using OrderService.Repositories;
-using URF.Core.Abstractions;
-using URF.Core.Mongo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,35 +21,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program));
 
 // Configuration
-builder.Services.Configure<OrderServiceSettings>(
-    builder.Configuration.GetSection(nameof(OrderServiceSettings)));
-builder.Services.Configure<OrderDatabaseSettings>(
-    builder.Configuration.GetSection(nameof(OrderDatabaseSettings)));
-builder.Services.AddSingleton(sp =>
-    sp.GetRequiredService<IOptions<OrderDatabaseSettings>>().Value);
-builder.Services.Configure<SagaConfigDatabaseSettings>(
-    builder.Configuration.GetSection(nameof(SagaConfigDatabaseSettings)));
-builder.Services.AddSingleton(sp =>
-    sp.GetRequiredService<IOptions<SagaConfigDatabaseSettings>>().Value);
+builder.Services.AddAppSettings<OrderServiceSettings>(builder.Configuration);
 
 // Database Registrations
-builder.Services.AddSingleton(sp =>
-{
-    var settings = sp.GetRequiredService<OrderDatabaseSettings>();
-    var client = new MongoClient(settings.ConnectionString);
-    var database = client.GetDatabase(settings.DatabaseName);
-    return database.GetCollection<Order>(settings.OrderCollectionName);
-});
-builder.Services.AddSingleton<IDocumentRepository<Order>, DocumentRepository<Order>>();
+builder.Services.AddMongoDbSettings<OrderDatabaseSettings, Order>(builder.Configuration);
+builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfiguration>(builder.Configuration);
 builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
-builder.Services.AddSingleton(sp =>
-{
-    var settings = sp.GetRequiredService<SagaConfigDatabaseSettings>();
-    var client = new MongoClient(settings.ConnectionString);
-    var database = client.GetDatabase(settings.DatabaseName);
-    return database.GetCollection<SagaConfiguration>(settings.SagaConfigCollectionName);
-});
-builder.Services.AddSingleton<IDocumentRepository<SagaConfiguration>, DocumentRepository<SagaConfiguration>>();
 builder.Services.AddSingleton<ISagaConfigRepository, SagaConfigRepository>();
 
 // Saga Registrations

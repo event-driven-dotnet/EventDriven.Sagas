@@ -1,10 +1,7 @@
-using Microsoft.Extensions.Options;
-using MongoDB.Driver;
+using EventDriven.DependencyInjection.URF.Mongo;
 using SagaConfigService.Configuration;
 using SagaConfigService.DTO;
 using SagaConfigService.Repositories;
-using URF.Core.Abstractions;
-using URF.Core.Mongo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,21 +12,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configuration
-builder.Services.Configure<SagaConfigDatabaseSettings>(
-    builder.Configuration.GetSection(nameof(SagaConfigDatabaseSettings)));
-builder.Services.AddSingleton(sp =>
-    sp.GetRequiredService<IOptions<SagaConfigDatabaseSettings>>().Value);
-
 // Registrations
-builder.Services.AddSingleton(sp =>
-{
-    var settings = sp.GetRequiredService<SagaConfigDatabaseSettings>();
-    var client = new MongoClient(settings.ConnectionString);
-    var database = client.GetDatabase(settings.DatabaseName);
-    return database.GetCollection<SagaConfiguration>(settings.SagaConfigCollectionName);
-});
-builder.Services.AddSingleton<IDocumentRepository<SagaConfiguration>, DocumentRepository<SagaConfiguration>>();
+builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfiguration>(builder.Configuration);
 builder.Services.AddSingleton<ISagaConfigRepository, SagaConfigRepository>();
 
 var app = builder.Build();

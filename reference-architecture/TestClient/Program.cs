@@ -1,11 +1,11 @@
 ﻿using System.Text.Encodings.Web;
 using System.Text.Json;
+using EventDriven.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TestClient.Configuration;
 using TestClient.DTO;
-using TestClient.Helpers;
 using TestClient.Services;
 
 var host = Host
