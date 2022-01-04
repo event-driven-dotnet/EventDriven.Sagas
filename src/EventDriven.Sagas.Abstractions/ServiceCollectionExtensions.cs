@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventDriven.Sagas.Abstractions;
 
@@ -21,6 +22,24 @@ public static class ServiceCollectionExtensions
         {
             options.SagaConfigId = sagaConfigId;
         });
+
+    /// <summary>
+    /// Register a concrete saga using a configuration method.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
+    /// <param name="config">The application's <see cref="IConfiguration"/>.</param>
+    /// <typeparam name="TSaga">Concrete saga type.</typeparam>
+    /// <typeparam name="TSagaConfigSettings">Concrete implementation of <see cref="ISagaConfigSettings"/></typeparam>
+    /// <returns>A reference to this instance after the operation has completed.</returns>
+    public static IServiceCollection AddSaga<TSaga, TSagaConfigSettings>(
+        this IServiceCollection services, IConfiguration config)
+        where TSaga : Saga
+        where TSagaConfigSettings : ISagaConfigSettings, new()
+    {
+        var settings = new TSagaConfigSettings();
+        config.GetSection(typeof(TSagaConfigSettings).Name).Bind(settings);
+        return services.AddSaga<TSaga>(settings.SagaConfigId);
+    }
 
     /// <summary>
     /// Register a concrete saga using a configuration method.
