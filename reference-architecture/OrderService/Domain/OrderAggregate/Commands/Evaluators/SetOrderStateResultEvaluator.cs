@@ -1,6 +1,6 @@
 ﻿using EventDriven.Sagas.Abstractions.Commands;
 
-namespace OrderService.Domain.OrderAggregate.Sagas.CreateOrder;
+namespace OrderService.Domain.OrderAggregate.Commands.Evaluators;
 
 public class SetOrderStateResultEvaluator : CommandResultEvaluator<OrderState, OrderState>
 {

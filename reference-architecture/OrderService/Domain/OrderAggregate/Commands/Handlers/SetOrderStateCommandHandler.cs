@@ -2,7 +2,7 @@
 using EventDriven.Sagas.Abstractions.Commands;
 using OrderService.Repositories;
 
-namespace OrderService.Domain.OrderAggregate.Commands;
+namespace OrderService.Domain.OrderAggregate.Commands.Handlers;
 
 public class SetOrderStateCommandHandler :
     ICommandHandler<Order, SetOrderStatePending>

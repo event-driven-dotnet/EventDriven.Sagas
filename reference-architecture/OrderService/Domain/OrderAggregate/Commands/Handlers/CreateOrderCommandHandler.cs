@@ -1,8 +1,8 @@
-﻿using EventDriven.DDD.Abstractions.Commands;
-using OrderService.Domain.OrderAggregate.Sagas.CreateOrder;
+using EventDriven.DDD.Abstractions.Commands;
+using OrderService.Domain.OrderAggregate.Sagas;
 using OrderService.Repositories;
 
-namespace OrderService.Domain.OrderAggregate.Commands;
+namespace OrderService.Domain.OrderAggregate.Commands.Handlers;
 
 public class CreateOrderCommandHandler :
     ICommandHandler<Order, CreateOrder>
