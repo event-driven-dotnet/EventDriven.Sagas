@@ -1,4 +1,5 @@
-﻿using EventDriven.Sagas.Abstractions.Commands;
+﻿using EventDriven.DDD.Abstractions.Commands;
+using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +12,7 @@ namespace EventDriven.Sagas.Abstractions;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Register a concrete saga using a configuration method.
+    /// Register a concrete saga using application configuration.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
     /// <param name="configuration">The application's <see cref="IConfiguration"/>.</param>
@@ -41,7 +42,7 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Register a concrete saga using an optional configuration identifier.
+    /// Register a concrete saga using a saga configuration identifier.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
     /// <param name="sagaConfigId">Optional saga configuration identifier.</param>
@@ -67,7 +68,7 @@ public static class ServiceCollectionExtensions
         });
 
     /// <summary>
-    /// Register a concrete saga using a configuration method.
+    /// Register a concrete saga using a configure method.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
     /// <param name="configure">Method for configuring saga options.</param>
@@ -88,8 +89,9 @@ public static class ServiceCollectionExtensions
     {
         var sagaConfigOptions = new SagaConfigurationOptions();
         configure(sagaConfigOptions);
-        services.AddSingleton(sagaConfigOptions);
-        services.AddSingleton(sp =>
+        services.RegisterSagaTypes()
+            .AddSingleton(sagaConfigOptions)
+            .AddSingleton(sp =>
         {
             var commandDispatcher = sp.GetRequiredService<TSagaCommandDispatcher>();
             var configRepository = sp.GetRequiredService<TSagaConfigRepository>();
@@ -103,4 +105,38 @@ public static class ServiceCollectionExtensions
         });
         return services;
     }
+
+    /// <summary>
+    /// Register command handlers.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
+    /// <returns>A reference to this instance after the operation has completed.</returns>
+    public static IServiceCollection AddCommandHandlers(this IServiceCollection services) =>
+        services.RegisterHandlerTypes();
+
+    private static IServiceCollection RegisterHandlerTypes(this IServiceCollection services) =>
+        services.Scan(scan =>
+        {
+            scan.FromEntryAssembly()
+                .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)))
+                    .AsImplementedInterfaces()
+                    .WithSingletonLifetime();
+        });
+    private static IServiceCollection RegisterSagaTypes(this IServiceCollection services) =>
+        services.Scan(scan =>
+        {
+            scan.FromEntryAssembly()
+                .AddClasses(classes => classes.AssignableTo<ISagaCommandDispatcher>())
+                    .AsImplementedInterfaces()
+                    .WithSingletonLifetime()
+                .AddClasses(classes => classes.AssignableTo<ISagaConfigRepository>())
+                    .AsImplementedInterfaces()
+                    .WithSingletonLifetime()
+                .AddClasses(classes => classes.AssignableTo<ICommandResultEvaluator>())
+                    .AsImplementedInterfaces()
+                    .WithSingletonLifetime()
+                .AddClasses(classes => classes.AssignableTo(typeof(ICommandResultProcessor<>)))
+                    .AsImplementedInterfaces()
+                    .WithSingletonLifetime();
+        });
 }

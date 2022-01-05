@@ -1,12 +1,8 @@
-using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.DependencyInjection;
 using EventDriven.DependencyInjection.URF.Mongo;
 using EventDriven.Sagas.Abstractions;
-using EventDriven.Sagas.Abstractions.Commands;
-using EventDriven.Sagas.Abstractions.Repositories;
 using OrderService.Configuration;
 using OrderService.Domain.OrderAggregate;
-using OrderService.Domain.OrderAggregate.Commands;
 using OrderService.Domain.OrderAggregate.Sagas.CreateOrder;
 using OrderService.Repositories;
 
@@ -15,7 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(Program));
@@ -23,25 +18,18 @@ builder.Services.AddAutoMapper(typeof(Program));
 // Configuration
 builder.Services.AddAppSettings<SagaConfigSettings>(builder.Configuration);
 
-// Database Registrations
+// Database registrations
 builder.Services.AddMongoDbSettings<OrderDatabaseSettings, Order>(builder.Configuration);
 builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfiguration>(builder.Configuration);
 builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
-builder.Services.AddSingleton<ISagaConfigRepository, SagaConfigRepository>();
 
-// Saga Registrations
+// Saga registration
 builder.Services.AddSaga<CreateOrderSaga, OrderCommandDispatcher,
     SagaConfigRepository, SetOrderStateResultEvaluator,
     SagaConfigSettings>(builder.Configuration);
 
-// Saga command dispatcher, processor, evaluator
-builder.Services.AddSingleton<ISagaCommandDispatcher, OrderCommandDispatcher>();
-builder.Services.AddSingleton<ICommandResultProcessor<Order>, CreateOrderSaga>();
-builder.Services.AddSingleton<ICommandResultEvaluator<OrderState, OrderState>, SetOrderStateResultEvaluator>();
-
-// Saga command handlers
-builder.Services.AddSingleton<ICommandHandler<Order, CreateOrder>, CreateOrderCommandHandler>();
-builder.Services.AddSingleton<ICommandHandler<Order, SetOrderStatePending>, SetOrderStateCommandHandler>();
+// Command handler registrations
+builder.Services.AddCommandHandlers();
 
 var app = builder.Build();
 
