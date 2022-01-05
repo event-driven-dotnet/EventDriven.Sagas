@@ -1,5 +1,6 @@
 ﻿using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Commands;
+using OrderService.Domain.OrderAggregate.Commands.SagaCommands;
 using OrderService.Repositories;
 
 namespace OrderService.Domain.OrderAggregate.Commands.Handlers;
@@ -8,7 +9,6 @@ public class SetOrderStateCommandHandler :
     ICommandHandler<Order, SetOrderStatePending>
 {
     private readonly IOrderRepository _repository;
-
     private readonly ICommandResultProcessor<Order> _commandResultProcessor;
     private readonly ILogger<SetOrderStateCommandHandler> _logger;
 
