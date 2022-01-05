@@ -30,7 +30,9 @@ builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
 builder.Services.AddSingleton<ISagaConfigRepository, SagaConfigRepository>();
 
 // Saga Registrations
-builder.Services.AddSaga<CreateOrderSaga, SagaConfigSettings>(builder.Configuration);
+builder.Services.AddSaga<CreateOrderSaga, OrderCommandDispatcher,
+    SagaConfigRepository, SetOrderStateResultEvaluator,
+    SagaConfigSettings>(builder.Configuration);
 
 // Saga command dispatcher, processor, evaluator
 builder.Services.AddSingleton<ISagaCommandDispatcher, OrderCommandDispatcher>();
@@ -38,22 +40,8 @@ builder.Services.AddSingleton<ICommandResultProcessor<Order>, CreateOrderSaga>()
 builder.Services.AddSingleton<ICommandResultEvaluator<OrderState, OrderState>, SetOrderStateResultEvaluator>();
 
 // Saga command handlers
-builder.Services.AddSingleton<ICommandHandler<Order, CreateOrder>, CreateOrderCommandHandler>(sp =>
-{
-    var repo = sp.GetRequiredService<IOrderRepository>();
-    var saga = sp.GetRequiredService<CreateOrderSaga>();
-    var logger = sp.GetRequiredService<ILogger<CreateOrderCommandHandler>>();
-    var handler = new CreateOrderCommandHandler(repo, saga, logger);
-    return handler;
-});
-builder.Services.AddSingleton<ICommandHandler<Order, SetOrderStatePending>, SetOrderStateCommandHandler>(sp =>
-{
-    var repo = sp.GetRequiredService<IOrderRepository>();
-    var saga = sp.GetRequiredService<CreateOrderSaga>();
-    var logger = sp.GetRequiredService<ILogger<SetOrderStateCommandHandler>>();
-    var handler = new SetOrderStateCommandHandler(repo, saga, logger);
-    return handler;
-});
+builder.Services.AddSingleton<ICommandHandler<Order, CreateOrder>, CreateOrderCommandHandler>();
+builder.Services.AddSingleton<ICommandHandler<Order, SetOrderStatePending>, SetOrderStateCommandHandler>();
 
 var app = builder.Build();
 

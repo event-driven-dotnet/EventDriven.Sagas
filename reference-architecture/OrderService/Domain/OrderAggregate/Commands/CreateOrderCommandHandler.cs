@@ -1,5 +1,5 @@
 ﻿using EventDriven.DDD.Abstractions.Commands;
-using EventDriven.Sagas.Abstractions;
+using OrderService.Domain.OrderAggregate.Sagas.CreateOrder;
 using OrderService.Repositories;
 
 namespace OrderService.Domain.OrderAggregate.Commands;
@@ -9,11 +9,11 @@ public class CreateOrderCommandHandler :
 {
     private readonly IOrderRepository _repository;
     private readonly ILogger<CreateOrderCommandHandler> _logger;
-    private readonly Saga _saga;
+    private readonly CreateOrderSaga _saga;
 
     public CreateOrderCommandHandler(
         IOrderRepository repository,
-        Saga createOrderSaga,
+        CreateOrderSaga createOrderSaga,
         ILogger<CreateOrderCommandHandler> logger)
     {
         _repository = repository;

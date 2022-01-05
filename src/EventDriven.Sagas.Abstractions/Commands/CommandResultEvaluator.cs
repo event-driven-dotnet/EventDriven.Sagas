@@ -111,7 +111,6 @@ public abstract class CommandResultEvaluator<TResult, TExpectedResult>
             SagaStateInfo = $"Step {step.Sequence} command '{commandName}' failed. {action.StateInfo}";
             return false;
         }
-
         return true;
     }
 }

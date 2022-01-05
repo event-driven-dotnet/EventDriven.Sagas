@@ -1,21 +1,10 @@
-﻿using EventDriven.Sagas.Abstractions.Repositories;
-
-namespace EventDriven.Sagas.Abstractions;
+﻿namespace EventDriven.Sagas.Abstractions;
 
 /// <summary>
 /// Enables the execution of atomic operations which span multiple services.
 /// </summary>
 public abstract class Saga
 {
-    /// <summary>
-    /// Saga protected constructor.
-    /// </summary>
-    /// <param name="sagaConfigOptions">Saga configuration options.</param>
-    protected Saga(SagaConfigurationOptions sagaConfigOptions)
-    {
-        SagaConfigOptions = sagaConfigOptions;
-    }
-
     /// <summary>
     /// Cancellation token.
     /// </summary>
@@ -24,12 +13,7 @@ public abstract class Saga
     /// <summary>
     /// Optional saga configuration identifier.
     /// </summary>
-    protected SagaConfigurationOptions SagaConfigOptions { get; set; }
-
-    /// <summary>
-    /// Optional saga configuration repository.
-    /// </summary>
-    protected ISagaConfigRepository? SagaConfigRepository { get; set; }
+    public SagaConfigurationOptions? SagaConfigOptions { get; set; }
 
     /// <summary>
     /// Saga identifier.
@@ -78,15 +62,7 @@ public abstract class Saga
     /// Configure saga steps.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected virtual async Task ConfigureSteps()
-    {
-        if (SagaConfigOptions.SagaConfigId != null && SagaConfigRepository != null)
-        {
-            var sagaConfig = await SagaConfigRepository
-                .GetSagaConfigurationAsync(SagaConfigOptions.SagaConfigId.GetValueOrDefault());
-            if (sagaConfig != null) Steps = sagaConfig.Steps;
-        }
-    }
+    protected abstract Task ConfigureSteps();
 
     /// <summary>
     /// Transition saga state.

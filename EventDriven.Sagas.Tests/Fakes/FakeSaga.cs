@@ -7,7 +7,7 @@ using EventDriven.Sagas.Abstractions.Commands;
 
 namespace EventDriven.Sagas.Tests.Fakes;
 
-public class FakeSaga : Saga,
+public class FakeSaga : SagaConfig,
     ICommandResultProcessor<Order>,
     ICommandResultProcessor<Customer>,
     ICommandResultProcessor<Inventory>
@@ -20,7 +20,6 @@ public class FakeSaga : Saga,
     public FakeSaga(Dictionary<int, SagaStep> steps, ISagaCommandDispatcher commandDispatcher,
         ICommandResultEvaluator<string?, string?> resultEvaluator, int cancelOnStep = 0,
         CancellationTokenSource? tokenSource = null)
-        : base(new SagaConfigurationOptions())
     {
         _commandDispatcher = commandDispatcher;
         _resultEvaluator = resultEvaluator;
