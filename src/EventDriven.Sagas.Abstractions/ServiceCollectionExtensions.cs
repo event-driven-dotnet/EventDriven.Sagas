@@ -3,6 +3,7 @@ using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Scrutor;
 
 namespace EventDriven.Sagas.Abstractions;
 
@@ -16,19 +17,20 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
     /// <param name="configuration">The application's <see cref="IConfiguration"/>.</param>
-    /// <typeparam name="TSagaConfig">Concrete saga type.</typeparam>
+    /// <typeparam name="TSagaWitConfig">Concrete saga type.</typeparam>
+    /// <typeparam name="TSagaEntity">Saga entity.</typeparam>
     /// <typeparam name="TSagaCommandDispatcher">Saga command dispatcher type.</typeparam>
     /// <typeparam name="TSagaConfigRepository">Saga config repository type.</typeparam>
     /// <typeparam name="TCommandResultEvaluator">Command result evaluator type.</typeparam>
     /// <typeparam name="TSagaConfigSettings">Concrete implementation of <see cref="ISagaConfigSettings"/></typeparam>
     /// <returns>A reference to this instance after the operation has completed.</returns>
-    public static IServiceCollection AddSaga<TSagaConfig,
-        TSagaCommandDispatcher, TSagaConfigRepository,
+    public static IServiceCollection AddSaga<TSagaWitConfig,
+        TSagaEntity, TSagaCommandDispatcher, TSagaConfigRepository,
         TCommandResultEvaluator,
         TSagaConfigSettings>(
         this IServiceCollection services, 
         IConfiguration configuration)
-        where TSagaConfig : SagaConfig, new()
+        where TSagaWitConfig : SagaWithConfig<TSagaEntity>, new()
         where TSagaCommandDispatcher : ISagaCommandDispatcher
         where TSagaConfigRepository : ISagaConfigRepository
         where TCommandResultEvaluator : ICommandResultEvaluator
@@ -36,7 +38,7 @@ public static class ServiceCollectionExtensions
     {
         var settings = new TSagaConfigSettings();
         configuration.GetSection(typeof(TSagaConfigSettings).Name).Bind(settings);
-        return services.AddSaga<TSagaConfig,
+        return services.AddSaga<TSagaWitConfig, TSagaEntity,
             TSagaCommandDispatcher, TSagaConfigRepository,
             TCommandResultEvaluator>(settings.SagaConfigId);
     }
@@ -46,21 +48,22 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
     /// <param name="sagaConfigId">Optional saga configuration identifier.</param>
-    /// <typeparam name="TSagaConfig">Concrete saga type.</typeparam>
+    /// <typeparam name="TSagaWithConfig">Concrete saga type.</typeparam>
+    /// <typeparam name="TSagaEntity">Saga entity.</typeparam>
     /// <typeparam name="TSagaCommandDispatcher">Saga command dispatcher type.</typeparam>
     /// <typeparam name="TSagaConfigRepository">Saga config repository type.</typeparam>
     /// <typeparam name="TCommandResultEvaluator">Command result evaluator type.</typeparam>
     /// <returns>A reference to this instance after the operation has completed.</returns>
-    public static IServiceCollection AddSaga<TSagaConfig,
-        TSagaCommandDispatcher, TSagaConfigRepository,
+    public static IServiceCollection AddSaga<TSagaWithConfig,
+        TSagaEntity, TSagaCommandDispatcher, TSagaConfigRepository,
         TCommandResultEvaluator>(
         this IServiceCollection services, 
         Guid? sagaConfigId = null)
-        where TSagaConfig : SagaConfig, new()
+        where TSagaWithConfig : SagaWithConfig<TSagaEntity>, new()
         where TSagaCommandDispatcher : ISagaCommandDispatcher
         where TSagaConfigRepository : ISagaConfigRepository
         where TCommandResultEvaluator : ICommandResultEvaluator
-        => services.AddSaga<TSagaConfig,
+        => services.AddSaga<TSagaWithConfig, TSagaEntity,
             TSagaCommandDispatcher, TSagaConfigRepository,
             TCommandResultEvaluator>(options =>
         {
@@ -72,17 +75,18 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
     /// <param name="configure">Method for configuring saga options.</param>
-    /// <typeparam name="TSagaConfig">Concrete saga type.</typeparam>
+    /// <typeparam name="TSagaWithConfig">Concrete saga type.</typeparam>
+    /// <typeparam name="TSagaEntity">Saga entity.</typeparam>
     /// <typeparam name="TSagaCommandDispatcher">Saga command dispatcher type.</typeparam>
     /// <typeparam name="TSagaConfigRepository">Saga config repository type.</typeparam>
     /// <typeparam name="TCommandResultEvaluator">Command result evaluator type.</typeparam>
     /// <returns>A reference to this instance after the operation has completed.</returns>
-    public static IServiceCollection AddSaga<TSagaConfig,
-        TSagaCommandDispatcher, TSagaConfigRepository,
+    public static IServiceCollection AddSaga<TSagaWithConfig,
+        TSagaEntity, TSagaCommandDispatcher, TSagaConfigRepository,
         TCommandResultEvaluator>(
         this IServiceCollection services, 
         Action<SagaConfigurationOptions> configure)
-        where TSagaConfig : SagaConfig, new()
+        where TSagaWithConfig : SagaWithConfig<TSagaEntity>, new()
         where TSagaCommandDispatcher : ISagaCommandDispatcher
         where TSagaConfigRepository : ISagaConfigRepository
         where TCommandResultEvaluator : ICommandResultEvaluator
@@ -96,7 +100,7 @@ public static class ServiceCollectionExtensions
             var commandDispatcher = sp.GetRequiredService<TSagaCommandDispatcher>();
             var configRepository = sp.GetRequiredService<TSagaConfigRepository>();
             var resultEvaluator = sp.GetRequiredService<TCommandResultEvaluator>();
-            return new TSagaConfig
+            return new TSagaWithConfig
             {
                 SagaCommandDispatcher = commandDispatcher,
                 SagaConfigRepository = configRepository,
@@ -119,23 +123,28 @@ public static class ServiceCollectionExtensions
         {
             scan.FromEntryAssembly()
                 .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)))
-                    .AsImplementedInterfaces()
+                    .AsSelfWithInterfaces()
                     .WithSingletonLifetime();
         });
+
     private static IServiceCollection RegisterSagaTypes(this IServiceCollection services) =>
         services.Scan(scan =>
         {
             scan.FromEntryAssembly()
                 .AddClasses(classes => classes.AssignableTo<ISagaCommandDispatcher>())
-                    .AsImplementedInterfaces()
+                    .UsingRegistrationStrategy(RegistrationStrategy.Skip)
+                    .AsSelf()
                     .WithSingletonLifetime()
                 .AddClasses(classes => classes.AssignableTo<ISagaConfigRepository>())
-                    .AsImplementedInterfaces()
+                    .UsingRegistrationStrategy(RegistrationStrategy.Skip)
+                    .AsSelf()
                     .WithSingletonLifetime()
                 .AddClasses(classes => classes.AssignableTo<ICommandResultEvaluator>())
-                    .AsImplementedInterfaces()
+                    .UsingRegistrationStrategy(RegistrationStrategy.Skip)
+                    .AsSelf()
                     .WithSingletonLifetime()
                 .AddClasses(classes => classes.AssignableTo(typeof(ICommandResultProcessor<>)))
+                    .UsingRegistrationStrategy(RegistrationStrategy.Skip)
                     .AsImplementedInterfaces()
                     .WithSingletonLifetime();
         });
