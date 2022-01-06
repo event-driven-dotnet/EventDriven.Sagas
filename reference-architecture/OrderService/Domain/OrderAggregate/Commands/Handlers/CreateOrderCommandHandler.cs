@@ -28,7 +28,7 @@ public class CreateOrderCommandHandler :
         var order = await _repository.AddOrderAsync(command.Order);
 
         // Start saga to create an order
-        await _saga.StartSagaAsync();
+        await _saga.StartSagaAsync(order);
         return new CommandResult<Order>(CommandOutcome.Accepted, order);
     }
 }

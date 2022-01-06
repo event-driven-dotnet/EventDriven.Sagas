@@ -26,6 +26,12 @@ public abstract record SagaCommand<TResult, TExpectedResult> :
     SagaCommand, ISagaCommand<TResult, TExpectedResult>
 {
     /// <inheritdoc />
+    protected SagaCommand(Guid entityId = default(Guid))
+        : base(entityId)
+    {
+    }
+    
+    /// <inheritdoc />
     public TResult Result { get; set; } = default!;
 
     /// <inheritdoc />

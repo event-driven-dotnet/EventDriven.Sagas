@@ -1,4 +1,7 @@
-﻿namespace EventDriven.Sagas.Abstractions;
+﻿using EventDriven.Sagas.Abstractions.Commands;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace EventDriven.Sagas.Abstractions;
 
 /// <summary>
 /// Enables the execution of atomic operations which span multiple services.
@@ -9,11 +12,6 @@ public abstract class Saga
     /// Cancellation token.
     /// </summary>
     protected CancellationToken CancellationToken;
-
-    /// <summary>
-    /// Optional saga configuration identifier.
-    /// </summary>
-    public SagaConfigurationOptions? SagaConfigOptions { get; set; }
 
     /// <summary>
     /// Saga identifier.
@@ -47,6 +45,16 @@ public abstract class Saga
     public Dictionary<int, SagaStep> Steps { get; set; } = new();
 
     /// <summary>
+    /// Saga command dispatcher.
+    /// </summary>
+    public ISagaCommandDispatcher? SagaCommandDispatcher { get; set; }
+
+    /// <summary>
+    /// Command result evaluator.
+    /// </summary>
+    public ICommandResultEvaluator? CommandResultEvaluator { get; set; }
+
+    /// <summary>
     /// Execute the current action.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
@@ -57,12 +65,6 @@ public abstract class Saga
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected abstract Task ExecuteCurrentCompensatingActionAsync();
-
-    /// <summary>
-    /// Configure saga steps.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    protected abstract Task ConfigureSteps();
 
     /// <summary>
     /// Transition saga state.
@@ -119,9 +121,6 @@ public abstract class Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     public virtual async Task StartSagaAsync(CancellationToken cancellationToken = default)
     {
-        // Set steps from config
-        await ConfigureSteps();
-
         // Set state, current step, cancellation token
         State = SagaState.Executing;
         CurrentStep = 1;
@@ -129,5 +128,38 @@ public abstract class Saga
 
         // Dispatch current step command
         await ExecuteCurrentActionAsync();
+    }
+}
+
+/// <summary>
+/// Enables the execution of atomic operations which span multiple services.
+/// </summary>
+/// <typeparam name="TEntity">Entity type.</typeparam>
+public abstract class Saga<TEntity> : Saga
+{
+    /// <summary>
+    /// SagaConfig constructor.
+    /// Note: To use <see cref="IServiceCollection"/>.AddSaga, inheritors must have a parameterless constructor. 
+    /// </summary>
+    // ReSharper disable once EmptyConstructor
+    protected Saga()
+    {
+    }
+
+    /// <summary>
+    /// Entity.
+    /// </summary>
+    public TEntity Entity { get; set; } = default!;
+
+    /// <summary>
+    /// Start the saga.
+    /// </summary>
+    /// <param name="entity">Saga entity.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public virtual async Task StartSagaAsync(TEntity entity, CancellationToken cancellationToken = default)
+    {
+        Entity = entity;
+        await StartSagaAsync(cancellationToken);
     }
 }

@@ -11,5 +11,5 @@ public interface ISagaCommandDispatcher
     /// <param name="command">Saga command</param>
     /// <param name="compensating">True if compensating command.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task DispatchAsync(ISagaCommand command, bool compensating);
+    Task DispatchAsync(SagaCommand command, bool compensating);
 }

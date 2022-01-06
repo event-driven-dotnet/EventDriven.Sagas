@@ -13,15 +13,14 @@ public class OrderCommandDispatcher : ISagaCommandDispatcher
         _commandHandler = commandHandler;
     }
 
-    public async Task DispatchAsync(ISagaCommand command, bool compensating)
+    public async Task DispatchAsync(SagaCommand command, bool compensating)
     {
         // Based on command name, dispatch command to handler
         switch (command.Name)
         {
             case "SetStatePending":
-                await _commandHandler.Handle(new SetOrderStatePending
+                await _commandHandler.Handle(new SetOrderStatePending(command.EntityId)
                 {
-                    // TODO: Pass order or order id?
                     Name = command.Name,
                     Result = OrderState.Pending
                 });

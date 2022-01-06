@@ -15,7 +15,7 @@ public class SagaAction
     /// <summary>
     /// Saga action command.
     /// </summary>
-    public ISagaCommand Command { get; set; } = null!;
+    public SagaCommand Command { get; set; } = null!;
 
     /// <summary>
     /// Saga action timeout.
