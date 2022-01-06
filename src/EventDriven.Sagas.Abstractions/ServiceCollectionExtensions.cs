@@ -37,7 +37,11 @@ public static class ServiceCollectionExtensions
         where TSagaConfigSettings : ISagaConfigSettings, new()
     {
         var settings = new TSagaConfigSettings();
-        configuration.GetSection(typeof(TSagaConfigSettings).Name).Bind(settings);
+        var configTypeName = typeof(TSagaConfigSettings).Name;
+        var configSection = configuration.GetSection(configTypeName);
+        configSection.Bind(settings);
+        if (settings.SagaConfigId == Guid.Empty)
+            throw new Exception($"'SagaConfigId' property not present in configuration section {configTypeName}");
         return services.AddSaga<TSagaWitConfig, TSagaEntity,
             TSagaCommandDispatcher, TSagaConfigRepository,
             TCommandResultEvaluator>(settings.SagaConfigId);
@@ -104,7 +108,8 @@ public static class ServiceCollectionExtensions
             {
                 SagaCommandDispatcher = commandDispatcher,
                 SagaConfigRepository = configRepository,
-                CommandResultEvaluator = resultEvaluator
+                CommandResultEvaluator = resultEvaluator,
+                SagaConfigOptions = sagaConfigOptions
             };
         });
         return services;

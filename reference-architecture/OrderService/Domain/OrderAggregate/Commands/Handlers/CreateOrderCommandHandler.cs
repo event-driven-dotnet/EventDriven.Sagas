@@ -25,7 +25,7 @@ public class CreateOrderCommandHandler :
     public async Task<CommandResult<Order>> Handle(CreateOrder command)
     {
         _logger.LogInformation("Handling command: {CommandName}", nameof(CreateOrder));
-        var order = await _repository.AddOrderAsync(command.Order);
+        var order = await _repository.AddUpdateOrderAsync(command.Order);
 
         // Start saga to create an order
         await _saga.StartSagaAsync(order);

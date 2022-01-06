@@ -24,7 +24,7 @@ public class OrderRepository : IOrderRepository
 
     public async Task<Order> AddOrderAsync(Order entity)
     {
-        var existing = await _documentRepository.FindOneAsync(e => e.Id == entity.Id);
+        var existing = await GetOrderAsync(entity.Id);
         if (existing != null) throw new ConcurrencyException();
         entity.ETag = Guid.NewGuid().ToString();
         return await _documentRepository.InsertOneAsync(entity);
@@ -37,6 +37,19 @@ public class OrderRepository : IOrderRepository
             throw new ConcurrencyException();
         entity.ETag = Guid.NewGuid().ToString();
         return await _documentRepository.FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+    }
+
+    public async Task<Order> AddUpdateOrderAsync(Order entity)
+    {
+        Order result;
+        var existing = await GetOrderAsync(entity.Id);
+        if (existing == null) result = await AddOrderAsync(entity);
+        else
+        {
+            entity.ETag = existing.ETag;
+            result = await UpdateOrderAsync(entity);
+        }
+        return result;
     }
 
     public async Task<int> RemoveOrder(Guid id) =>

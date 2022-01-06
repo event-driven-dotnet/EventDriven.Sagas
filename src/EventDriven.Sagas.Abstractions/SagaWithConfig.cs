@@ -28,7 +28,9 @@ public abstract class SagaWithConfig<TEntity> : Saga<TEntity>
         {
             var sagaConfig = await SagaConfigRepository
                 .GetSagaConfigurationAsync(SagaConfigOptions.SagaConfigId.GetValueOrDefault());
-            if (sagaConfig != null) Steps = sagaConfig.Steps;
+            if (sagaConfig == null)
+                throw new Exception($"Saga configuration with id '{SagaConfigOptions.SagaConfigId}' not present in Saga Configuration Repository.");
+            Steps = sagaConfig.Steps;
         }
     }
 
