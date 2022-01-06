@@ -1,4 +1,4 @@
-﻿namespace OrderService.DTO.Write;
+﻿namespace OrderService.DTO;
 
 public enum OrderState
 {

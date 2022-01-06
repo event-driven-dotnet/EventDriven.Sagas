@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using OrderService.DTO.Write;
+using Entities = OrderService.Domain.OrderAggregate;
 
 namespace OrderService.DTO;
 
@@ -7,11 +7,11 @@ public class AutoMapperProfile : Profile
 {
     public AutoMapperProfile()
     {
-        CreateMap<Order, Order>();
-        CreateMap<Order, Order>().ReverseMap();
-        CreateMap<OrderItem, OrderItem>();
-        CreateMap<OrderItem, OrderItem>().ReverseMap();
-        CreateMap<OrderState, OrderState>();
-        CreateMap<OrderState, OrderState>().ReverseMap();
+        CreateMap<Entities.Order, Order>();
+        CreateMap<Entities.Order, Order>().ReverseMap();
+        CreateMap<Entities.OrderItem, OrderItem>();
+        CreateMap<Entities.OrderItem, OrderItem>().ReverseMap();
+        CreateMap<Entities.OrderState, OrderState>();
+        CreateMap<Entities.OrderState, OrderState>().ReverseMap();
     }
 }
