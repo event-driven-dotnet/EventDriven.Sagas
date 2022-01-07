@@ -21,10 +21,4 @@
     <ProjectReference Include="..\TestClient\TestClient.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTO\Write" />
-    <Folder Include="Helpers\" />
-    <Folder Include="Repositories\" />
-  </ItemGroup>
-
 </Project>

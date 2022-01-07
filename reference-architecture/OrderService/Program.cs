@@ -7,6 +7,7 @@ using OrderService.Domain.OrderAggregate.Commands.Dispatchers;
 using OrderService.Domain.OrderAggregate.Commands.Evaluators;
 using OrderService.Domain.OrderAggregate.Sagas;
 using OrderService.Repositories;
+using SagaConfigurationDto = OrderService.DTO.SagaConfig.SagaConfiguration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +23,7 @@ builder.Services.AddAppSettings<SagaConfigSettings>(builder.Configuration);
 
 // Database registrations
 builder.Services.AddMongoDbSettings<OrderDatabaseSettings, Order>(builder.Configuration);
-builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfiguration>(builder.Configuration);
+builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfiguration, SagaConfigurationDto>(builder.Configuration);
 builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
 
 // Saga registration
