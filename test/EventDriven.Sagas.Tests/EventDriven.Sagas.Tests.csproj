@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\EventDriven.Sagas.Abstractions\EventDriven.Sagas.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\EventDriven.Sagas.Abstractions\EventDriven.Sagas.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>
