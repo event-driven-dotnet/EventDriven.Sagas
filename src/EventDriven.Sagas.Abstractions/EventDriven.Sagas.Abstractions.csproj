@@ -27,7 +27,7 @@
     </None>
     <None Include="..\..\images\eda-logo.jpeg">
 	  <Pack>True</Pack>
-	  <PackagePath></PackagePath>
+	  <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 

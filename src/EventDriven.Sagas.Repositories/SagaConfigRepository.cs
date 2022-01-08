@@ -1,11 +1,11 @@
-﻿using AutoMapper;
+using AutoMapper;
 using EventDriven.DDD.Abstractions.Repositories;
 using EventDriven.Sagas.Abstractions.DTO;
 using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Repositories;
 using URF.Core.Abstractions;
 
-namespace OrderService.Repositories;
+namespace EventDriven.Sagas.Repositories;
 
 public class SagaConfigRepository : ISagaConfigRepository
 {

@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\EventDriven.DDD.Abstractions\src\EventDriven.DDD.Abstractions\EventDriven.DDD.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\EventDriven.Sagas.Abstractions\EventDriven.Sagas.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\EventDriven.Sagas.Repositories\EventDriven.Sagas.Repositories.csproj" />
   </ItemGroup>
 
 </Project>

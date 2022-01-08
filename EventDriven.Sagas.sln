@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaConfigService", "config
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.DDD.Abstractions", "..\EventDriven.DDD.Abstractions\src\EventDriven.DDD.Abstractions\EventDriven.DDD.Abstractions.csproj", "{2B760962-E146-4A7E-88ED-EF740BF1F969}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.Repositories", "src\EventDriven.Sagas.Repositories\EventDriven.Sagas.Repositories.csproj", "{A6BB40F1-83D1-4487-A1F8-4F467A327F26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,6 +60,10 @@ Global
 		{2B760962-E146-4A7E-88ED-EF740BF1F969}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B760962-E146-4A7E-88ED-EF740BF1F969}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B760962-E146-4A7E-88ED-EF740BF1F969}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6BB40F1-83D1-4487-A1F8-4F467A327F26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6BB40F1-83D1-4487-A1F8-4F467A327F26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6BB40F1-83D1-4487-A1F8-4F467A327F26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6BB40F1-83D1-4487-A1F8-4F467A327F26}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -68,6 +74,7 @@ Global
 		{71909E8C-C08F-401F-8DEA-2E366CC13F96} = {2F6C2678-B38D-4784-AEDA-1DF293E1296A}
 		{9F744ECE-4879-4B4F-96BC-0A9CD0898F89} = {7340565F-A10B-4B7D-B75E-9320CAE5BD05}
 		{6B3EA4FC-6EC5-4109-B916-4C6E2A2CDFB0} = {8C5A2F59-0441-437A-AD5E-26F76E4F2DA8}
+		{A6BB40F1-83D1-4487-A1F8-4F467A327F26} = {4B466731-0CE1-4A92-B93A-AE088C5B6784}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3BFC4ACA-7DDF-4583-A578-5CAB3893AE40}
