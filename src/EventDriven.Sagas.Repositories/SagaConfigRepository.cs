@@ -7,11 +7,19 @@ using URF.Core.Abstractions;
 
 namespace EventDriven.Sagas.Repositories;
 
+/// <summary>
+/// Saga configuration repository.
+/// </summary>
 public class SagaConfigRepository : ISagaConfigRepository
 {
     private readonly IMapper _mapper;
     private readonly IDocumentRepository<SagaConfigurationDto> _documentRepository;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="documentRepository">Document repository.</param>
+    /// <param name="mapper">Auto mapper.</param>
     public SagaConfigRepository(
         IDocumentRepository<SagaConfigurationDto> documentRepository,
         IMapper mapper)
@@ -20,6 +28,7 @@ public class SagaConfigRepository : ISagaConfigRepository
         _mapper = mapper;
     }
 
+    /// <inheritdoc />
     public async Task<SagaConfiguration?> GetSagaConfigurationAsync(Guid id)
     {
         var dto = await _documentRepository.FindOneAsync(e => e.Id == id);
@@ -28,6 +37,7 @@ public class SagaConfigRepository : ISagaConfigRepository
         return result;
     }
 
+    /// <inheritdoc />
     public async Task<SagaConfiguration?> AddSagaConfigurationAsync(SagaConfiguration entity)
     {
         var existingDto = await GetSagaConfigurationAsync(entity.Id);
@@ -39,6 +49,7 @@ public class SagaConfigRepository : ISagaConfigRepository
         return result;
     }
 
+    /// <inheritdoc />
     public async Task<SagaConfiguration?> UpdateSagaConfigurationAsync(SagaConfiguration entity)
     {
         var existingDto = await GetSagaConfigurationAsync(entity.Id);
@@ -52,6 +63,7 @@ public class SagaConfigRepository : ISagaConfigRepository
         return result;
     }
 
+    /// <inheritdoc />
     public async Task<int> RemoveSagaConfigurationAsync(Guid id) =>
         await _documentRepository.DeleteOneAsync(e => e.Id == id);
 }
