@@ -9,7 +9,7 @@ namespace EventDriven.Sagas.Abstractions.Mapping;
 /// </summary>
 public class SagaStringToCommandConverter : ITypeConverter<string, SagaCommand>
 {
-    private readonly ISagaCommandTypeResolver _commandTypeResolver;
+    private readonly ISagaCommandTypeResolver? _commandTypeResolver;
 
     /// <summary>
     /// Constructor.
@@ -23,8 +23,7 @@ public class SagaStringToCommandConverter : ITypeConverter<string, SagaCommand>
     /// <inheritdoc />
     public SagaCommand Convert(string source, SagaCommand destination, ResolutionContext context)
     {
-        var type = _commandTypeResolver.ResolveCommandType(source);
-        // TODO: Throw exception if null
+        var type = _commandTypeResolver?.ResolveCommandType(source);
         if (type == null) return null!;
         return (JsonSerializer.Deserialize(source, type) as SagaCommand)!;
     }

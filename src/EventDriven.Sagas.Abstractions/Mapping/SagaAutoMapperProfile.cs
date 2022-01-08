@@ -10,7 +10,12 @@ namespace EventDriven.Sagas.Abstractions.Mapping;
 public class SagaAutoMapperProfile : Profile
 {
     /// <summary>
-    /// SagaAutoMapperProfile constructor.
+    /// Command type resolver.
+    /// </summary>
+    public static ISagaCommandTypeResolver? SagaCommandTypeResolver { get; set; }
+
+    /// <summary>
+    /// Constructor.
     /// </summary>
     public SagaAutoMapperProfile()
     {
@@ -24,6 +29,6 @@ public class SagaAutoMapperProfile : Profile
         CreateMap<SagaCommand, string>()
             .ConvertUsing<SagaCommandToStringConverter>();
         CreateMap<string, SagaCommand>()
-            .ConvertUsing(new SagaStringToCommandConverter(new SagaCommandTypeResolver()));
+            .ConvertUsing(new SagaStringToCommandConverter(SagaCommandTypeResolver!));
     }
 }

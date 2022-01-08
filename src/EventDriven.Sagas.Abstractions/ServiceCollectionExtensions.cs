@@ -1,4 +1,5 @@
-﻿using EventDriven.DDD.Abstractions.Commands;
+﻿using System.Reflection;
+using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Configuration;
 using EventDriven.Sagas.Abstractions.Entities;
@@ -100,24 +101,29 @@ public static class ServiceCollectionExtensions
     {
         var sagaConfigOptions = new SagaConfigurationOptions();
         configure(sagaConfigOptions);
+        var resolver = new SagaCommandTypeResolver(Assembly.GetEntryAssembly()?.FullName);
         services.RegisterSagaTypes()
-            .AddAutoMapper(typeof(SagaAutoMapperProfile))
-            .AddSingleton<ISagaCommandTypeResolver, SagaCommandTypeResolver>()
             .AddSingleton(sagaConfigOptions)
             .AddSingleton<TSagaConfigRepository>()
-            .AddSingleton(sp =>
-        {
-            var commandDispatcher = sp.GetRequiredService<TSagaCommandDispatcher>();
-            var configRepository = sp.GetRequiredService<TSagaConfigRepository>();
-            var resultEvaluator = sp.GetRequiredService<TCommandResultEvaluator>();
-            return new TSagaWithConfig
+            .AddSingleton<ISagaCommandTypeResolver, SagaCommandTypeResolver>(_ => resolver)
+            .AddAutoMapper(cfg =>
             {
-                SagaCommandDispatcher = commandDispatcher,
-                SagaConfigRepository = configRepository,
-                CommandResultEvaluator = resultEvaluator,
-                SagaConfigOptions = sagaConfigOptions
-            };
-        });
+                SagaAutoMapperProfile.SagaCommandTypeResolver = resolver;
+                cfg.AddProfile(new SagaAutoMapperProfile());
+            }, typeof(SagaAutoMapperProfile))
+            .AddSingleton(sp =>
+            {
+                var commandDispatcher = sp.GetRequiredService<TSagaCommandDispatcher>();
+                var configRepository = sp.GetRequiredService<TSagaConfigRepository>();
+                var resultEvaluator = sp.GetRequiredService<TCommandResultEvaluator>();
+                return new TSagaWithConfig
+                {
+                    SagaCommandDispatcher = commandDispatcher,
+                    SagaConfigRepository = configRepository,
+                    CommandResultEvaluator = resultEvaluator,
+                    SagaConfigOptions = sagaConfigOptions
+                };
+            });
         return services;
     }
 

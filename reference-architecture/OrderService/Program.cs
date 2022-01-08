@@ -23,11 +23,8 @@ builder.Services.AddAppSettings<SagaConfigSettings>(builder.Configuration);
 
 // Database registrations
 builder.Services.AddMongoDbSettings<OrderDatabaseSettings, Order>(builder.Configuration);
-builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfigurationDto>(
-    builder.Configuration);
+builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfigurationDto>(builder.Configuration);
 builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
-// builder.Services.AddSingleton<ISagaConfigRepository, SagaConfigRepository>();
-// builder.Services.AddSingleton<SagaConfigRepository>();
 
 // Saga registration
 builder.Services.AddSaga<CreateOrderSaga, Order, OrderCommandDispatcher,
