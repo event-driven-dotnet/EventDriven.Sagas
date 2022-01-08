@@ -25,7 +25,7 @@ public interface ISagaConfigRepository
     /// A task that represents the asynchronous operation.
     /// The task result contains the added saga configuration.
     /// </returns>
-    Task<SagaConfiguration> AddSagaConfigurationAsync(SagaConfiguration entity);
+    Task<SagaConfiguration?> AddSagaConfigurationAsync(SagaConfiguration entity);
 
     /// <summary>
     /// Update an existing saga configuration.
@@ -35,7 +35,7 @@ public interface ISagaConfigRepository
     /// A task that represents the asynchronous operation.
     /// The task result contains the updated saga configuration.
     /// </returns>
-    Task<SagaConfiguration> UpdateSagaConfigurationAsync(SagaConfiguration entity);
+    Task<SagaConfiguration?> UpdateSagaConfigurationAsync(SagaConfiguration entity);
 
     /// <summary>
     /// Remove an existing saga configuration.

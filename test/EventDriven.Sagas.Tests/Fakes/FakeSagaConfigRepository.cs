@@ -105,12 +105,12 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
         return Task.FromResult<SagaConfiguration?>(config);
     }
 
-    public Task<SagaConfiguration> AddSagaConfigurationAsync(SagaConfiguration entity)
+    public Task<SagaConfiguration?> AddSagaConfigurationAsync(SagaConfiguration entity)
     {
         throw new NotImplementedException();
     }
 
-    public Task<SagaConfiguration> UpdateSagaConfigurationAsync(SagaConfiguration entity)
+    public Task<SagaConfiguration?> UpdateSagaConfigurationAsync(SagaConfiguration entity)
     {
         throw new NotImplementedException();
     }

@@ -31,8 +31,7 @@ public abstract class SagaWithConfig<TEntity> : Saga<TEntity>
                 .GetSagaConfigurationAsync(SagaConfigOptions.SagaConfigId.GetValueOrDefault());
             if (sagaConfig == null)
                 throw new Exception($"Saga configuration with id '{SagaConfigOptions.SagaConfigId}' not present in Saga Configuration Repository.");
-            // TODO: Use mapper
-            Steps = new List<SagaStep>(); // sagaConfig.Steps;
+            Steps = sagaConfig.Steps;
         }
     }
 

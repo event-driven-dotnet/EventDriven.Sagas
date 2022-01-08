@@ -1,7 +1,7 @@
-﻿using EventDriven.Sagas.Abstractions.DTO;
+﻿using EventDriven.DDD.Abstractions.Repositories;
+using EventDriven.Sagas.Abstractions.DTO;
 using EventDriven.Sagas.Abstractions.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using SagaConfigService.Repositories;
 
 namespace SagaConfigService.Controllers
 {
@@ -10,10 +10,14 @@ namespace SagaConfigService.Controllers
     public class SagaConfigController : ControllerBase
     {
         private readonly ISagaConfigDtoRepository _configRepository;
+        private readonly ILogger<SagaConfigController> _logger;
 
-        public SagaConfigController(ISagaConfigDtoRepository configRepository)
+        public SagaConfigController(
+            ISagaConfigDtoRepository configRepository,
+            ILogger<SagaConfigController> logger)
         {
             _configRepository = configRepository;
+            _logger = logger;
         }
 
         // GET api/sagaconfig/d89ffb1e-7481-4111-a4dd-ac5123217293
@@ -36,7 +40,7 @@ namespace SagaConfigService.Controllers
             }
             catch (ConcurrencyException e)
             {
-                Console.WriteLine(e);
+                _logger.LogError(e, "{Message}", e.Message);
                 return Conflict();
             }
         }
@@ -48,11 +52,12 @@ namespace SagaConfigService.Controllers
             try
             {
                 var result = await _configRepository.UpdateSagaConfigurationAsync(value);
+                if (result == null) return NotFound();
                 return Ok(result);
             }
             catch (ConcurrencyException e)
             {
-                Console.WriteLine(e);
+                _logger.LogError(e, "{Message}", e.Message);
                 return Conflict();
             }
         }

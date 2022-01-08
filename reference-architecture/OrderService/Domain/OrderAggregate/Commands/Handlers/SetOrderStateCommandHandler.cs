@@ -1,4 +1,5 @@
 ﻿using EventDriven.DDD.Abstractions.Commands;
+using EventDriven.DDD.Abstractions.Repositories;
 using EventDriven.Sagas.Abstractions.Commands;
 using OrderService.Domain.OrderAggregate.Commands.SagaCommands;
 using OrderService.Repositories;
@@ -28,8 +29,19 @@ public class SetOrderStateCommandHandler :
     
         var order = await _repository.GetOrderAsync(command.EntityId);
         if (order == null) return new CommandResult<Order>(CommandOutcome.NotFound);
-        var updatedOrder = await _repository.UpdateOrderStateAsync(order, OrderState.Pending);
-        await _commandResultProcessor.ProcessCommandResultAsync(updatedOrder, false);
-        return new CommandResult<Order>(CommandOutcome.Accepted, updatedOrder);
+
+        try
+        {
+            var updatedOrder = await _repository.UpdateOrderStateAsync(order, OrderState.Pending);
+            if (updatedOrder == null)
+                return new CommandResult<Order>(CommandOutcome.NotFound);
+            await _commandResultProcessor.ProcessCommandResultAsync(updatedOrder, false);
+            return new CommandResult<Order>(CommandOutcome.Accepted, updatedOrder);
+        }
+        catch (ConcurrencyException e)
+        {
+            _logger.LogError(e, "{Message}", e.Message);
+            return new CommandResult<Order>(CommandOutcome.Conflict);
+        }
     }
 }

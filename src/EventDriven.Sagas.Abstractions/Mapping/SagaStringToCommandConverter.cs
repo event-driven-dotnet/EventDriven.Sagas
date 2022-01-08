@@ -24,6 +24,7 @@ public class SagaStringToCommandConverter : ITypeConverter<string, SagaCommand>
     public SagaCommand Convert(string source, SagaCommand destination, ResolutionContext context)
     {
         var type = _commandTypeResolver.ResolveCommandType(source);
+        // TODO: Throw exception if null
         if (type == null) return null!;
         return (JsonSerializer.Deserialize(source, type) as SagaCommand)!;
     }

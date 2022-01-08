@@ -1,4 +1,5 @@
-﻿using EventDriven.Sagas.Abstractions.DTO;
+﻿using EventDriven.DDD.Abstractions.Repositories;
+using EventDriven.Sagas.Abstractions.DTO;
 using EventDriven.Sagas.Abstractions.Repositories;
 using URF.Core.Abstractions;
 
@@ -17,19 +18,20 @@ public class SagaConfigDtoRepository : ISagaConfigDtoRepository
     public async Task<SagaConfigurationDto?> GetSagaConfigurationAsync(Guid id)
         => await _documentRepository.FindOneAsync(e => e.Id == id);
 
-    public async Task<SagaConfigurationDto> AddSagaConfigurationAsync(SagaConfigurationDto entity)
+    public async Task<SagaConfigurationDto?> AddSagaConfigurationAsync(SagaConfigurationDto entity)
     {
-        var existing = await _documentRepository.FindOneAsync(e => e.Id == entity.Id);
-        if (existing != null) throw new ConcurrencyException();
+        var existing = await GetSagaConfigurationAsync(entity.Id);
+        if (existing != null) throw new ConcurrencyException(entity.Id);
         entity.ETag = Guid.NewGuid().ToString();
         return await _documentRepository.InsertOneAsync(entity);
     }
 
-    public async Task<SagaConfigurationDto> UpdateSagaConfigurationAsync(SagaConfigurationDto entity)
+    public async Task<SagaConfigurationDto?> UpdateSagaConfigurationAsync(SagaConfigurationDto entity)
     {
         var existing = await GetSagaConfigurationAsync(entity.Id);
-        if (existing == null || string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
-            throw new ConcurrencyException();
+        if (existing == null) return null;
+        if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
+            throw new ConcurrencyException(entity.Id);
         entity.ETag = Guid.NewGuid().ToString();
         return await _documentRepository.FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
     }

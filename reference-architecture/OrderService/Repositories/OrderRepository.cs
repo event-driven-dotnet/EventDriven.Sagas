@@ -1,4 +1,5 @@
-﻿using OrderService.Domain.OrderAggregate;
+﻿using EventDriven.DDD.Abstractions.Repositories;
+using OrderService.Domain.OrderAggregate;
 using URF.Core.Abstractions;
 
 namespace OrderService.Repositories;
@@ -22,26 +23,27 @@ public class OrderRepository : IOrderRepository
     public async Task<Order?> GetOrderAsync(Guid id) =>
         await _documentRepository.FindOneAsync(e => e.Id == id);
 
-    public async Task<Order> AddOrderAsync(Order entity)
+    public async Task<Order?> AddOrderAsync(Order entity)
     {
         var existing = await GetOrderAsync(entity.Id);
-        if (existing != null) throw new ConcurrencyException();
+        if (existing != null) throw new ConcurrencyException(entity.Id);
         entity.ETag = Guid.NewGuid().ToString();
         return await _documentRepository.InsertOneAsync(entity);
     }
 
-    public async Task<Order> UpdateOrderAsync(Order entity)
+    public async Task<Order?> UpdateOrderAsync(Order entity)
     {
         var existing = await GetOrderAsync(entity.Id);
-        if (existing == null || string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
-            throw new ConcurrencyException();
+        if (existing == null) return null;
+        if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
+            throw new ConcurrencyException(entity.Id);
         entity.ETag = Guid.NewGuid().ToString();
         return await _documentRepository.FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
     }
 
-    public async Task<Order> AddUpdateOrderAsync(Order entity)
+    public async Task<Order?> AddUpdateOrderAsync(Order entity)
     {
-        Order result;
+        Order? result;
         var existing = await GetOrderAsync(entity.Id);
         if (existing == null) result = await AddOrderAsync(entity);
         else
@@ -61,11 +63,12 @@ public class OrderRepository : IOrderRepository
         return existing?.State;
     }
 
-    public async Task<Order> UpdateOrderStateAsync(Order entity, OrderState orderState)
+    public async Task<Order?> UpdateOrderStateAsync(Order entity, OrderState orderState)
     {
         var existing = await GetOrderAsync(entity.Id);
-        if (existing == null || string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
-            throw new ConcurrencyException();
+        if (existing == null) return null;
+        if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
+            throw new ConcurrencyException(entity.Id);
         entity.ETag = Guid.NewGuid().ToString();
         entity.State = orderState;
         return await _documentRepository.FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
