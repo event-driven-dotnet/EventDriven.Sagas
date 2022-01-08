@@ -1,13 +1,13 @@
 using EventDriven.DependencyInjection;
 using EventDriven.DependencyInjection.URF.Mongo;
 using EventDriven.Sagas.Abstractions;
+using EventDriven.Sagas.Abstractions.DTO;
 using OrderService.Configuration;
 using OrderService.Domain.OrderAggregate;
 using OrderService.Domain.OrderAggregate.Commands.Dispatchers;
 using OrderService.Domain.OrderAggregate.Commands.Evaluators;
 using OrderService.Domain.OrderAggregate.Sagas;
 using OrderService.Repositories;
-using SagaConfigurationDto = OrderService.DTO.SagaConfig.SagaConfiguration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,8 +23,11 @@ builder.Services.AddAppSettings<SagaConfigSettings>(builder.Configuration);
 
 // Database registrations
 builder.Services.AddMongoDbSettings<OrderDatabaseSettings, Order>(builder.Configuration);
-builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfiguration, SagaConfigurationDto>(builder.Configuration);
+builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfigurationDto>(
+    builder.Configuration);
 builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
+// builder.Services.AddSingleton<ISagaConfigRepository, SagaConfigRepository>();
+// builder.Services.AddSingleton<SagaConfigRepository>();
 
 // Saga registration
 builder.Services.AddSaga<CreateOrderSaga, Order, OrderCommandDispatcher,

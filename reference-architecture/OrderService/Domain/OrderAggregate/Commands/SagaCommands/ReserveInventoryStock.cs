@@ -1,5 +1,10 @@
-﻿using EventDriven.DDD.Abstractions.Commands;
+﻿using EventDriven.Sagas.Abstractions.Commands;
 
 namespace OrderService.Domain.OrderAggregate.Commands.SagaCommands;
 
-public record ReserveInventoryStock(Order Order) : Command(Order.Id);
+public record ReserveInventoryStock : SagaCommand
+{
+    public ReserveInventoryStock(Guid orderId) : base(orderId)
+    {
+    }
+}

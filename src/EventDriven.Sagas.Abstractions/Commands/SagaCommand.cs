@@ -8,7 +8,7 @@ namespace EventDriven.Sagas.Abstractions.Commands;
 public abstract record SagaCommand : Command, ISagaCommand
 {
     /// <inheritdoc />
-    protected SagaCommand(Guid entityId = default(Guid))
+    protected SagaCommand(Guid entityId = default)
         : base(entityId)
     {
     }
@@ -26,7 +26,7 @@ public abstract record SagaCommand<TResult, TExpectedResult> :
     SagaCommand, ISagaCommand<TResult, TExpectedResult>
 {
     /// <inheritdoc />
-    protected SagaCommand(Guid entityId = default(Guid))
+    protected SagaCommand(Guid entityId = default)
         : base(entityId)
     {
     }

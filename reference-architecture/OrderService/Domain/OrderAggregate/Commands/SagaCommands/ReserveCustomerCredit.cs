@@ -1,5 +1,10 @@
-﻿using EventDriven.DDD.Abstractions.Commands;
+﻿using EventDriven.Sagas.Abstractions.Commands;
 
 namespace OrderService.Domain.OrderAggregate.Commands.SagaCommands;
 
-public record ReserveCustomerCredit(Order Order) : Command(Order.Id);
+public record ReserveCustomerCredit : SagaCommand
+{
+    public ReserveCustomerCredit(Guid orderId) : base(orderId)
+    {
+    }
+}

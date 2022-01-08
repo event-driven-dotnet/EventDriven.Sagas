@@ -1,9 +1,11 @@
 ﻿using System.Text.Encodings.Web;
 using System.Text.Json;
 using EventDriven.DependencyInjection;
+using EventDriven.Sagas.Abstractions.DTO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OrderService.Domain.OrderAggregate.Commands.SagaCommands;
 using TestClient.Configuration;
 using TestClient.DTO;
 using TestClient.Services;
@@ -18,15 +20,15 @@ var host = Host
         services.AddAppSettings<OrderServiceSettings>(config);
         services.AddHttpClient();
         services.AddTransient<SagaConfigService>();
-        services.AddTransient<OrderService>();
+        services.AddTransient<TestClient.Services.OrderService>();
     })
     .Build();
 
 var settings = host.Services.GetRequiredService<SagaConfigServiceSettings>();
 
 Console.WriteLine("Create saga configuration? {Y} {N}");
-SagaConfiguration? localSagaConfig = null;
-var key1 = settings.Debug ? ConsoleKey.N : Console.ReadKey(true).Key;
+SagaConfigurationDto? localSagaConfig = null;
+var key1 = settings.Debug ? ConsoleKey.Y : Console.ReadKey(true).Key;
 Console.WriteLine(key1);
 if (key1 == ConsoleKey.Y)
 {
@@ -70,7 +72,7 @@ var order = new Order
     }
 };
 
-var orderService = host.Services.GetRequiredService<OrderService>();
+var orderService = host.Services.GetRequiredService<TestClient.Services.OrderService>();
 var result = await orderService.CreateOrder(order);
 Console.WriteLine($"Create Order Saga started. Order state: {result?.State}");
 
@@ -85,7 +87,7 @@ while (!Console.KeyAvailable)
     Console.WriteLine($"Order state: {orderState}");
 }
 
-void SaveLocalSagaConfig(SagaConfiguration sagaConfig)
+void SaveLocalSagaConfig(SagaConfigurationDto sagaConfig)
 {
     var options = new JsonSerializerOptions
     {
@@ -96,39 +98,36 @@ void SaveLocalSagaConfig(SagaConfiguration sagaConfig)
     File.WriteAllText(settings.SagaConfigPath, json);
 }
 
-SagaConfiguration? ReadLocalSagaConfig()
+SagaConfigurationDto? ReadLocalSagaConfig()
 {
     var json = File.ReadAllText(settings.SagaConfigPath);
-    return JsonSerializer.Deserialize<SagaConfiguration>(json);
+    return JsonSerializer.Deserialize<SagaConfigurationDto>(json);
 }
 
-SagaConfiguration CreateSagaConfig(Guid id)
+SagaConfigurationDto CreateSagaConfig(Guid id)
 {
-    var steps = new Dictionary<int, SagaStep>
+    var steps = new List<SagaStepDto>
     {
+        new SagaStepDto
         {
-            1,
-            new SagaStep
+            Sequence = 1,
+            Action = new SagaActionDto
             {
-                Sequence = 1,
-                Action = new SagaAction
+                Command = JsonSerializer.Serialize(new SetOrderStatePending()
                 {
-                    Command = JsonSerializer.Serialize(new SetStateCommand
-                    {
-                        Name = "SetStatePending",
-                        ExpectedResult = OrderState.Pending
-                    })
-                },
-                CompensatingAction = new SagaAction
+                    Name = typeof(SetOrderStatePending).FullName,
+                    ExpectedResult = OrderState.Pending
+                })
+            },
+            CompensatingAction = new SagaActionDto()
+            {
+                Command = JsonSerializer.Serialize(new SetOrderStateInitial
                 {
-                    Command = JsonSerializer.Serialize(new SetStateCommand
-                    {
-                        Name = "SetStateInitial",
-                        ExpectedResult = OrderState.Initial
-                    })
-                }
+                    Name = typeof(SetOrderStateInitial).FullName,
+                    ExpectedResult = OrderState.Initial
+                })
             }
-        },
+        }
         //{   2,
         //    new SagaStep
         //    {
@@ -202,5 +201,5 @@ SagaConfiguration CreateSagaConfig(Guid id)
         //    }
         //},
     };
-    return new SagaConfiguration { Id = id, Steps = steps, Name = "CreateOrderSaga"};
+    return new SagaConfigurationDto() { Id = id, Steps = steps, Name = "CreateOrderSaga"};
 }

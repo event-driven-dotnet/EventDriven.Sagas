@@ -1,11 +1,9 @@
-﻿using EventDriven.Sagas.Abstractions.Entities;
-
-namespace EventDriven.Sagas.Abstractions.Repositories;
+﻿namespace EventDriven.Sagas.Abstractions.Repositories;
 
 /// <summary>
 /// Repository interface for saga configuration.
 /// </summary>
-public interface ISagaConfigRepository
+public interface ISagaConfigDtoRepository
 {
     /// <summary>
     /// Retrieve a saga configuration.
@@ -15,7 +13,7 @@ public interface ISagaConfigRepository
     /// A task that represents the asynchronous operation.
     /// The task result contains the saga configuration.
     /// </returns>
-    Task<SagaConfiguration?> GetSagaConfigurationAsync(Guid id);
+    Task<DTO.SagaConfigurationDto?> GetSagaConfigurationAsync(Guid id);
 
     /// <summary>
     /// Add a new saga configuration.
@@ -25,7 +23,7 @@ public interface ISagaConfigRepository
     /// A task that represents the asynchronous operation.
     /// The task result contains the added saga configuration.
     /// </returns>
-    Task<SagaConfiguration> AddSagaConfigurationAsync(SagaConfiguration entity);
+    Task<DTO.SagaConfigurationDto> AddSagaConfigurationAsync(DTO.SagaConfigurationDto entity);
 
     /// <summary>
     /// Update an existing saga configuration.
@@ -35,7 +33,7 @@ public interface ISagaConfigRepository
     /// A task that represents the asynchronous operation.
     /// The task result contains the updated saga configuration.
     /// </returns>
-    Task<SagaConfiguration> UpdateSagaConfigurationAsync(SagaConfiguration entity);
+    Task<DTO.SagaConfigurationDto> UpdateSagaConfigurationAsync(DTO.SagaConfigurationDto entity);
 
     /// <summary>
     /// Remove an existing saga configuration.

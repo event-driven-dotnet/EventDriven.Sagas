@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using EventDriven.Sagas.Abstractions;
+using EventDriven.Sagas.Abstractions.DTO;
+using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Repositories;
 using URF.Core.Abstractions;
-using SagaConfigurationDto = OrderService.DTO.SagaConfig.SagaConfiguration;
 
 namespace OrderService.Repositories;
 

@@ -1,4 +1,4 @@
-using EventDriven.Sagas.Abstractions;
+using EventDriven.Sagas.Abstractions.Configuration;
 
 namespace OrderService.Configuration;
 

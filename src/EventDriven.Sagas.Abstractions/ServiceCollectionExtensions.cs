@@ -1,5 +1,8 @@
 ﻿using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Commands;
+using EventDriven.Sagas.Abstractions.Configuration;
+using EventDriven.Sagas.Abstractions.Entities;
+using EventDriven.Sagas.Abstractions.Mapping;
 using EventDriven.Sagas.Abstractions.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +35,7 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration)
         where TSagaWitConfig : SagaWithConfig<TSagaEntity>, new()
         where TSagaCommandDispatcher : ISagaCommandDispatcher
-        where TSagaConfigRepository : ISagaConfigRepository
+        where TSagaConfigRepository : class, ISagaConfigRepository
         where TCommandResultEvaluator : ICommandResultEvaluator
         where TSagaConfigSettings : ISagaConfigSettings, new()
     {
@@ -65,7 +68,7 @@ public static class ServiceCollectionExtensions
         Guid? sagaConfigId = null)
         where TSagaWithConfig : SagaWithConfig<TSagaEntity>, new()
         where TSagaCommandDispatcher : ISagaCommandDispatcher
-        where TSagaConfigRepository : ISagaConfigRepository
+        where TSagaConfigRepository : class, ISagaConfigRepository
         where TCommandResultEvaluator : ICommandResultEvaluator
         => services.AddSaga<TSagaWithConfig, TSagaEntity,
             TSagaCommandDispatcher, TSagaConfigRepository,
@@ -92,13 +95,16 @@ public static class ServiceCollectionExtensions
         Action<SagaConfigurationOptions> configure)
         where TSagaWithConfig : SagaWithConfig<TSagaEntity>, new()
         where TSagaCommandDispatcher : ISagaCommandDispatcher
-        where TSagaConfigRepository : ISagaConfigRepository
+        where TSagaConfigRepository : class, ISagaConfigRepository
         where TCommandResultEvaluator : ICommandResultEvaluator
     {
         var sagaConfigOptions = new SagaConfigurationOptions();
         configure(sagaConfigOptions);
         services.RegisterSagaTypes()
+            .AddAutoMapper(typeof(SagaAutoMapperProfile))
+            .AddSingleton<ISagaCommandTypeResolver, SagaCommandTypeResolver>()
             .AddSingleton(sagaConfigOptions)
+            .AddSingleton<TSagaConfigRepository>()
             .AddSingleton(sp =>
         {
             var commandDispatcher = sp.GetRequiredService<TSagaCommandDispatcher>();
@@ -140,7 +146,7 @@ public static class ServiceCollectionExtensions
                     .UsingRegistrationStrategy(RegistrationStrategy.Skip)
                     .AsSelf()
                     .WithSingletonLifetime()
-                .AddClasses(classes => classes.AssignableTo<ISagaConfigRepository>())
+                .AddClasses(classes => classes.AssignableTo<ISagaConfigDtoRepository>())
                     .UsingRegistrationStrategy(RegistrationStrategy.Skip)
                     .AsSelf()
                     .WithSingletonLifetime()

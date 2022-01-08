@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventDriven.Sagas.Abstractions;
+using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Tests.Fakes;
 using Xunit;
 
@@ -23,8 +23,8 @@ namespace EventDriven.Sagas.Tests
             var configRepo = new FakeSagaConfigRepository();
             var resultEvaluator = new FakeCommandResultEvaluator();
             var config = await configRepo.GetSagaConfigurationAsync(Guid.Empty);
-            var steps = new Dictionary<int, SagaStep>(config?.Steps.Where(s => s.Key <= step)
-                ?? Array.Empty<KeyValuePair<int, SagaStep>>());
+            var steps = new List<SagaStep>(config?.Steps.Where(s => s.Sequence <= step)
+                ?? Array.Empty<SagaStep>());
             var saga = new FakeSaga(steps, dispatcher, resultEvaluator);
             var order = new Order();
             var customer = new Customer();
@@ -41,8 +41,8 @@ namespace EventDriven.Sagas.Tests
             var expectedCustomerCredit = "Available";
             var expectedInventoryStock = "Available";
             var expectedActionStates = Enumerable.Empty<ActionState>();
-            var actionStates = steps.Select(s => s.Value.Action.State);
-            var compensatingActionStates = steps.Select(s => s.Value.CompensatingAction.State);
+            var actionStates = steps.Select(s => s.Action.State);
+            var compensatingActionStates = steps.Select(s => s.CompensatingAction.State);
             var expectedCompensatingActionStates = Enumerable.Empty<ActionState>();
 
             switch (step)
@@ -96,8 +96,8 @@ namespace EventDriven.Sagas.Tests
             var configRepo = new FakeSagaConfigRepository();
             var resultEvaluator = new FakeCommandResultEvaluator();
             var config = await configRepo.GetSagaConfigurationAsync(Guid.Empty);
-            var steps = new Dictionary<int, SagaStep>(config?.Steps.Where(s => s.Key <= step)
-                ?? Array.Empty<KeyValuePair<int, SagaStep>>());
+            var steps = new List<SagaStep>(config?.Steps.Where(s => s.Sequence <= step)
+                    ?? Array.Empty<SagaStep>());
             var cancelOnStep = cancel ? step : 0;
             var saga = new FakeSaga(steps, dispatcher, resultEvaluator, cancelOnStep, tokenSource);
             var order = new Order();
@@ -106,7 +106,8 @@ namespace EventDriven.Sagas.Tests
             dispatcher.OrderCommandHandler = new OrderCommandHandler(order, saga);
             dispatcher.CustomerCommandHandler = new CustomerCommandHandler(customer, saga);
             dispatcher.InventoryCommandHandler = new InventoryCommandHandler(inventory, saga);
-            ((FakeCommand)steps[step].Action.Command).Result = "Foo";
+            var cmd = (FakeCommand)steps.Single(s => s.Sequence == step).Action.Command;
+            cmd.Result = "Foo";
 
             // Act
             await saga.StartSagaAsync(tokenSource.Token);
@@ -118,9 +119,9 @@ namespace EventDriven.Sagas.Tests
             var expectedCustomerCredit = "Available";
             var expectedInventoryStock = "Available";
             var expectedActionStates = Enumerable.Empty<ActionState>();
-            var actionStates = steps.Select(s => s.Value.Action.State);
+            var actionStates = steps.Select(s => s.Action.State);
             var expectedStateInfos = Enumerable.Empty<string?>();
-            var stateInfos = steps.Select(s => s.Value.Action.StateInfo);
+            var stateInfos = steps.Select(s => s.Action.StateInfo);
             string cancelMessage = "Cancellation requested.";
 
             switch (step)

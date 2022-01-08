@@ -1,10 +1,9 @@
 using AutoMapper;
 using EventDriven.DDD.Abstractions.Commands;
 using Microsoft.AspNetCore.Mvc;
+using OrderService.Domain.OrderAggregate.Commands;
 using OrderService.Domain.OrderAggregate.Commands.Handlers;
-using OrderService.Domain.OrderAggregate.Commands.SagaCommands;
 using OrderService.Helpers;
-using Order = OrderService.DTO.Order;
 
 namespace OrderService.Controllers
 {
@@ -23,14 +22,14 @@ namespace OrderService.Controllers
 
         // POST api/order
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Order orderDto)
+        public async Task<IActionResult> Create([FromBody] DTO.Order orderDto)
         {
             var orderIn = _mapper.Map<Domain.OrderAggregate.Order>(orderDto);
             var result = await _commandHandler.Handle(new CreateOrder(orderIn));
 
             if (result.Outcome != CommandOutcome.Accepted)
                 return result.ToActionResult();
-            var orderOut = _mapper.Map<Order>(result.Entity);
+            var orderOut = _mapper.Map<DTO.Order>(result.Entity);
             return new CreatedResult($"api/order/{orderOut.Id}", orderOut);
         }
     }
