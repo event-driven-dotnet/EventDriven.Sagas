@@ -1,4 +1,6 @@
-﻿namespace OrderService.DTO;
+﻿using OrderService.Domain.OrderAggregate;
+
+namespace OrderService.DTO;
 
 public class Order
 {

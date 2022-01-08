@@ -5,9 +5,9 @@ using EventDriven.Sagas.Abstractions.DTO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OrderService.Domain.OrderAggregate;
 using OrderService.Domain.OrderAggregate.Commands.SagaCommands;
 using TestClient.Configuration;
-using TestClient.DTO;
 using TestClient.Services;
 
 var host = Host

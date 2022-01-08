@@ -2,9 +2,4 @@
 
 namespace OrderService.Domain.OrderAggregate.Commands.SagaCommands;
 
-public record SetOrderStateInitial : SagaCommand<OrderState, OrderState>
-{
-    public SetOrderStateInitial(Guid orderId) : base(orderId)
-    {
-    }
-}
+public record SetOrderStateInitial(Guid EntityId = default) : SagaCommand<OrderState, OrderState>(EntityId);

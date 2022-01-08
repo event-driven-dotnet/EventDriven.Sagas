@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\EventDriven.Sagas.Abstractions\EventDriven.Sagas.Abstractions.csproj" />
+    <ProjectReference Include="..\OrderService\OrderService.csproj" />
   </ItemGroup>
 
 </Project>

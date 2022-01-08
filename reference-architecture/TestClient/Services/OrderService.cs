@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using OrderService.Domain.OrderAggregate;
 using TestClient.Configuration;
-using TestClient.DTO;
 
 namespace TestClient.Services;
 

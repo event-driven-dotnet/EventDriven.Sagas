@@ -2,9 +2,4 @@
 
 namespace OrderService.Domain.OrderAggregate.Commands.SagaCommands;
 
-public record ReserveCustomerCredit : SagaCommand
-{
-    public ReserveCustomerCredit(Guid orderId) : base(orderId)
-    {
-    }
-}
+public record ReserveCustomerCredit(Guid EntityId = default) : SagaCommand(EntityId);
