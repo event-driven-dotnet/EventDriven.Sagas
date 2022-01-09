@@ -11,19 +11,18 @@ public interface ISagaSnapshotRepository
     /// Retrieve a saga.
     /// </summary>
     /// <param name="id">Saga id.</param>
+    /// <param name="entity">A persistable saga.</param>
     /// <returns>
     /// A task that represents the asynchronous operation.
-    /// The task result contains the saga.
     /// </returns>
-    Task<Saga?> GetSagaAsync(Guid id);
+    Task RetrieveSagaSnapshotAsync(Guid id, PersistableSaga entity);
 
     /// <summary>
-    /// Add a new saga.
+    /// Add a persistable saga.
     /// </summary>
-    /// <param name="entity">A new saga.</param>
+    /// <param name="entity">A persistable saga.</param>
     /// <returns>
     /// A task that represents the asynchronous operation.
-    /// The task result contains the added saga.
     /// </returns>
-    Task<Saga?> AddSagaAsync(Saga entity);
+    Task PersistSagaSnapshotAsync(PersistableSaga entity);
 }

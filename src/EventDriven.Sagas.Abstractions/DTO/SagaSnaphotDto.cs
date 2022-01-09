@@ -10,7 +10,22 @@ public class SagaSnapshotDto
     /// <summary>
     /// Saga snapshot identifier.
     /// </summary>
-    public Guid SnapshotId { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
+
+    /// <summary>
+    /// Time the snapshot was created.
+    /// </summary>
+    public DateTime SnapshotCreated { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Saga identifier.
+    /// </summary>
+    public Guid SagaId { get; set; }
+
+    /// <summary>
+    /// Time the saga was started.
+    /// </summary>
+    public DateTime SagaStarted { get; set; }
 
     /// <summary>
     /// Saga snapshot sequence.
@@ -18,19 +33,24 @@ public class SagaSnapshotDto
     public int Sequence { get; set; }
 
     /// <summary>
-    /// Time the snapshot was created.
+    /// Entity identifier.
     /// </summary>
-    public DateTime Created { get; set; }
+    public Guid EntityId { get; set; }
 
     /// <summary>
-    /// Saga identifier.
+    /// The current saga step.
     /// </summary>
-    public Guid SagaId { get; set; } = Guid.NewGuid();
+    public int CurrentStep { get; set; }
 
     /// <summary>
-    /// Saga configuration identifier.
+    /// State of the saga.
     /// </summary>
-    public Guid SagaConfigId { get; set; } = Guid.NewGuid();
+    public SagaState State { get; set; }
+
+    /// <summary>
+    /// Information about the state of the saga.
+    /// </summary>
+    public string? StateInfo { get; set; }
 
     /// <summary>
     /// Represents a unique ID that must change atomically with each store of the entity
@@ -39,24 +59,14 @@ public class SagaSnapshotDto
     public string ETag { get; set; } = Guid.Empty.ToString();
 
     /// <summary>
-    /// State of the saga.
+    /// Saga configuration identifier.
     /// </summary>
-    public SagaState State { get; set; }
+    public Guid? SagaConfigId { get; set; } = Guid.NewGuid();
 
     /// <summary>
-    /// Optional saga configuration name.
+    /// Saga configuration name.
     /// </summary>
-    public string? Name { get; set; }
-
-    /// <summary>
-    /// Information about the state of the saga.
-    /// </summary>
-    public string? StateInfo { get; set; }
-
-    /// <summary>
-    /// The current saga step.
-    /// </summary>
-    public int CurrentStep { get; set; }
+    public string? SagaConfigName { get; set; }
 
     /// <summary>
     /// Steps performed by the saga.

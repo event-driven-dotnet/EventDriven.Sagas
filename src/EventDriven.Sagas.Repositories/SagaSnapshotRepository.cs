@@ -25,29 +25,36 @@ public class SagaSnapshotRepository : ISagaSnapshotRepository
         IMapper mapper)
     {
         _documentRepository = documentRepository;
-        // TODO: Set up saga / saga snapshot mappings
         _mapper = mapper;
     }
 
     /// <inheritdoc />
-    public async Task<Saga?> GetSagaAsync(Guid id)
+    public async Task RetrieveSagaSnapshotAsync(Guid id, PersistableSaga entity)
     {
-        var max = await _documentRepository.Queryable().MaxAsync(e => e.Sequence);
+        var max = await GetMax(id);
         var dto = await _documentRepository.FindOneAsync(e => e.Sequence == max);
-        if (dto == null) return null;
-        var result = _mapper.Map<Saga>(dto);
-        return result;
+        _mapper.Map(dto, entity);
     }
 
     /// <inheritdoc />
-    public async Task<Saga?> AddSagaAsync(Saga entity)
+    public async Task PersistSagaSnapshotAsync(PersistableSaga entity)
     {
-        var max = await _documentRepository.Queryable().MaxAsync(e => e.Sequence);
+        var max = await GetMax(entity.Id);
         entity.ETag = Guid.NewGuid().ToString();
+        entity.Sequence = max + 1;
         var dto = _mapper.Map<SagaSnapshotDto>(entity);
-        dto.Sequence = max + 1;
-        dto = await _documentRepository.InsertOneAsync(dto);
-        var result =  _mapper.Map<Saga>(dto);
-        return result;
+        await _documentRepository.InsertOneAsync(dto);
+    }
+
+    private async Task<int> GetMax(Guid id)
+    {
+        var existing = await _documentRepository
+            .FindManyAsync(e => e.SagaId == id);
+        var max = existing.Count == 0
+            ? 0
+            : await _documentRepository.Queryable()
+                .Where(e => e.SagaId == id)
+                .MaxAsync(e => e.Sequence);
+        return max;
     }
 }

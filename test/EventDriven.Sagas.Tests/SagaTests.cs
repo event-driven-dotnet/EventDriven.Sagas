@@ -21,11 +21,12 @@ namespace EventDriven.Sagas.Tests
             // Arrange
             var dispatcher = new InMemoryCommandDispatcher();
             var configRepo = new FakeSagaConfigRepository();
+            var snapshotRepo = new FakeSnapshotRepository();
             var resultEvaluator = new FakeCommandResultEvaluator();
             var config = await configRepo.GetSagaConfigurationAsync(Guid.Empty);
             var steps = new List<SagaStep>(config?.Steps.Where(s => s.Sequence <= step)
                 ?? Array.Empty<SagaStep>());
-            var saga = new FakeSaga(steps, dispatcher, resultEvaluator);
+            var saga = new FakeSaga(steps, dispatcher, resultEvaluator, snapshotRepo);
             var order = new Order();
             var customer = new Customer();
             var inventory = new Inventory();
@@ -80,6 +81,7 @@ namespace EventDriven.Sagas.Tests
             Assert.Equal(SagaState.Executed, saga.State);
             Assert.Equal(expectedActionStates, actionStates);
             Assert.Equal(expectedCompensatingActionStates, compensatingActionStates);
+            Assert.Equal(step, snapshotRepo.Sagas.Count);
         }
 
         [Theory]
@@ -94,12 +96,13 @@ namespace EventDriven.Sagas.Tests
             var tokenSource = new CancellationTokenSource();
             var dispatcher = new InMemoryCommandDispatcher();
             var configRepo = new FakeSagaConfigRepository();
+            var snapshotRepo = new FakeSnapshotRepository();
             var resultEvaluator = new FakeCommandResultEvaluator();
             var config = await configRepo.GetSagaConfigurationAsync(Guid.Empty);
             var steps = new List<SagaStep>(config?.Steps.Where(s => s.Sequence <= step)
                     ?? Array.Empty<SagaStep>());
             var cancelOnStep = cancel ? step : 0;
-            var saga = new FakeSaga(steps, dispatcher, resultEvaluator, cancelOnStep, tokenSource);
+            var saga = new FakeSaga(steps, dispatcher, resultEvaluator, snapshotRepo, cancelOnStep, tokenSource);
             var order = new Order();
             var customer = new Customer();
             var inventory = new Inventory();
@@ -167,6 +170,7 @@ namespace EventDriven.Sagas.Tests
             Assert.Equal(expectedActionStates, actionStates);
             Assert.Equal(expectedStateInfos, stateInfos);
             Assert.Equal(expectedSagaState, saga.StateInfo);
+            Assert.Equal(step * 2, snapshotRepo.Sagas.Count);
         }
     }
 }

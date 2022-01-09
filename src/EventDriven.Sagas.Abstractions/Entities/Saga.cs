@@ -1,5 +1,4 @@
 ﻿using EventDriven.Sagas.Abstractions.Commands;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace EventDriven.Sagas.Abstractions.Entities;
 
@@ -19,10 +18,24 @@ public abstract record Saga
     public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
-    /// Represents a unique ID that must change atomically with each store of the entity
-    /// to its underlying storage medium.
+    /// Time the saga was started.
     /// </summary>
-    public string ETag { get; set; } = null!;
+    public DateTime Started { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Saga snapshot sequence.
+    /// </summary>
+    public int Sequence { get; set; }
+
+    /// <summary>
+    /// Entity identifier.
+    /// </summary>
+    public Guid EntityId { get; set; }
+
+    /// <summary>
+    /// The current saga step.
+    /// </summary>
+    public int CurrentStep { get; set; }
 
     /// <summary>
     /// State of the saga.
@@ -35,9 +48,10 @@ public abstract record Saga
     public string? StateInfo { get; set; }
 
     /// <summary>
-    /// The current saga step.
+    /// Represents a unique ID that must change atomically with each store of the entity
+    /// to its underlying storage medium.
     /// </summary>
-    public int CurrentStep { get; set; }
+    public string ETag { get; set; } = null!;
 
     /// <summary>
     /// Steps performed by the saga.
@@ -128,39 +142,5 @@ public abstract record Saga
 
         // Dispatch current step command
         await ExecuteCurrentActionAsync();
-    }
-}
-
-/// <summary>
-/// Enables the execution of atomic operations which span multiple services.
-/// </summary>
-/// <typeparam name="TEntity">Entity type.</typeparam>
-public abstract record Saga<TEntity> : Saga
-{
-    /// <summary>
-    /// SagaConfig constructor.
-    /// Note: To use <see cref="IServiceCollection"/>.AddSaga, inheritors must have a parameterless constructor. 
-    /// </summary>
-    // ReSharper disable once EmptyConstructor
-    protected Saga()
-    {
-    }
-
-    /// <summary>
-    /// Entity.
-    /// </summary>
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public TEntity Entity { get; set; } = default!;
-
-    /// <summary>
-    /// Start the saga.
-    /// </summary>
-    /// <param name="entity">Saga entity.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public virtual async Task StartSagaAsync(TEntity entity, CancellationToken cancellationToken = default)
-    {
-        Entity = entity;
-        await StartSagaAsync(cancellationToken);
     }
 }

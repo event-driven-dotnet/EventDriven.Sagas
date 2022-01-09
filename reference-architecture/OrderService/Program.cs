@@ -23,14 +23,19 @@ builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddAppSettings<SagaConfigSettings>(builder.Configuration);
 
 // Database registrations
-builder.Services.AddMongoDbSettings<OrderDatabaseSettings, Order>(builder.Configuration);
-builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfigurationDto>(builder.Configuration);
 builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
+builder.Services.AddMongoDbSettings<OrderDatabaseSettings, Order>(
+    builder.Configuration);
+builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfigurationDto>(
+    builder.Configuration);
+builder.Services.AddMongoDbSettings<SagaSnapshotDatabaseSettings, SagaSnapshotDto>(
+    builder.Configuration);
 
 // Saga registration
-builder.Services.AddSaga<CreateOrderSaga, Order, OrderCommandDispatcher,
-    SagaConfigRepository, SetOrderStateResultEvaluator,
-    SagaConfigSettings>(builder.Configuration);
+builder.Services.AddSaga<CreateOrderSaga, Order, 
+    OrderCommandDispatcher, SetOrderStateResultEvaluator, 
+    SagaConfigRepository, SagaSnapshotRepository, SagaConfigSettings>(
+    builder.Configuration);
 
 // Command handler registrations
 builder.Services.AddCommandHandlers();

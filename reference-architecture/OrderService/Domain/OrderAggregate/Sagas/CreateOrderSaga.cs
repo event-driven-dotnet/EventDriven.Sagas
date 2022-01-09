@@ -3,7 +3,7 @@ using EventDriven.Sagas.Abstractions.Entities;
 
 namespace OrderService.Domain.OrderAggregate.Sagas;
 
-public record CreateOrderSaga : SagaWithConfig<Order>, ICommandResultProcessor<Order>
+public record CreateOrderSaga : PersistableSaga<Order>, ICommandResultProcessor<Order>
 {
     protected override async Task ExecuteCurrentActionAsync()
     {
@@ -11,6 +11,7 @@ public record CreateOrderSaga : SagaWithConfig<Order>, ICommandResultProcessor<O
         action.State = ActionState.Running;
         action.Started = DateTime.UtcNow;
         action.Command = action.Command with { EntityId = Entity.Id };
+        await PersistAsync();
         if (SagaCommandDispatcher != null)
             await SagaCommandDispatcher.DispatchAsync(action.Command, false);
     }
@@ -21,12 +22,14 @@ public record CreateOrderSaga : SagaWithConfig<Order>, ICommandResultProcessor<O
         action.State = ActionState.Running;
         action.Started = DateTime.UtcNow;
         action.Command = action.Command with { EntityId = Entity.Id };
+        await PersistAsync();
         if (SagaCommandDispatcher != null)
             await SagaCommandDispatcher.DispatchAsync(action.Command, true);
     }
 
     public async Task ProcessCommandResultAsync(Order commandResult, bool compensating)
     {
+        await RetrieveAsync();
         var step = Steps.Single(s => s.Sequence == CurrentStep);
         await ProcessCommandResultAsync(step, compensating);
     }
