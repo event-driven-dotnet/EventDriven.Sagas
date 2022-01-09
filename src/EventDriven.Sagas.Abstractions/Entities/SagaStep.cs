@@ -3,7 +3,7 @@
 /// <summary>
 /// Saga step consisting of both an action and compensating action.
 /// </summary>
-public class SagaStep
+public record SagaStep
 {
     /// <summary>
     /// Saga step identifier.

@@ -8,7 +8,7 @@ using EventDriven.Sagas.Abstractions.Entities;
 
 namespace EventDriven.Sagas.Tests.Fakes;
 
-public class FakeSaga : Saga,
+public record FakeSaga : Saga,
     ICommandResultProcessor<Order>,
     ICommandResultProcessor<Customer>,
     ICommandResultProcessor<Inventory>

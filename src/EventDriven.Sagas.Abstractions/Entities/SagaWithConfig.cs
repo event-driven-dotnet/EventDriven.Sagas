@@ -7,7 +7,7 @@ namespace EventDriven.Sagas.Abstractions.Entities;
 /// Enables the execution of atomic operations which span multiple services.
 /// </summary>
 /// <typeparam name="TEntity">Entity type.</typeparam>
-public abstract class SagaWithConfig<TEntity> : Saga<TEntity>
+public abstract record SagaWithConfig<TEntity> : Saga<TEntity>
 {
     /// <summary>
     /// Optional saga configuration identifier.

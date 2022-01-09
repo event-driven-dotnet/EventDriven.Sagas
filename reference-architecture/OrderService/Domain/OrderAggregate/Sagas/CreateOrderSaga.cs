@@ -3,7 +3,7 @@ using EventDriven.Sagas.Abstractions.Entities;
 
 namespace OrderService.Domain.OrderAggregate.Sagas;
 
-public class CreateOrderSaga : SagaWithConfig<Order>, ICommandResultProcessor<Order>
+public record CreateOrderSaga : SagaWithConfig<Order>, ICommandResultProcessor<Order>
 {
     protected override async Task ExecuteCurrentActionAsync()
     {
