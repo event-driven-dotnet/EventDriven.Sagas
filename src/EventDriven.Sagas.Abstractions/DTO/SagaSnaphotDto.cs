@@ -13,6 +13,11 @@ public class SagaSnapshotDto
     public Guid SnapshotId { get; set; }
 
     /// <summary>
+    /// Saga snapshot sequence.
+    /// </summary>
+    public int Sequence { get; set; }
+
+    /// <summary>
     /// Time the snapshot was created.
     /// </summary>
     public DateTime Created { get; set; }
