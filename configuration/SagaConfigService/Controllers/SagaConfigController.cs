@@ -1,7 +1,7 @@
 ﻿using EventDriven.DDD.Abstractions.Repositories;
 using EventDriven.Sagas.Abstractions.DTO;
-using EventDriven.Sagas.Abstractions.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using SagaConfigService.Repositories;
 
 namespace SagaConfigService.Controllers
 {

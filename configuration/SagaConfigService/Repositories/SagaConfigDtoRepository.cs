@@ -1,6 +1,5 @@
 ﻿using EventDriven.DDD.Abstractions.Repositories;
 using EventDriven.Sagas.Abstractions.DTO;
-using EventDriven.Sagas.Abstractions.Repositories;
 using URF.Core.Abstractions;
 
 namespace SagaConfigService.Repositories;
