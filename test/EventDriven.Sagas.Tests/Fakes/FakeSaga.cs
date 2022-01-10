@@ -54,21 +54,18 @@ public class FakeSaga : PersistableSaga,
 
     public async Task ProcessCommandResultAsync(Order commandResult, bool compensating)
     {
-        await RetrieveAsync();
         var step = Steps.Single(s => s.Sequence == CurrentStep);
         await ProcessCommandResultAsync(step, compensating);
     }
 
     public async Task ProcessCommandResultAsync(Customer commandResult, bool compensating)
     {
-        await RetrieveAsync();
         var step = Steps.Single(s => s.Sequence == CurrentStep);
         await ProcessCommandResultAsync(step, compensating);
     }
 
     public async Task ProcessCommandResultAsync(Inventory commandResult, bool compensating)
     {
-        await RetrieveAsync();
         var step = Steps.Single(s => s.Sequence == CurrentStep);
         await ProcessCommandResultAsync(step, compensating);
     }

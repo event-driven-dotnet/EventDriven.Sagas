@@ -1,4 +1,5 @@
 ﻿using EventDriven.DDD.Abstractions.Entities;
+using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Configuration.Abstractions.Repositories;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,7 +73,9 @@ public abstract class ConfigurableSaga : Saga
 /// Enables the execution of atomic operations which span multiple services.
 /// </summary>
 /// <typeparam name="TEntity">Entity type.</typeparam>
-public abstract class ConfigurableSaga<TEntity> : ConfigurableSaga
+public abstract class ConfigurableSaga<TEntity> : 
+    ConfigurableSaga,
+    ICommandResultProcessor<TEntity>
     where TEntity : IEntity
 {
     /// <inheritdoc />
@@ -99,4 +102,7 @@ public abstract class ConfigurableSaga<TEntity> : ConfigurableSaga
         EntityId = entity.Id;
         await StartSagaAsync(cancellationToken);
     }
+
+    /// <inheritdoc />
+    public abstract Task ProcessCommandResultAsync(TEntity commandResult, bool compensating);
 }

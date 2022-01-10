@@ -1,10 +1,9 @@
-﻿using EventDriven.Sagas.Abstractions.Commands;
-using EventDriven.Sagas.Abstractions.Entities;
+﻿using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Persistence.Abstractions;
 
 namespace OrderService.Domain.OrderAggregate.Sagas;
 
-public class CreateOrderSaga : PersistableSaga<Order>, ICommandResultProcessor<Order>
+public class CreateOrderSaga : PersistableSaga<Order>
 {
     protected override async Task ExecuteCurrentActionAsync()
     {
@@ -28,9 +27,8 @@ public class CreateOrderSaga : PersistableSaga<Order>, ICommandResultProcessor<O
             await SagaCommandDispatcher.DispatchAsync(action.Command, true);
     }
 
-    public async Task ProcessCommandResultAsync(Order commandResult, bool compensating)
+    public override async Task ProcessCommandResultAsync(Order commandResult, bool compensating)
     {
-        await RetrieveAsync();
         var step = Steps.Single(s => s.Sequence == CurrentStep);
         await ProcessCommandResultAsync(step, compensating);
     }

@@ -1,4 +1,5 @@
 using EventDriven.DDD.Abstractions.Entities;
+using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Configuration.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,22 +31,15 @@ public abstract class PersistableSaga : ConfigurableSaga
         if (SagaSnapshotRepository != null)
             await SagaSnapshotRepository.PersistSagaSnapshotAsync(this);
     }
-    
-    /// <summary>
-    /// Retrieve saga.
-    /// </summary>
-    protected virtual async Task RetrieveAsync()
-    {
-        if (SagaSnapshotRepository != null)
-            await SagaSnapshotRepository.RetrieveSagaSnapshotAsync(Id, this);
-    }
 }
 
 /// <summary>
 /// Enables the execution of atomic operations which span multiple services.
 /// </summary>
 /// <typeparam name="TEntity">Entity type.</typeparam>
-public abstract class PersistableSaga<TEntity> : PersistableSaga
+public abstract class PersistableSaga<TEntity> :
+    PersistableSaga,
+    ICommandResultProcessor<TEntity>
     where TEntity : IEntity
 {
     /// <inheritdoc />
@@ -72,4 +66,7 @@ public abstract class PersistableSaga<TEntity> : PersistableSaga
         EntityId = entity.Id;
         await StartSagaAsync(cancellationToken);
     }
+
+    /// <inheritdoc />
+    public abstract Task ProcessCommandResultAsync(TEntity commandResult, bool compensating);
 }
