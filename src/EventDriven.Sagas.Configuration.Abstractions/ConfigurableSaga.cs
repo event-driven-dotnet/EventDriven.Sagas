@@ -1,9 +1,9 @@
 ﻿using EventDriven.DDD.Abstractions.Entities;
-using EventDriven.Sagas.Abstractions.Configuration;
-using EventDriven.Sagas.Abstractions.Repositories;
+using EventDriven.Sagas.Abstractions.Entities;
+using EventDriven.Sagas.Configuration.Abstractions.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EventDriven.Sagas.Abstractions.Entities;
+namespace EventDriven.Sagas.Configuration.Abstractions;
 
 /// <summary>
 /// Enables the execution of atomic operations which span multiple services.

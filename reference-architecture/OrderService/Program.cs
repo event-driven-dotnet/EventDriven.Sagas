@@ -1,8 +1,9 @@
 using EventDriven.DependencyInjection;
 using EventDriven.DependencyInjection.URF.Mongo;
-using EventDriven.Sagas.Abstractions;
 using EventDriven.Sagas.Abstractions.DTO;
-using EventDriven.Sagas.Repositories;
+using EventDriven.Sagas.Configuration.Repositories;
+using EventDriven.Sagas.DependencyInjection;
+using EventDriven.Sagas.Persistence.Repositories;
 using OrderService.Configuration;
 using OrderService.Domain.OrderAggregate;
 using OrderService.Domain.OrderAggregate.Commands.Dispatchers;

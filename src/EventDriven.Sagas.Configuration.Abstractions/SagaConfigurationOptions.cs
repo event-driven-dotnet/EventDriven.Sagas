@@ -1,4 +1,4 @@
-namespace EventDriven.Sagas.Abstractions.Configuration;
+namespace EventDriven.Sagas.Configuration.Abstractions;
 
 /// <summary>
 /// Saga configuration options.

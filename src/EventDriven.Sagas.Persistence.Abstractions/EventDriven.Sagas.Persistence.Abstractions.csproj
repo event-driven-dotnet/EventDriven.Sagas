@@ -8,7 +8,7 @@
         <Authors>Tony Sneed</Authors>
         <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
         <PackageVersion>1.0.0-beta1</PackageVersion>
-        <Description>Repositories for implementing the Saga pattern.</Description>
+        <Description>A set of abstractions for implementing the Saga pattern.</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/event-driven-dotnet/EventDriven.Sagas</PackageProjectUrl>
         <PackageIcon>eda-logo.jpeg</PackageIcon>
@@ -16,7 +16,7 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>sagas event-driven event-driven-architecture</PackageTags>
         <PackageReleaseNotes>https://github.com/event-driven-dotnet/EventDriven.Sagas/releases/tag/v1.0.0-beta1</PackageReleaseNotes>
-        <PackageId>EventDriven.Sagas.Repositories</PackageId>
+        <PackageId>EventDriven.Sagas.Persistence.Abstractions</PackageId>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
     </PropertyGroup>
 
@@ -31,13 +31,8 @@
         </None>
     </ItemGroup>
 
-
     <ItemGroup>
-      <ProjectReference Include="..\EventDriven.Sagas.Abstractions\EventDriven.Sagas.Abstractions.csproj" />
+      <ProjectReference Include="..\EventDriven.Sagas.Configuration.Abstractions\EventDriven.Sagas.Configuration.Abstractions.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="EventDriven.DependencyInjection.URF.Mongo" Version="1.1.0-beta2" />
-    </ItemGroup>
-
+    
 </Project>

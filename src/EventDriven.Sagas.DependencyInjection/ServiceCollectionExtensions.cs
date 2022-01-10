@@ -2,14 +2,16 @@
 using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.DDD.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Commands;
-using EventDriven.Sagas.Abstractions.Configuration;
-using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Mapping;
-using EventDriven.Sagas.Abstractions.Repositories;
+using EventDriven.Sagas.Configuration.Abstractions;
+using EventDriven.Sagas.Configuration.Abstractions.Repositories;
+using EventDriven.Sagas.Persistence.Abstractions;
+using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SagaConfigAutoMapperProfile = EventDriven.Sagas.Configuration.Abstractions.SagaConfigAutoMapperProfile;
 
-namespace EventDriven.Sagas.Abstractions;
+namespace EventDriven.Sagas.DependencyInjection;
 
 /// <summary>
 /// Helper methods for adding sagas to dependency injection.
@@ -114,9 +116,9 @@ public static class ServiceCollectionExtensions
             .AddTransient<ISagaCommandTypeResolver, SagaCommandTypeResolver>(_ => resolver)
             .AddAutoMapper(cfg =>
             {
-                SagaAutoMapperProfile.SagaCommandTypeResolver = resolver;
-                cfg.AddProfile(new SagaAutoMapperProfile());
-            }, typeof(SagaAutoMapperProfile))
+                SagaConfigAutoMapperProfile.SagaCommandTypeResolver = resolver;
+                cfg.AddProfile(new SagaConfigAutoMapperProfile());
+            }, typeof(SagaConfigAutoMapperProfile))
             // .AddTransient<ICommandResultProcessor<TSagaEntity>>(sp =>
             // {
             //     return sp.GetRequiredService<TPersistableSaga>();

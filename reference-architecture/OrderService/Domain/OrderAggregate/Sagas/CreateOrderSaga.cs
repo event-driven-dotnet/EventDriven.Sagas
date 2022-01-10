@@ -1,5 +1,6 @@
 ﻿using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Entities;
+using EventDriven.Sagas.Persistence.Abstractions;
 
 namespace OrderService.Domain.OrderAggregate.Sagas;
 

@@ -1,4 +1,6 @@
-﻿namespace EventDriven.Sagas.Abstractions.Entities;
+﻿using EventDriven.Sagas.Abstractions.Entities;
+
+namespace EventDriven.Sagas.Configuration.Abstractions;
 
 /// <summary>
 /// Saga configuration.

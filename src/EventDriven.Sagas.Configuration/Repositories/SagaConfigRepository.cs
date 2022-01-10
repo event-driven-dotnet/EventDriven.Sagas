@@ -1,11 +1,11 @@
 using AutoMapper;
 using EventDriven.DDD.Abstractions.Repositories;
 using EventDriven.Sagas.Abstractions.DTO;
-using EventDriven.Sagas.Abstractions.Entities;
-using EventDriven.Sagas.Abstractions.Repositories;
+using EventDriven.Sagas.Configuration.Abstractions;
+using EventDriven.Sagas.Configuration.Abstractions.Repositories;
 using URF.Core.Abstractions;
 
-namespace EventDriven.Sagas.Repositories;
+namespace EventDriven.Sagas.Configuration.Repositories;
 
 /// <summary>
 /// Saga configuration repository.

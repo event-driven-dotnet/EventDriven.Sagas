@@ -1,11 +1,11 @@
 using AutoMapper;
 using EventDriven.Sagas.Abstractions.DTO;
-using EventDriven.Sagas.Abstractions.Entities;
-using EventDriven.Sagas.Abstractions.Repositories;
+using EventDriven.Sagas.Persistence.Abstractions;
+using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 using URF.Core.Abstractions;
 using URF.Core.Mongo;
 
-namespace EventDriven.Sagas.Repositories;
+namespace EventDriven.Sagas.Persistence.Repositories;
 
 /// <summary>
 /// Saga history repository.

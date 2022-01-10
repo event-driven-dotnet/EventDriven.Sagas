@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Entities;
-using EventDriven.Sagas.Abstractions.Repositories;
+using EventDriven.Sagas.Configuration.Abstractions;
+using EventDriven.Sagas.Configuration.Abstractions.Repositories;
 
 namespace EventDriven.Sagas.Tests.Fakes;
 

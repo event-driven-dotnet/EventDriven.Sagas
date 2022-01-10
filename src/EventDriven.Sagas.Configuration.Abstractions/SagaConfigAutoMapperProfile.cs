@@ -2,13 +2,14 @@ using AutoMapper;
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.DTO;
 using EventDriven.Sagas.Abstractions.Entities;
+using EventDriven.Sagas.Abstractions.Mapping;
 
-namespace EventDriven.Sagas.Abstractions.Mapping;
+namespace EventDriven.Sagas.Configuration.Abstractions;
 
 /// <summary>
 ///  Saga auto mapper configuration.
 /// </summary>
-public class SagaAutoMapperProfile: Profile
+public class SagaConfigAutoMapperProfile: Profile
 {
     /// <summary>
     /// Command type resolver.
@@ -18,7 +19,7 @@ public class SagaAutoMapperProfile: Profile
     /// <summary>
     /// Constructor.
     /// </summary>
-    public SagaAutoMapperProfile()
+    public SagaConfigAutoMapperProfile()
     {
         CreateMap<SagaConfiguration, SagaConfigurationDto>();
         CreateMap<SagaConfiguration, SagaConfigurationDto>().ReverseMap();
@@ -30,16 +31,5 @@ public class SagaAutoMapperProfile: Profile
             .ConvertUsing<SagaCommandToStringConverter>();
         CreateMap<string, SagaCommand>()
             .ConvertUsing(new SagaStringToCommandConverter(SagaCommandTypeResolver!));
-
-        CreateMap<PersistableSaga, SagaSnapshotDto>()
-            .ForMember(dest => dest.SagaId, opt =>
-                opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.SagaStarted, opt =>
-                opt.MapFrom(src => src.Started));
-        CreateMap<SagaSnapshotDto, PersistableSaga>()
-            .ForMember(dest => dest.Id, opt =>
-                opt.MapFrom(src => src.SagaId))
-            .ForMember(dest => dest.Started, opt =>
-                opt.MapFrom(src => src.SagaStarted));
     }
 }
