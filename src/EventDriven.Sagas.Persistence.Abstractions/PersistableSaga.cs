@@ -8,7 +8,7 @@ namespace EventDriven.Sagas.Persistence.Abstractions;
 /// <summary>
 /// Enables the execution of atomic operations which span multiple services.
 /// </summary>
-public abstract record PersistableSaga : ConfigurableSaga
+public abstract class PersistableSaga : ConfigurableSaga
 {
     /// <summary>
     /// Constructor.
@@ -45,7 +45,7 @@ public abstract record PersistableSaga : ConfigurableSaga
 /// Enables the execution of atomic operations which span multiple services.
 /// </summary>
 /// <typeparam name="TEntity">Entity type.</typeparam>
-public abstract record PersistableSaga<TEntity> : PersistableSaga
+public abstract class PersistableSaga<TEntity> : PersistableSaga
     where TEntity : IEntity
 {
     /// <inheritdoc />

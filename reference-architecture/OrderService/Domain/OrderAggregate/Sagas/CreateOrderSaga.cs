@@ -4,7 +4,7 @@ using EventDriven.Sagas.Persistence.Abstractions;
 
 namespace OrderService.Domain.OrderAggregate.Sagas;
 
-public record CreateOrderSaga : PersistableSaga<Order>, ICommandResultProcessor<Order>
+public class CreateOrderSaga : PersistableSaga<Order>, ICommandResultProcessor<Order>
 {
     protected override async Task ExecuteCurrentActionAsync()
     {

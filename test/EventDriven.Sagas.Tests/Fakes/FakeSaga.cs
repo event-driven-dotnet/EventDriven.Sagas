@@ -10,7 +10,7 @@ using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 
 namespace EventDriven.Sagas.Tests.Fakes;
 
-public record FakeSaga : PersistableSaga,
+public class FakeSaga : PersistableSaga,
     ICommandResultProcessor<Order>,
     ICommandResultProcessor<Customer>,
     ICommandResultProcessor<Inventory>

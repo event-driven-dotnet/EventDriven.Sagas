@@ -8,7 +8,7 @@ namespace EventDriven.Sagas.Configuration.Abstractions;
 /// <summary>
 /// Enables the execution of atomic operations which span multiple services.
 /// </summary>
-public abstract record ConfigurableSaga : Saga
+public abstract class ConfigurableSaga : Saga
 {
     /// <summary>
     /// Constructor.
@@ -72,7 +72,7 @@ public abstract record ConfigurableSaga : Saga
 /// Enables the execution of atomic operations which span multiple services.
 /// </summary>
 /// <typeparam name="TEntity">Entity type.</typeparam>
-public abstract record ConfigurableSaga<TEntity> : ConfigurableSaga
+public abstract class ConfigurableSaga<TEntity> : ConfigurableSaga
     where TEntity : IEntity
 {
     /// <inheritdoc />

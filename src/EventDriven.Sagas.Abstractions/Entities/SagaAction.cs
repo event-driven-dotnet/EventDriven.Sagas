@@ -5,7 +5,7 @@ namespace EventDriven.Sagas.Abstractions.Entities;
 /// <summary>
 /// An action performed in a saga step.
 /// </summary>
-public record SagaAction
+public class SagaAction
 {
     /// <summary>
     /// Saga action identifier.

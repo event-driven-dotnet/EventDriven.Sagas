@@ -5,7 +5,7 @@ namespace EventDriven.Sagas.Abstractions.Entities;
 /// <summary>
 /// Enables the execution of atomic operations which span multiple services.
 /// </summary>
-public abstract record Saga
+public abstract class Saga
 {
     /// <summary>
     /// Cancellation token.
