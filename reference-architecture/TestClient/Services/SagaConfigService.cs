@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using EventDriven.Sagas.Abstractions.DTO;
+using EventDriven.Sagas.Configuration.Abstractions.DTO;
 using TestClient.Configuration;
 
 namespace TestClient.Services;

@@ -1,5 +1,5 @@
 using EventDriven.DependencyInjection.URF.Mongo;
-using EventDriven.Sagas.Abstractions.DTO;
+using EventDriven.Sagas.Configuration.Abstractions.DTO;
 using SagaConfigService.Configuration;
 using SagaConfigService.Repositories;
 

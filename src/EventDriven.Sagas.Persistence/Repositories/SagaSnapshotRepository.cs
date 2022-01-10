@@ -1,6 +1,6 @@
 using AutoMapper;
-using EventDriven.Sagas.Abstractions.DTO;
 using EventDriven.Sagas.Persistence.Abstractions;
+using EventDriven.Sagas.Persistence.Abstractions.DTO;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 using URF.Core.Abstractions;
 using URF.Core.Mongo;

@@ -1,5 +1,5 @@
 ﻿using EventDriven.DDD.Abstractions.Repositories;
-using EventDriven.Sagas.Abstractions.DTO;
+using EventDriven.Sagas.Configuration.Abstractions.DTO;
 using Microsoft.AspNetCore.Mvc;
 using SagaConfigService.Repositories;
 

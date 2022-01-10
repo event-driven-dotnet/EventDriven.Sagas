@@ -3,6 +3,7 @@ using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.DTO;
 using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Mapping;
+using EventDriven.Sagas.Configuration.Abstractions.DTO;
 
 namespace EventDriven.Sagas.Configuration.Abstractions;
 

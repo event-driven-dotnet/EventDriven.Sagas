@@ -1,4 +1,4 @@
-using EventDriven.Sagas.Abstractions.DTO;
+using EventDriven.Sagas.Configuration.Abstractions.DTO;
 
 namespace SagaConfigService.Repositories;
 

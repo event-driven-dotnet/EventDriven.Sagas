@@ -1,6 +1,6 @@
 using AutoMapper;
-using EventDriven.Sagas.Abstractions.DTO;
 using EventDriven.Sagas.Abstractions.Mapping;
+using EventDriven.Sagas.Persistence.Abstractions.DTO;
 
 namespace EventDriven.Sagas.Persistence.Abstractions;
 

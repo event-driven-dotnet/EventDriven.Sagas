@@ -1,4 +1,6 @@
-﻿namespace EventDriven.Sagas.Abstractions.DTO;
+﻿using EventDriven.Sagas.Abstractions.DTO;
+
+namespace EventDriven.Sagas.Configuration.Abstractions.DTO;
 
 /// <summary>
 /// Saga configuration.
