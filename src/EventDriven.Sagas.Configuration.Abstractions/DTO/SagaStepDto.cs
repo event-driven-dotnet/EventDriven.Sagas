@@ -1,4 +1,4 @@
-﻿namespace EventDriven.Sagas.Abstractions.DTO;
+namespace EventDriven.Sagas.Configuration.Abstractions.DTO;
 
 /// <summary>
 /// Saga step consisting of both an action and compensating action.

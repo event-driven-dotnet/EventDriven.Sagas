@@ -1,6 +1,6 @@
 ﻿using EventDriven.Sagas.Abstractions.Entities;
 
-namespace EventDriven.Sagas.Abstractions.DTO;
+namespace EventDriven.Sagas.Persistence.Abstractions.DTO;
 
 /// <summary>
 /// An action performed in a saga step.

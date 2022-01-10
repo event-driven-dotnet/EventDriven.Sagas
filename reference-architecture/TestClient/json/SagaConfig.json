@@ -4,27 +4,17 @@
   "Name": "CreateOrderSaga",
   "Steps": [
     {
-      "Id": "eec333e0-d6e3-4581-afff-4b8cfd893e1a",
+      "Id": "f2fcf7c0-1873-4bba-a0f4-bea7a5bfb76d",
       "Sequence": 1,
       "Action": {
-        "Id": "38caccdf-0c38-4d37-901d-9c8440dd02d7",
+        "Id": "b0c64333-3431-481e-8748-6e1bfb2fc760",
         "Command": "{\"Result\":0,\"ExpectedResult\":1,\"Name\":\"OrderService.Domain.OrderAggregate.Commands.SagaCommands.SetOrderStatePending\",\"EntityId\":\"00000000-0000-0000-0000-000000000000\"}",
-        "Timeout": null,
-        "State": 0,
-        "StateInfo": null,
-        "Started": null,
-        "Completed": null,
-        "Duration": null
+        "Timeout": null
       },
       "CompensatingAction": {
-        "Id": "56dadc27-03ee-4923-9d93-9d5d330a3505",
+        "Id": "28579db1-10e4-466c-919b-e7815bc6594d",
         "Command": "{\"Result\":0,\"ExpectedResult\":0,\"Name\":\"OrderService.Domain.OrderAggregate.Commands.SagaCommands.SetOrderStateInitial\",\"EntityId\":\"00000000-0000-0000-0000-000000000000\"}",
-        "Timeout": null,
-        "State": 0,
-        "StateInfo": null,
-        "Started": null,
-        "Completed": null,
-        "Duration": null
+        "Timeout": null
       }
     }
   ]
