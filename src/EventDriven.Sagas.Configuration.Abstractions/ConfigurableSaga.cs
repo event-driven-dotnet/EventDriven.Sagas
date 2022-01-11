@@ -2,7 +2,6 @@
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Configuration.Abstractions.Repositories;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace EventDriven.Sagas.Configuration.Abstractions;
 
@@ -11,12 +10,11 @@ namespace EventDriven.Sagas.Configuration.Abstractions;
 /// </summary>
 public abstract class ConfigurableSaga : Saga
 {
-    /// <summary>
-    /// Constructor.
-    /// Note: To use <see cref="IServiceCollection"/>.AddSaga, inheritors must have a parameterless constructor. 
-    /// </summary>
-    // ReSharper disable once EmptyConstructor
-    protected ConfigurableSaga()
+    /// <inheritdoc />
+    protected ConfigurableSaga(
+        ISagaCommandDispatcher sagaCommandDispatcher,
+        ICommandResultEvaluator commandResultEvaluator) : 
+        base(sagaCommandDispatcher, commandResultEvaluator)
     {
     }
     
@@ -79,8 +77,10 @@ public abstract class ConfigurableSaga<TEntity> :
     where TEntity : IEntity
 {
     /// <inheritdoc />
-    // ReSharper disable once EmptyConstructor
-    protected ConfigurableSaga()
+    protected ConfigurableSaga(
+        ISagaCommandDispatcher sagaCommandDispatcher,
+        ICommandResultEvaluator commandResultEvaluator) : 
+        base(sagaCommandDispatcher, commandResultEvaluator)
     {
     }
 

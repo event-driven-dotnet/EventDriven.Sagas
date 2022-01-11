@@ -8,6 +8,19 @@ namespace EventDriven.Sagas.Abstractions.Entities;
 public abstract class Saga
 {
     /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="sagaCommandDispatcher">Saga command dispatcher.</param>
+    /// <param name="commandResultEvaluator">Command result evaluator.</param>
+    protected Saga(
+        ISagaCommandDispatcher sagaCommandDispatcher,
+        ICommandResultEvaluator commandResultEvaluator)
+    {
+        SagaCommandDispatcher = sagaCommandDispatcher;
+        CommandResultEvaluator = commandResultEvaluator;
+    }
+
+    /// <summary>
     /// Cancellation token.
     /// </summary>
     protected CancellationToken CancellationToken;
@@ -61,12 +74,12 @@ public abstract class Saga
     /// <summary>
     /// Saga command dispatcher.
     /// </summary>
-    public ISagaCommandDispatcher? SagaCommandDispatcher { get; set; }
+    protected ISagaCommandDispatcher SagaCommandDispatcher { get; set; }
 
     /// <summary>
     /// Command result evaluator.
     /// </summary>
-    public ICommandResultEvaluator? CommandResultEvaluator { get; set; }
+    protected ICommandResultEvaluator CommandResultEvaluator { get; set; }
 
     /// <summary>
     /// Execute the current action.

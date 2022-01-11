@@ -7,23 +7,23 @@ using OrderService.Repositories;
 namespace OrderService.Domain.OrderAggregate.Commands.Handlers;
 
 public class SetOrderStateCommandHandler :
-    ICommandHandler<Order, SetOrderStatePending>
+    SagaCommandHandler<Order, SetOrderStatePending>
 {
     private readonly IOrderRepository _repository;
-    private readonly ICommandResultProcessor<Order> _commandResultProcessor;
+    // private readonly ICommandResultProcessor<Order> _commandResultProcessor;
     private readonly ILogger<SetOrderStateCommandHandler> _logger;
 
     public SetOrderStateCommandHandler(
         IOrderRepository repository,
-        ICommandResultProcessor<Order> commandResultProcessor,
+        // ICommandResultProcessor<Order> commandResultProcessor,
         ILogger<SetOrderStateCommandHandler> logger)
     {
         _repository = repository;
-        _commandResultProcessor = commandResultProcessor;
+        // _commandResultProcessor = commandResultProcessor;
         _logger = logger;
     }
 
-    public async Task<CommandResult<Order>> Handle(SetOrderStatePending command)
+    public override async Task<CommandResult<Order>> Handle(SetOrderStatePending command)
     {
         _logger.LogInformation("Handling command: {CommandName}", nameof(SetOrderStatePending));
     
@@ -35,7 +35,7 @@ public class SetOrderStateCommandHandler :
             var updatedOrder = await _repository.UpdateOrderStateAsync(order, OrderState.Pending);
             if (updatedOrder == null)
                 return new CommandResult<Order>(CommandOutcome.NotFound);
-            await _commandResultProcessor.ProcessCommandResultAsync(updatedOrder, false);
+            await CommandResultProcessor.ProcessCommandResultAsync(updatedOrder, false);
             return new CommandResult<Order>(CommandOutcome.Accepted, updatedOrder);
         }
         catch (ConcurrencyException e)

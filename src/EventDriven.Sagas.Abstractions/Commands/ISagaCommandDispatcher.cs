@@ -1,4 +1,6 @@
-﻿namespace EventDriven.Sagas.Abstractions.Commands;
+﻿using EventDriven.DDD.Abstractions.Entities;
+
+namespace EventDriven.Sagas.Abstractions.Commands;
 
 /// <summary>
 /// Dispatches saga commands.
@@ -12,4 +14,15 @@ public interface ISagaCommandDispatcher
     /// <param name="compensating">True if compensating command.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     Task DispatchAsync(SagaCommand command, bool compensating);
+}
+
+/// <inheritdoc />
+public interface ISagaCommandDispatcher<TEntity, TSagaCommand> : ISagaCommandDispatcher
+    where TEntity : Entity
+    where TSagaCommand : class, ISagaCommand
+{
+    /// <summary>
+    /// Saga command handler.
+    /// </summary>
+    public ISagaCommandHandler<TEntity, TSagaCommand> SagaCommandHandler { get; set; }
 }

@@ -137,14 +137,14 @@ public static class ServiceCollectionExtensions
             // })
             .AddTransient(sp =>
             {
-                var commandDispatcher = sp.GetRequiredService<TSagaCommandDispatcher>();
-                var resultEvaluator = sp.GetRequiredService<TCommandResultEvaluator>();
+                // var commandDispatcher = sp.GetRequiredService<TSagaCommandDispatcher>();
+                // var resultEvaluator = sp.GetRequiredService<TCommandResultEvaluator>();
                 var configRepository = sp.GetRequiredService<ISagaConfigRepository>();
                 var snapshotRepository = sp.GetRequiredService<ISagaSnapshotRepository>();
                 return new TPersistableSaga
                 {
-                    SagaCommandDispatcher = commandDispatcher,
-                    CommandResultEvaluator = resultEvaluator,
+                    // SagaCommandDispatcher = commandDispatcher,
+                    // CommandResultEvaluator = resultEvaluator,
                     SagaConfigRepository = configRepository,
                     SagaSnapshotRepository = snapshotRepository,
                     SagaConfigOptions = sagaConfigOptions

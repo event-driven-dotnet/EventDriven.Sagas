@@ -2,7 +2,6 @@ using EventDriven.DDD.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Configuration.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace EventDriven.Sagas.Persistence.Abstractions;
 
@@ -11,12 +10,13 @@ namespace EventDriven.Sagas.Persistence.Abstractions;
 /// </summary>
 public abstract class PersistableSaga : ConfigurableSaga
 {
-    /// <summary>
-    /// Constructor.
-    /// Note: To use <see cref="IServiceCollection"/>.AddSaga, inheritors must have a parameterless constructor. 
-    /// </summary>
-    // ReSharper disable once EmptyConstructor
-    public PersistableSaga() { }
+    /// <inheritdoc />
+    protected PersistableSaga(
+        ISagaCommandDispatcher sagaCommandDispatcher,
+        ICommandResultEvaluator commandResultEvaluator) : 
+        base(sagaCommandDispatcher, commandResultEvaluator)
+    {
+    }
 
     /// <summary>
     /// Saga snapshot repository.
@@ -43,8 +43,10 @@ public abstract class PersistableSaga<TEntity> :
     where TEntity : IEntity
 {
     /// <inheritdoc />
-    // ReSharper disable once EmptyConstructor
-    protected PersistableSaga()
+    protected PersistableSaga(
+        ISagaCommandDispatcher sagaCommandDispatcher,
+        ICommandResultEvaluator commandResultEvaluator) : 
+        base(sagaCommandDispatcher, commandResultEvaluator)
     {
     }
 

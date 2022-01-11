@@ -38,6 +38,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaConfigService", "admini
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaSnapshotService", "administration\SagaSnapshotService\SagaSnapshotService.csproj", "{44A44FFE-7B6A-4243-A7BD-0F8108C2ED8A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaFactoryTest", "SagaFactoryTest\SagaFactoryTest.csproj", "{CCA89C81-08E2-4BF5-8960-17CBE5633B5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,10 @@ Global
 		{44A44FFE-7B6A-4243-A7BD-0F8108C2ED8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44A44FFE-7B6A-4243-A7BD-0F8108C2ED8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44A44FFE-7B6A-4243-A7BD-0F8108C2ED8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCA89C81-08E2-4BF5-8960-17CBE5633B5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCA89C81-08E2-4BF5-8960-17CBE5633B5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCA89C81-08E2-4BF5-8960-17CBE5633B5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCA89C81-08E2-4BF5-8960-17CBE5633B5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

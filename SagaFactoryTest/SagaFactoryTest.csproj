@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="EventDriven.DDD.Abstractions" Version="1.1.0-beta1" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\src\EventDriven.Sagas.Abstractions\EventDriven.Sagas.Abstractions.csproj" />
+      <ProjectReference Include="..\src\EventDriven.Sagas.Configuration.Abstractions\EventDriven.Sagas.Configuration.Abstractions.csproj" />
+    </ItemGroup>
+
+</Project>

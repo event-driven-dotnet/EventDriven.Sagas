@@ -23,7 +23,8 @@ public class FakeSaga : PersistableSaga,
     public FakeSaga(List<SagaStep> steps, ISagaCommandDispatcher commandDispatcher,
         ICommandResultEvaluator<string?, string?> resultEvaluator, 
         ISagaSnapshotRepository sagaSnapshotRepository,
-        int cancelOnStep = 0, CancellationTokenSource? tokenSource = null)
+        int cancelOnStep = 0, CancellationTokenSource? tokenSource = null) :
+        base(commandDispatcher, resultEvaluator)
     {
         _commandDispatcher = commandDispatcher;
         _resultEvaluator = resultEvaluator;
