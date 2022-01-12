@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Commands;
 
-namespace EventDriven.Sagas.Abstractions.Tests.SagaFactoryFakes;
+namespace EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
 
 public class FakeSagaCommandDispatcher : SagaCommandDispatcher<FakeEntity, FakeSagaCommand>
 {

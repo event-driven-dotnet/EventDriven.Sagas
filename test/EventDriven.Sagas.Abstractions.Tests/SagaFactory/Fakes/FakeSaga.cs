@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Entities;
 
-namespace EventDriven.Sagas.Abstractions.Tests.SagaFactoryFakes;
+namespace EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
 
-public class FakeSaga : Saga,
+public class FakeSaga : Entities.Saga,
     ICommandResultProcessor<FakeEntity>
 {
     public const string SuccessState = "Success";

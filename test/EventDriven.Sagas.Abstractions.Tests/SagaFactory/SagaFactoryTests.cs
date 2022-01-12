@@ -2,14 +2,14 @@ using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Factories;
-using EventDriven.Sagas.Abstractions.Tests.SagaFactoryFakes;
+using EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
 using EventDriven.Sagas.Configuration.Abstractions;
 using EventDriven.Sagas.Configuration.Abstractions.Factories;
 using EventDriven.Sagas.Persistence.Abstractions.Factories;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace EventDriven.Sagas.Abstractions.Tests;
+namespace EventDriven.Sagas.Abstractions.Tests.SagaFactory;
 
 public class SagaFactoryTests
 {
@@ -29,7 +29,7 @@ public class SagaFactoryTests
             var sagaConfigOptions = new SagaConfigurationOptions();
             var dispatcher = sp.GetRequiredService<FakeSagaCommandDispatcher>();
             var evaluator = sp.GetRequiredService<ISagaCommandResultEvaluator<string, string>>();
-            ISagaFactory<Saga> factory;
+            ISagaFactory<Entities.Saga> factory;
             switch (sagaType)
             {
                 case SagaType.Configurable:
@@ -51,14 +51,14 @@ public class SagaFactoryTests
         });
         services.AddSingleton(sp =>
         {
-            var factory = sp.GetRequiredService<ISagaFactory<Saga>>();
+            var factory = sp.GetRequiredService<ISagaFactory<Entities.Saga>>();
             var saga = factory.CreateSaga();
             return saga;
         });
 
         // Act
         var provider = services.BuildServiceProvider();
-        var saga = provider.GetRequiredService<Saga>();
+        var saga = provider.GetRequiredService<Entities.Saga>();
         await saga.StartSagaAsync();
 
         // Assert

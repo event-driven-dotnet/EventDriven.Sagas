@@ -63,13 +63,4 @@ public class SagaFactory<TSaga, TSagaCommand, TEntity> : SagaFactory<TSaga>
         base(sagaCommandDispatcher, commandResultEvaluator)
     {
     }
-
-    // /// <inheritdoc />
-    // public override TSaga CreateSaga()
-    // {
-    //     var handler = (ISagaCommandHandler<TEntity, TSagaCommand>)SagaCommandHandler;
-    //     var dispatcher = (ISagaCommandDispatcher<TEntity, TSagaCommand>)SagaCommandDispatcher;
-    //     dispatcher.SagaCommandHandler = handler;
-    //     return base.CreateSaga();
-    // }
 }

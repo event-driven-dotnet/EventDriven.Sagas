@@ -4,7 +4,7 @@ using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Persistence.Abstractions;
 
-namespace EventDriven.Sagas.Abstractions.Tests.SagaFactoryFakes;
+namespace EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
 
 public class FakePersistableSaga : PersistableSaga<FakeEntity>
 {

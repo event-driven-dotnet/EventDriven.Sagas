@@ -8,7 +8,7 @@ using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Persistence.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 
-namespace EventDriven.Sagas.Abstractions.Tests.SagaFakes;
+namespace EventDriven.Sagas.Abstractions.Tests.Saga.Fakes;
 
 public class FakeSaga : PersistableSaga,
     ICommandResultProcessor<Order>,

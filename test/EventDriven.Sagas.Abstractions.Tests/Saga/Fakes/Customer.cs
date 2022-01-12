@@ -1,4 +1,4 @@
-﻿namespace EventDriven.Sagas.Abstractions.Tests.SagaFakes;
+﻿namespace EventDriven.Sagas.Abstractions.Tests.Saga.Fakes;
 
 public class Customer
 {

@@ -1,6 +1,6 @@
 using EventDriven.DDD.Abstractions.Entities;
 
-namespace EventDriven.Sagas.Abstractions.Tests.SagaFactoryFakes;
+namespace EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
 
 public class FakeEntity : Entity
 {

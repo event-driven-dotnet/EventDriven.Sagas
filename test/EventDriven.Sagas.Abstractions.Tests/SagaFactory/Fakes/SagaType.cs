@@ -1,4 +1,4 @@
-namespace EventDriven.Sagas.Abstractions.Tests.SagaFactoryFakes;
+namespace EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
 
 public enum SagaType
 {
