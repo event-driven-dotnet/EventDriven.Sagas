@@ -6,11 +6,18 @@ namespace EventDriven.Sagas.Abstractions.Commands;
 /// <summary>
 /// Saga command handler.
 /// </summary>
-/// <typeparam name="TEntity">The type of entity.</typeparam>
-/// <typeparam name="TCommand">The type of saga command.</typeparam>
-public interface ISagaCommandHandler<TEntity, in TCommand>
+public interface ISagaCommandHandler
+{
+}
+
+/// <summary>
+/// Saga command handler.
+/// </summary>
+/// <typeparam name="TEntity">Entity type.</typeparam>
+/// <typeparam name="TSagaCommand">Saga command type.</typeparam>
+public interface ISagaCommandHandler<TEntity, in TSagaCommand> : ISagaCommandHandler
     where TEntity : Entity
-    where TCommand : class, ISagaCommand
+    where TSagaCommand : class, ISagaCommand
 {
     /// <summary>
     /// Command result processor.
@@ -22,5 +29,5 @@ public interface ISagaCommandHandler<TEntity, in TCommand>
     /// </summary>
     /// <param name="command">The command.</param>
     /// <returns>The command result.</returns>
-    Task<CommandResult<TEntity>> Handle(TCommand command);
+    Task<CommandResult<TEntity>> Handle(TSagaCommand command);
 }

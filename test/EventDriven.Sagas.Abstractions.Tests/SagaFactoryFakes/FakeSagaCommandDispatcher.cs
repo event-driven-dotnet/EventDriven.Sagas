@@ -1,8 +1,9 @@
+using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Commands;
 
-namespace SagaFactoryTest;
+namespace EventDriven.Sagas.Abstractions.Tests.SagaFactoryFakes;
 
-public class FakeSagaCommandDispatcher : ISagaCommandDispatcher<FakeEntity, FakeSagaCommand>
+public class FakeSagaCommandDispatcher : SagaCommandDispatcher<FakeEntity, FakeSagaCommand>
 {
 
     public FakeSagaCommandDispatcher(
@@ -11,14 +12,11 @@ public class FakeSagaCommandDispatcher : ISagaCommandDispatcher<FakeEntity, Fake
         SagaCommandHandler = sagaCommandHandler;
     }
 
-    public async Task DispatchAsync(SagaCommand command, bool compensating)
+    public override async Task DispatchAsync(SagaCommand command, bool compensating)
     {
-        Console.WriteLine("Dispatching saga command.");
         await SagaCommandHandler.Handle(new FakeSagaCommand
         {
             Name = command.Name
         });
     }
-
-    public ISagaCommandHandler<FakeEntity, FakeSagaCommand> SagaCommandHandler { get; set; }
 }

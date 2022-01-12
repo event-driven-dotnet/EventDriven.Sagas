@@ -1,24 +1,21 @@
-﻿using EventDriven.DDD.Abstractions.Commands;
-using EventDriven.Sagas.Abstractions.Commands;
+﻿using EventDriven.Sagas.Abstractions.Commands;
 using OrderService.Domain.OrderAggregate.Commands.SagaCommands;
 
 namespace OrderService.Domain.OrderAggregate.Commands.Dispatchers;
 
-public class OrderCommandDispatcher : ISagaCommandDispatcher
+public class OrderCommandDispatcher : SagaCommandDispatcher<Order, SetOrderStatePending>
 {
-    private readonly ICommandHandler<Order, SetOrderStatePending> _commandHandler;
-
-    public OrderCommandDispatcher(ICommandHandler<Order, SetOrderStatePending> commandHandler)
+    public OrderCommandDispatcher(ISagaCommandHandler<Order, SetOrderStatePending> sagaCommandHandler)
     {
-        _commandHandler = commandHandler;
+        SagaCommandHandler = sagaCommandHandler;
     }
 
-    public async Task DispatchAsync(SagaCommand command, bool compensating)
+    public override async Task DispatchAsync(SagaCommand command, bool compensating)
     {
         // Based on command name, dispatch command to handler
         if (string.Equals(command.Name, typeof(SetOrderStatePending).FullName, StringComparison.OrdinalIgnoreCase))
         {
-            await _commandHandler.Handle(new SetOrderStatePending(command.EntityId)
+            await SagaCommandHandler.Handle(new SetOrderStatePending(command.EntityId)
             {
                 Name = command.Name,
                 Result = OrderState.Pending

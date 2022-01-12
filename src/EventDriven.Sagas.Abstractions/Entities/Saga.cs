@@ -14,7 +14,7 @@ public abstract class Saga
     /// <param name="commandResultEvaluator">Command result evaluator.</param>
     protected Saga(
         ISagaCommandDispatcher sagaCommandDispatcher,
-        ICommandResultEvaluator commandResultEvaluator)
+        ISagaCommandResultEvaluator commandResultEvaluator)
     {
         SagaCommandDispatcher = sagaCommandDispatcher;
         CommandResultEvaluator = commandResultEvaluator;
@@ -79,7 +79,7 @@ public abstract class Saga
     /// <summary>
     /// Command result evaluator.
     /// </summary>
-    protected ICommandResultEvaluator CommandResultEvaluator { get; set; }
+    protected ISagaCommandResultEvaluator CommandResultEvaluator { get; set; }
 
     /// <summary>
     /// Execute the current action.

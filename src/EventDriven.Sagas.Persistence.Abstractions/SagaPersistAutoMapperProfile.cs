@@ -1,4 +1,6 @@
 using AutoMapper;
+using EventDriven.Sagas.Abstractions.Commands;
+using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Mapping;
 using EventDriven.Sagas.Persistence.Abstractions.DTO;
 
@@ -7,7 +9,7 @@ namespace EventDriven.Sagas.Persistence.Abstractions;
 /// <summary>
 ///  Saga auto mapper configuration.
 /// </summary>
-public class SagaConfigAutoMapperProfile: Profile
+public class SagaPersistAutoMapperProfile: Profile
 {
     /// <summary>
     /// Command type resolver.
@@ -17,8 +19,16 @@ public class SagaConfigAutoMapperProfile: Profile
     /// <summary>
     /// Constructor.
     /// </summary>
-    public SagaConfigAutoMapperProfile()
+    public SagaPersistAutoMapperProfile()
     {
+        CreateMap<SagaStep, SagaStepDto>();
+        CreateMap<SagaStep, SagaStepDto>().ReverseMap();
+        CreateMap<SagaAction, SagaActionDto>();
+        CreateMap<SagaAction, SagaActionDto>().ReverseMap();
+        CreateMap<SagaCommand, string>()
+            .ConvertUsing(new SagaCommandToStringConverter());
+        CreateMap<string, SagaCommand>()
+            .ConvertUsing(new SagaStringToCommandConverter(SagaCommandTypeResolver!));
         CreateMap<PersistableSaga, SagaSnapshotDto>()
             .ForMember(dest => dest.SagaId, opt =>
                 opt.MapFrom(src => src.Id))

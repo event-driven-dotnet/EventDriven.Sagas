@@ -28,7 +28,7 @@ public class SagaConfigAutoMapperProfile: Profile
         CreateMap<SagaAction, SagaActionDto>();
         CreateMap<SagaAction, SagaActionDto>().ReverseMap();
         CreateMap<SagaCommand, string>()
-            .ConvertUsing<SagaCommandToStringConverter>();
+            .ConvertUsing(new SagaCommandToStringConverter());
         CreateMap<string, SagaCommand>()
             .ConvertUsing(new SagaStringToCommandConverter(SagaCommandTypeResolver!));
     }

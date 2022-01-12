@@ -8,7 +8,7 @@ using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Persistence.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 
-namespace EventDriven.Sagas.Tests.Fakes;
+namespace EventDriven.Sagas.Abstractions.Tests.SagaFakes;
 
 public class FakeSaga : PersistableSaga,
     ICommandResultProcessor<Order>,
@@ -18,10 +18,10 @@ public class FakeSaga : PersistableSaga,
     private readonly int _cancelOnStep;
     private readonly CancellationTokenSource? _tokenSource;
     private readonly ISagaCommandDispatcher _commandDispatcher;
-    private readonly ICommandResultEvaluator<string?, string?> _resultEvaluator;
+    private readonly ISagaCommandResultEvaluator<string?, string?> _resultEvaluator;
 
     public FakeSaga(List<SagaStep> steps, ISagaCommandDispatcher commandDispatcher,
-        ICommandResultEvaluator<string?, string?> resultEvaluator, 
+        ISagaCommandResultEvaluator<string?, string?> resultEvaluator, 
         ISagaSnapshotRepository sagaSnapshotRepository,
         int cancelOnStep = 0, CancellationTokenSource? tokenSource = null) :
         base(commandDispatcher, resultEvaluator)

@@ -4,10 +4,10 @@ using EventDriven.DDD.Abstractions.Entities;
 namespace EventDriven.Sagas.Abstractions.Commands;
 
 /// <inheritdoc />
-public abstract class SagaCommandHandler<TEntity, TCommand> :
-    ISagaCommandHandler<TEntity, TCommand>
+public abstract class SagaCommandHandler<TEntity, TSagaCommand> :
+    ISagaCommandHandler<TEntity, TSagaCommand>
     where TEntity : Entity
-    where TCommand : class, ISagaCommand
+    where TSagaCommand : class, ISagaCommand
 {
     /// <summary>
     /// Command result processor.
@@ -15,5 +15,5 @@ public abstract class SagaCommandHandler<TEntity, TCommand> :
     public virtual ICommandResultProcessor<TEntity>? CommandResultProcessor { get; set; } = null!;
 
     /// <inheritdoc />
-    public abstract Task<CommandResult<TEntity>> Handle(TCommand command);
+    public abstract Task<CommandResult<TEntity>> Handle(TSagaCommand command);
 }

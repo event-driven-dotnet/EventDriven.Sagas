@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Entities;
-using EventDriven.Sagas.Tests.Fakes;
+using EventDriven.Sagas.Abstractions.Tests.SagaFakes;
 using Xunit;
 
-namespace EventDriven.Sagas.Tests
+namespace EventDriven.Sagas.Abstractions.Tests
 {
     public class SagaTests
     {

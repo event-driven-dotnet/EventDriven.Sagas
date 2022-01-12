@@ -13,7 +13,7 @@ public abstract class PersistableSaga : ConfigurableSaga
     /// <inheritdoc />
     protected PersistableSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
-        ICommandResultEvaluator commandResultEvaluator) : 
+        ISagaCommandResultEvaluator commandResultEvaluator) : 
         base(sagaCommandDispatcher, commandResultEvaluator)
     {
     }
@@ -45,7 +45,7 @@ public abstract class PersistableSaga<TEntity> :
     /// <inheritdoc />
     protected PersistableSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
-        ICommandResultEvaluator commandResultEvaluator) : 
+        ISagaCommandResultEvaluator commandResultEvaluator) : 
         base(sagaCommandDispatcher, commandResultEvaluator)
     {
     }

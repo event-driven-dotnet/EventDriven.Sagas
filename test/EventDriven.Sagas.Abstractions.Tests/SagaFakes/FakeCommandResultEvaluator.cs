@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Commands;
 
-namespace EventDriven.Sagas.Tests.Fakes;
+namespace EventDriven.Sagas.Abstractions.Tests.SagaFakes;
 
 public class FakeCommandResultEvaluator : CommandResultEvaluator<string?, string?>
 {

@@ -9,9 +9,9 @@ using OrderService.Configuration;
 using OrderService.Domain.OrderAggregate;
 using OrderService.Domain.OrderAggregate.Commands.Dispatchers;
 using OrderService.Domain.OrderAggregate.Commands.Evaluators;
+using OrderService.Domain.OrderAggregate.Commands.SagaCommands;
 using OrderService.Domain.OrderAggregate.Sagas;
 using OrderService.Repositories;
-// TODO: Clean up usings
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,11 +34,11 @@ builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfiguratio
 builder.Services.AddMongoDbSettings<SagaSnapshotDatabaseSettings, SagaSnapshotDto>(
     builder.Configuration);
 
-// TODO: Saga registration
-// builder.Services.AddSaga<CreateOrderSaga, Order, 
-//     OrderCommandDispatcher, SetOrderStateResultEvaluator, 
-//     SagaConfigRepository, SagaSnapshotRepository, SagaConfigSettings>(
-//     builder.Configuration);
+// Saga registration
+builder.Services.AddSaga<CreateOrderSaga, Order, SetOrderStatePending,
+    OrderCommandDispatcher, SetOrderStateResultEvaluator, 
+    SagaConfigRepository, SagaSnapshotRepository, SagaConfigSettings>(
+    builder.Configuration);
 
 // Command handler registrations
 builder.Services.AddCommandHandlers();

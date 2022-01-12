@@ -16,7 +16,11 @@ public interface ISagaCommandDispatcher
     Task DispatchAsync(SagaCommand command, bool compensating);
 }
 
-/// <inheritdoc />
+/// <summary>
+/// Dispatches saga commands.
+/// </summary>
+/// <typeparam name="TEntity">Entity type.</typeparam>
+/// <typeparam name="TSagaCommand">Saga command type.</typeparam>
 public interface ISagaCommandDispatcher<TEntity, TSagaCommand> : ISagaCommandDispatcher
     where TEntity : Entity
     where TSagaCommand : class, ISagaCommand

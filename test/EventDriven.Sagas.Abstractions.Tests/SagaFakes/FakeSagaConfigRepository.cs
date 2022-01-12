@@ -5,7 +5,7 @@ using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Configuration.Abstractions;
 using EventDriven.Sagas.Configuration.Abstractions.Repositories;
 
-namespace EventDriven.Sagas.Tests.Fakes;
+namespace EventDriven.Sagas.Abstractions.Tests.SagaFakes;
 
 public class FakeSagaConfigRepository : ISagaConfigRepository
 {

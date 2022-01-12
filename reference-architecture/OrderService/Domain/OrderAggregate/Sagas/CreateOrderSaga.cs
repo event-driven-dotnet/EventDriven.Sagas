@@ -8,7 +8,7 @@ public class CreateOrderSaga : PersistableSaga<Order>
 {
     public CreateOrderSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
-        ICommandResultEvaluator commandResultEvaluator) :
+        ISagaCommandResultEvaluator commandResultEvaluator) :
         base(sagaCommandDispatcher, commandResultEvaluator)
     {
     }
@@ -19,8 +19,8 @@ public class CreateOrderSaga : PersistableSaga<Order>
         action.State = ActionState.Running;
         action.Started = DateTime.UtcNow;
         action.Command = action.Command with { EntityId = Entity.Id };
-        await PersistAsync();
         await SagaCommandDispatcher.DispatchAsync(action.Command, false);
+        await PersistAsync();
     }
 
     protected override async Task ExecuteCurrentCompensatingActionAsync()
@@ -29,12 +29,15 @@ public class CreateOrderSaga : PersistableSaga<Order>
         action.State = ActionState.Running;
         action.Started = DateTime.UtcNow;
         action.Command = action.Command with { EntityId = Entity.Id };
-        await PersistAsync();
         await SagaCommandDispatcher.DispatchAsync(action.Command, true);
+        await PersistAsync();
     }
 
     public override async Task ProcessCommandResultAsync(Order commandResult, bool compensating)
     {
+        var action = Steps.Single(s => s.Sequence == CurrentStep).Action;
+        if (action.Command is SagaCommand<OrderState, OrderState> command)
+            command.Result = commandResult.State;
         var step = Steps.Single(s => s.Sequence == CurrentStep);
         await ProcessCommandResultAsync(step, compensating);
     }

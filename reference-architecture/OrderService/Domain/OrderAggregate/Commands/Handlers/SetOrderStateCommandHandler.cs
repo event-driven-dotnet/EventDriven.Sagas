@@ -10,16 +10,13 @@ public class SetOrderStateCommandHandler :
     SagaCommandHandler<Order, SetOrderStatePending>
 {
     private readonly IOrderRepository _repository;
-    // private readonly ICommandResultProcessor<Order> _commandResultProcessor;
     private readonly ILogger<SetOrderStateCommandHandler> _logger;
 
     public SetOrderStateCommandHandler(
         IOrderRepository repository,
-        // ICommandResultProcessor<Order> commandResultProcessor,
         ILogger<SetOrderStateCommandHandler> logger)
     {
         _repository = repository;
-        // _commandResultProcessor = commandResultProcessor;
         _logger = logger;
     }
 
@@ -35,7 +32,8 @@ public class SetOrderStateCommandHandler :
             var updatedOrder = await _repository.UpdateOrderStateAsync(order, OrderState.Pending);
             if (updatedOrder == null)
                 return new CommandResult<Order>(CommandOutcome.NotFound);
-            await CommandResultProcessor.ProcessCommandResultAsync(updatedOrder, false);
+            if (CommandResultProcessor != null)
+                await CommandResultProcessor.ProcessCommandResultAsync(updatedOrder, false);
             return new CommandResult<Order>(CommandOutcome.Accepted, updatedOrder);
         }
         catch (ConcurrencyException e)

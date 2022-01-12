@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using EventDriven.Sagas.Persistence.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 
-namespace EventDriven.Sagas.Tests.Fakes;
+namespace EventDriven.Sagas.Abstractions.Tests.SagaFakes;
 
 public class FakeSnapshotRepository : ISagaSnapshotRepository
 {

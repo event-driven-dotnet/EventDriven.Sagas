@@ -5,7 +5,7 @@ namespace EventDriven.Sagas.Abstractions.Commands;
 /// <summary>
 /// Evaluator of a command result.
 /// </summary>
-public interface ICommandResultEvaluator
+public interface ISagaCommandResultEvaluator
 {
     /// <summary>
     /// Saga state information.
@@ -30,7 +30,7 @@ public interface ICommandResultEvaluator
 /// </summary>
 /// <typeparam name="TResult">Result type.</typeparam>
 /// <typeparam name="TExpectedResult">Expected result type.</typeparam>
-public interface ICommandResultEvaluator<in TResult, in TExpectedResult> : ICommandResultEvaluator
+public interface ISagaCommandResultEvaluator<in TResult, in TExpectedResult> : ISagaCommandResultEvaluator
 {
     /// <summary>
     /// Evaluate a command result.

@@ -20,7 +20,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderService", "reference-a
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestClient", "reference-architecture\TestClient\TestClient.csproj", "{71909E8C-C08F-401F-8DEA-2E366CC13F96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.Tests", "test\EventDriven.Sagas.Tests\EventDriven.Sagas.Tests.csproj", "{9F744ECE-4879-4B4F-96BC-0A9CD0898F89}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.Abstractions.Tests", "test\EventDriven.Sagas.Abstractions.Tests\EventDriven.Sagas.Abstractions.Tests.csproj", "{9F744ECE-4879-4B4F-96BC-0A9CD0898F89}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "administration", "administration", "{8C5A2F59-0441-437A-AD5E-26F76E4F2DA8}"
 EndProject
@@ -37,8 +37,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaConfigService", "administration\SagaConfigService\SagaConfigService.csproj", "{E08063E5-56CE-44E0-A23E-F8BED50A9AB1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaSnapshotService", "administration\SagaSnapshotService\SagaSnapshotService.csproj", "{44A44FFE-7B6A-4243-A7BD-0F8108C2ED8A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaFactoryTest", "SagaFactoryTest\SagaFactoryTest.csproj", "{CCA89C81-08E2-4BF5-8960-17CBE5633B5D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -90,10 +88,6 @@ Global
 		{44A44FFE-7B6A-4243-A7BD-0F8108C2ED8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44A44FFE-7B6A-4243-A7BD-0F8108C2ED8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44A44FFE-7B6A-4243-A7BD-0F8108C2ED8A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CCA89C81-08E2-4BF5-8960-17CBE5633B5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CCA89C81-08E2-4BF5-8960-17CBE5633B5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CCA89C81-08E2-4BF5-8960-17CBE5633B5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CCA89C81-08E2-4BF5-8960-17CBE5633B5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

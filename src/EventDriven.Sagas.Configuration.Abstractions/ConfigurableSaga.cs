@@ -13,7 +13,7 @@ public abstract class ConfigurableSaga : Saga
     /// <inheritdoc />
     protected ConfigurableSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
-        ICommandResultEvaluator commandResultEvaluator) : 
+        ISagaCommandResultEvaluator commandResultEvaluator) : 
         base(sagaCommandDispatcher, commandResultEvaluator)
     {
     }
@@ -79,7 +79,7 @@ public abstract class ConfigurableSaga<TEntity> :
     /// <inheritdoc />
     protected ConfigurableSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
-        ICommandResultEvaluator commandResultEvaluator) : 
+        ISagaCommandResultEvaluator commandResultEvaluator) : 
         base(sagaCommandDispatcher, commandResultEvaluator)
     {
     }
@@ -87,7 +87,6 @@ public abstract class ConfigurableSaga<TEntity> :
     /// <summary>
     /// Entity.
     /// </summary>
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public TEntity Entity { get; set; } = default!;
 
     /// <summary>
