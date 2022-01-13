@@ -113,7 +113,7 @@ SagaConfigurationDto CreateSagaConfig(Guid id)
             Sequence = 1,
             Action = new SagaActionDto
             {
-                Command = JsonSerializer.Serialize(new SetOrderStatePending()
+                Command = JsonSerializer.Serialize(new SetOrderStatePending
                 {
                     Name = typeof(SetOrderStatePending).FullName,
                     ExpectedResult = OrderState.Pending

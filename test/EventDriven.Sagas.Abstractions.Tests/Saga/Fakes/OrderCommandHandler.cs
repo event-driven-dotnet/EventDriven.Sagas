@@ -6,9 +6,9 @@ namespace EventDriven.Sagas.Abstractions.Tests.Saga.Fakes;
 public class OrderCommandHandler : ISagaCommandHandler
 {
     private readonly Order _order;
-    private readonly ICommandResultProcessor<Order> _resultProcessor;
+    private readonly ISagaCommandResultHandler<Order> _resultProcessor;
 
-    public OrderCommandHandler(Order order, ICommandResultProcessor<Order> resultProcessor)
+    public OrderCommandHandler(Order order, ISagaCommandResultHandler<Order> resultProcessor)
     {
         _order = order;
         _resultProcessor = resultProcessor;
@@ -20,7 +20,7 @@ public class OrderCommandHandler : ISagaCommandHandler
         {
             var payload = ((FakeCommand)command).Result;
             _order.State = payload;
-            await _resultProcessor.ProcessCommandResultAsync(_order, compensating);
+            await _resultProcessor.HandleCommandResultAsync(_order, compensating);
         }
     }
 }

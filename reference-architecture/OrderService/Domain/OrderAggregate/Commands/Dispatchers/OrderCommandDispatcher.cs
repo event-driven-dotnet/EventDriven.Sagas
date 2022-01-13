@@ -3,23 +3,21 @@ using OrderService.Domain.OrderAggregate.Commands.SagaCommands;
 
 namespace OrderService.Domain.OrderAggregate.Commands.Dispatchers;
 
-public class OrderCommandDispatcher : SagaCommandDispatcher<Order, SetOrderStatePending>
+public class OrderCommandDispatcher : SagaCommandDispatcher
 {
-    public OrderCommandDispatcher(ISagaCommandHandler<Order, SetOrderStatePending> sagaCommandHandler)
+    public OrderCommandDispatcher(IEnumerable<ISagaCommandHandler> sagaCommandHandlers) :
+        base(sagaCommandHandlers)
     {
-        SagaCommandHandler = sagaCommandHandler;
     }
 
-    public override async Task DispatchAsync(SagaCommand command, bool compensating)
+    public override async Task DispatchCommandAsync(SagaCommand command, bool compensating)
     {
-        // Based on command name, dispatch command to handler
-        if (string.Equals(command.Name, typeof(SetOrderStatePending).FullName, StringComparison.OrdinalIgnoreCase))
-        {
-            await SagaCommandHandler.Handle(new SetOrderStatePending(command.EntityId)
+        var handler = GetSagaCommandHandlerByCommandType<SetOrderStatePending>(command);
+        if (handler != null)
+            await handler.HandleCommandAsync(new SetOrderStatePending(command.EntityId)
             {
                 Name = command.Name,
                 Result = OrderState.Pending
             });
-        }
     }
 }

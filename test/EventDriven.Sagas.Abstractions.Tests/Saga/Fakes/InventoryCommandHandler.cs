@@ -6,10 +6,10 @@ namespace EventDriven.Sagas.Abstractions.Tests.Saga.Fakes;
 public class InventoryCommandHandler : ISagaCommandHandler
 {
     private readonly Inventory _inventory;
-    private readonly ICommandResultProcessor<Inventory> _resultProcessor;
+    private readonly ISagaCommandResultHandler<Inventory> _resultProcessor;
 
     public InventoryCommandHandler(Inventory inventory,
-        ICommandResultProcessor<Inventory> resultProcessor)
+        ISagaCommandResultHandler<Inventory> resultProcessor)
     {
         _inventory = inventory;
         _resultProcessor = resultProcessor;
@@ -21,7 +21,7 @@ public class InventoryCommandHandler : ISagaCommandHandler
         {
             var payload = ((FakeCommand)command).Result;
             _inventory.Stock = payload;
-            await _resultProcessor.ProcessCommandResultAsync(_inventory, compensating);
+            await _resultProcessor.HandleCommandResultAsync(_inventory, compensating);
         }
     }
 }

@@ -113,7 +113,7 @@ public class SagaTests
         cmd.Result = "Foo";
 
         // Act
-        await saga.StartSagaAsync(tokenSource.Token);
+        await saga.StartSagaAsync(cancellationToken: tokenSource.Token);
 
         // Assert
         string? expectedStateInfo;

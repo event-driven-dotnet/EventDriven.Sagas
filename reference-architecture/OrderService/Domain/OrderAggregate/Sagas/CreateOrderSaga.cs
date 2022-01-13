@@ -4,7 +4,9 @@ using EventDriven.Sagas.Persistence.Abstractions;
 
 namespace OrderService.Domain.OrderAggregate.Sagas;
 
-public class CreateOrderSaga : PersistableSaga<Order>
+public class CreateOrderSaga :
+    PersistableSaga,
+    ISagaCommandResultHandler<OrderState>
 {
     public CreateOrderSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
@@ -18,8 +20,8 @@ public class CreateOrderSaga : PersistableSaga<Order>
         var action = Steps.Single(s => s.Sequence == CurrentStep).Action;
         action.State = ActionState.Running;
         action.Started = DateTime.UtcNow;
-        action.Command = action.Command with { EntityId = Entity.Id };
-        await SagaCommandDispatcher.DispatchAsync(action.Command, false);
+        action.Command = action.Command with { EntityId = EntityId };
+        await SagaCommandDispatcher.DispatchCommandAsync(action.Command, false);
         await PersistAsync();
     }
 
@@ -28,21 +30,21 @@ public class CreateOrderSaga : PersistableSaga<Order>
         var action = Steps.Single(s => s.Sequence == CurrentStep).Action;
         action.State = ActionState.Running;
         action.Started = DateTime.UtcNow;
-        action.Command = action.Command with { EntityId = Entity.Id };
-        await SagaCommandDispatcher.DispatchAsync(action.Command, true);
+        action.Command = action.Command with { EntityId = EntityId };
+        await SagaCommandDispatcher.DispatchCommandAsync(action.Command, true);
         await PersistAsync();
     }
-
-    public override async Task ProcessCommandResultAsync(Order commandResult, bool compensating)
+    
+    public async Task HandleCommandResultAsync(OrderState result, bool compensating)
     {
         var action = Steps.Single(s => s.Sequence == CurrentStep).Action;
         if (action.Command is SagaCommand<OrderState, OrderState> command)
-            command.Result = commandResult.State;
+            command.Result = result;
         var step = Steps.Single(s => s.Sequence == CurrentStep);
-        await ProcessCommandResultAsync(step, compensating);
+        await HandleCommandResultAsync(step, compensating);
     }
 
-    private async Task ProcessCommandResultAsync(SagaStep step, bool compensating)
+    private async Task HandleCommandResultAsync(SagaStep step, bool compensating)
     {
         var commandSuccessful = await CommandResultEvaluator.EvaluateStepResultAsync(
             step, compensating, CancellationToken);

@@ -1,22 +1,24 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Commands;
 
 namespace EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
 
-public class FakeSagaCommandDispatcher : SagaCommandDispatcher<FakeEntity, FakeSagaCommand>
+public class FakeSagaCommandDispatcher : SagaCommandDispatcher
 {
-
     public FakeSagaCommandDispatcher(
-        ISagaCommandHandler<FakeEntity, FakeSagaCommand> sagaCommandHandler)
+        IEnumerable<ISagaCommandHandler> sagaCommandHandlers) :
+        base(sagaCommandHandlers)
     {
-        SagaCommandHandler = sagaCommandHandler;
     }
 
-    public override async Task DispatchAsync(SagaCommand command, bool compensating)
+    public override async Task DispatchCommandAsync(SagaCommand command, bool compensating)
     {
-        await SagaCommandHandler.Handle(new FakeSagaCommand
-        {
-            Name = command.Name
-        });
+        var handler = GetSagaCommandHandlerByCommandType<FakeSagaCommand>(command);
+        if (handler != null)
+            await handler.HandleCommandAsync(new FakeSagaCommand
+            {
+                Name = command.Name
+            });
     }
 }

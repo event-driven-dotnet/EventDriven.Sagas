@@ -1,5 +1,4 @@
-﻿using EventDriven.DDD.Abstractions.Entities;
-using EventDriven.Sagas.Abstractions.Commands;
+﻿using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Configuration.Abstractions.Repositories;
 
@@ -57,51 +56,12 @@ public abstract class ConfigurableSaga : Saga
     }
     
     /// <inheritdoc />
-    public override async Task StartSagaAsync(CancellationToken cancellationToken = default)
+    public override async Task StartSagaAsync(Guid entityId = default, CancellationToken cancellationToken = default)
     {
         // Set steps from config
         await ConfigureAsync();
         
         // Start saga
-        await base.StartSagaAsync(cancellationToken);
+        await base.StartSagaAsync(entityId, cancellationToken);
     }
-}
-
-/// <summary>
-/// Enables the execution of atomic operations which span multiple services.
-/// </summary>
-/// <typeparam name="TEntity">Entity type.</typeparam>
-public abstract class ConfigurableSaga<TEntity> : 
-    ConfigurableSaga,
-    ICommandResultProcessor<TEntity>
-    where TEntity : IEntity
-{
-    /// <inheritdoc />
-    protected ConfigurableSaga(
-        ISagaCommandDispatcher sagaCommandDispatcher,
-        ISagaCommandResultEvaluator commandResultEvaluator) : 
-        base(sagaCommandDispatcher, commandResultEvaluator)
-    {
-    }
-
-    /// <summary>
-    /// Entity.
-    /// </summary>
-    public TEntity Entity { get; set; } = default!;
-
-    /// <summary>
-    /// Start the saga.
-    /// </summary>
-    /// <param name="entity">Saga entity.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public virtual async Task StartSagaAsync(TEntity entity, CancellationToken cancellationToken = default)
-    {
-        Entity = entity;
-        EntityId = entity.Id;
-        await StartSagaAsync(cancellationToken);
-    }
-
-    /// <inheritdoc />
-    public abstract Task ProcessCommandResultAsync(TEntity commandResult, bool compensating);
 }

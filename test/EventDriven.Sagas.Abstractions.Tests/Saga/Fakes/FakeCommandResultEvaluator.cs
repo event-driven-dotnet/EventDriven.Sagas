@@ -4,7 +4,7 @@ using EventDriven.Sagas.Abstractions.Commands;
 
 namespace EventDriven.Sagas.Abstractions.Tests.Saga.Fakes;
 
-public class FakeCommandResultEvaluator : CommandResultEvaluator<string?, string?>
+public class FakeCommandResultEvaluator : SagaCommandResultEvaluator<string?, string?>
 {
     public override Task<bool> EvaluateCommandResultAsync(string? commandResult, string? expectedResult)
         => Task.FromResult(string.Compare(commandResult, expectedResult, 

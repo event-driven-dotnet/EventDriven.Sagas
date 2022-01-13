@@ -38,6 +38,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaConfigService", "admini
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaSnapshotService", "administration\SagaSnapshotService\SagaSnapshotService.csproj", "{44A44FFE-7B6A-4243-A7BD-0F8108C2ED8A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.EventBus.Abstractions", "src\EventDriven.Sagas.EventBus.Abstractions\EventDriven.Sagas.EventBus.Abstractions.csproj", "{2B5858C2-076D-4FB5-8ED7-600C65CD1CC4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.DDD.Abstractions", "..\EventDriven.DDD.Abstractions\src\EventDriven.DDD.Abstractions\EventDriven.DDD.Abstractions.csproj", "{0ECDB3FF-D154-4BC3-8F0A-7CBBAA2AC388}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +92,14 @@ Global
 		{44A44FFE-7B6A-4243-A7BD-0F8108C2ED8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44A44FFE-7B6A-4243-A7BD-0F8108C2ED8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44A44FFE-7B6A-4243-A7BD-0F8108C2ED8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B5858C2-076D-4FB5-8ED7-600C65CD1CC4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B5858C2-076D-4FB5-8ED7-600C65CD1CC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B5858C2-076D-4FB5-8ED7-600C65CD1CC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B5858C2-076D-4FB5-8ED7-600C65CD1CC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0ECDB3FF-D154-4BC3-8F0A-7CBBAA2AC388}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ECDB3FF-D154-4BC3-8F0A-7CBBAA2AC388}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ECDB3FF-D154-4BC3-8F0A-7CBBAA2AC388}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ECDB3FF-D154-4BC3-8F0A-7CBBAA2AC388}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -104,6 +116,7 @@ Global
 		{A7032BED-74A6-4584-BC93-75F76F70A917} = {4B466731-0CE1-4A92-B93A-AE088C5B6784}
 		{E08063E5-56CE-44E0-A23E-F8BED50A9AB1} = {8C5A2F59-0441-437A-AD5E-26F76E4F2DA8}
 		{44A44FFE-7B6A-4243-A7BD-0F8108C2ED8A} = {8C5A2F59-0441-437A-AD5E-26F76E4F2DA8}
+		{2B5858C2-076D-4FB5-8ED7-600C65CD1CC4} = {4B466731-0CE1-4A92-B93A-AE088C5B6784}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3BFC4ACA-7DDF-4583-A578-5CAB3893AE40}

@@ -6,9 +6,9 @@ namespace EventDriven.Sagas.Abstractions.Tests.Saga.Fakes;
 public class CustomerCommandHandler : ISagaCommandHandler
 {
     private readonly Customer _customer;
-    private readonly ICommandResultProcessor<Customer> _resultProcessor;
+    private readonly ISagaCommandResultHandler<Customer> _resultProcessor;
 
-    public CustomerCommandHandler(Customer customer, ICommandResultProcessor<Customer> resultProcessor)
+    public CustomerCommandHandler(Customer customer, ISagaCommandResultHandler<Customer> resultProcessor)
     {
         _customer = customer;
         _resultProcessor = resultProcessor;
@@ -20,7 +20,7 @@ public class CustomerCommandHandler : ISagaCommandHandler
         {
             var payload = ((FakeCommand)command).Result;
             _customer.Credit = payload;
-            await _resultProcessor.ProcessCommandResultAsync(_customer, compensating);
+            await _resultProcessor.HandleCommandResultAsync(_customer, compensating);
         }
     }
 }

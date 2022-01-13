@@ -22,29 +22,34 @@ public class SagaFactoryTests
         // Arrange
         var services = new ServiceCollection();
         services.AddSingleton<FakeSagaCommandDispatcher>();
+        services.AddSingleton<FakeSagaCommandHandler>();
         services.AddSingleton<ISagaCommandResultEvaluator<string, string>, FakeCommandResultEvaluator>();
-        services.AddSingleton<ISagaCommandHandler<FakeEntity, FakeSagaCommand>, FakeSagaCommandHandler>();
+        services.AddSingleton<ISagaCommandHandler, FakeSagaCommandHandler>(sp =>
+            sp.GetRequiredService<FakeSagaCommandHandler>());
+        services.AddSingleton<ISagaCommandResultDispatcher, FakeSagaCommandHandler>(sp =>
+            sp.GetRequiredService<FakeSagaCommandHandler>());
         services.AddSingleton(sp =>
         {
             var sagaConfigOptions = new SagaConfigurationOptions();
             var dispatcher = sp.GetRequiredService<FakeSagaCommandDispatcher>();
             var evaluator = sp.GetRequiredService<ISagaCommandResultEvaluator<string, string>>();
+            var resultDispatchers = sp.GetServices<ISagaCommandResultDispatcher>();
             ISagaFactory<Entities.Saga> factory;
             switch (sagaType)
             {
                 case SagaType.Configurable:
-                    factory = new ConfigurableSagaFactory
-                        <FakeConfigurableSaga, FakeSagaCommand, FakeEntity>(
-                            dispatcher, evaluator, sagaConfigOptions, null!);
+                    factory = new ConfigurableSagaFactory<FakeConfigurableSaga>(
+                        dispatcher, evaluator, resultDispatchers, 
+                        sagaConfigOptions, null!);
                     break;
                 case SagaType.Persistable:
-                    factory = new PersistableSagaFactory
-                        <FakePersistableSaga, FakeSagaCommand, FakeEntity>(
-                            dispatcher, evaluator, sagaConfigOptions, null!, null!);
+                    factory = new PersistableSagaFactory<FakePersistableSaga>(
+                        dispatcher, evaluator, resultDispatchers,
+                        sagaConfigOptions, null!, null!);
                     break;
                 default:
-                    factory = new SagaFactory
-                        <FakeSaga, FakeSagaCommand, FakeEntity>(dispatcher, evaluator);
+                    factory = new SagaFactory<FakeSaga>(
+                        dispatcher, evaluator, resultDispatchers);
                     break;
             }
             return factory;

@@ -33,7 +33,7 @@ public class CreateOrderCommandHandler :
             if (order == null) return new CommandResult<Order>(CommandOutcome.NotFound, command.Order);
             
             // Start create order saga
-            await _saga.StartSagaAsync(order);
+            await _saga.StartSagaAsync(command.EntityId);
             return new CommandResult<Order>(CommandOutcome.Accepted, order);
         }
         catch (ConcurrencyException e)

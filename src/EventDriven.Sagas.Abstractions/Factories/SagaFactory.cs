@@ -1,4 +1,3 @@
-using EventDriven.DDD.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Entities;
 
@@ -9,19 +8,22 @@ namespace EventDriven.Sagas.Abstractions.Factories;
 /// </summary>
 /// <typeparam name="TSaga">Saga type.</typeparam>
 public class SagaFactory<TSaga> : ISagaFactory<TSaga>
-    where TSaga : Saga
+    where TSaga : Saga, ISagaCommandResultHandler
 {
     /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="sagaCommandDispatcher">Saga command dispatcher.</param>
     /// <param name="sagaCommandResultEvaluator">Saga command result evaluator.</param>
+    /// <param name="commandResultDispatchers">Command result dispatchers</param>
     public SagaFactory(
         ISagaCommandDispatcher sagaCommandDispatcher,
-        ISagaCommandResultEvaluator sagaCommandResultEvaluator)
+        ISagaCommandResultEvaluator sagaCommandResultEvaluator,
+        IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers)
     {
         SagaCommandDispatcher = sagaCommandDispatcher;
         SagaCommandResultEvaluator = sagaCommandResultEvaluator;
+        SagaCommandResultDispatchers = commandResultDispatchers;
     }
 
     /// <summary>
@@ -34,6 +36,11 @@ public class SagaFactory<TSaga> : ISagaFactory<TSaga>
     /// </summary>
     public virtual ISagaCommandResultEvaluator SagaCommandResultEvaluator { get; }
 
+    /// <summary>
+    /// Command result dispatchers.
+    /// </summary>
+    protected IEnumerable<ISagaCommandResultDispatcher> SagaCommandResultDispatchers { get; set; }
+
     /// <inheritdoc />
     public virtual TSaga CreateSaga()
     {
@@ -41,26 +48,8 @@ public class SagaFactory<TSaga> : ISagaFactory<TSaga>
             typeof(TSaga), SagaCommandDispatcher, SagaCommandResultEvaluator);
         if (saga == null)
             throw new Exception($"Unable to create instance of {typeof(TSaga).Name}");
+        foreach (var commandResultDispatcher in SagaCommandResultDispatchers)
+            commandResultDispatcher.SagaCommandResultHandler = saga;
         return saga;
-    }
-}
-
-/// <summary>
-/// Factory for creating saga instances.
-/// </summary>
-/// <typeparam name="TSaga">Saga type.</typeparam>
-/// <typeparam name="TSagaCommand">Saga command type.</typeparam>
-/// <typeparam name="TEntity">Entity type.</typeparam>
-public class SagaFactory<TSaga, TSagaCommand, TEntity> : SagaFactory<TSaga>
-    where TSaga : Saga
-    where TEntity : Entity
-    where TSagaCommand : class, ISagaCommand
-{
-    /// <inheritdoc />
-    public SagaFactory(
-        ISagaCommandDispatcher<TEntity, TSagaCommand> sagaCommandDispatcher,
-        ISagaCommandResultEvaluator commandResultEvaluator) :
-        base(sagaCommandDispatcher, commandResultEvaluator)
-    {
     }
 }

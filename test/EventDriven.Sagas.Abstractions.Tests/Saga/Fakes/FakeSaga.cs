@@ -11,9 +11,9 @@ using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 namespace EventDriven.Sagas.Abstractions.Tests.Saga.Fakes;
 
 public class FakeSaga : PersistableSaga,
-    ICommandResultProcessor<Order>,
-    ICommandResultProcessor<Customer>,
-    ICommandResultProcessor<Inventory>
+    ISagaCommandResultHandler<Order>,
+    ISagaCommandResultHandler<Customer>,
+    ISagaCommandResultHandler<Inventory>
 {
     private readonly int _cancelOnStep;
     private readonly CancellationTokenSource? _tokenSource;
@@ -41,7 +41,7 @@ public class FakeSaga : PersistableSaga,
         action.State = ActionState.Running;
         action.Started = DateTime.UtcNow;
         await PersistAsync();
-        await _commandDispatcher.DispatchAsync(action.Command, false);
+        await _commandDispatcher.DispatchCommandAsync(action.Command, false);
     }
 
     protected override async Task ExecuteCurrentCompensatingActionAsync()
@@ -50,22 +50,22 @@ public class FakeSaga : PersistableSaga,
         action.State = ActionState.Running;
         action.Started = DateTime.UtcNow;
         await PersistAsync();
-        await _commandDispatcher.DispatchAsync(action.Command, true);
+        await _commandDispatcher.DispatchCommandAsync(action.Command, true);
     }
 
-    public async Task ProcessCommandResultAsync(Order commandResult, bool compensating)
+    public async Task HandleCommandResultAsync(Order result, bool compensating)
     {
         var step = Steps.Single(s => s.Sequence == CurrentStep);
         await ProcessCommandResultAsync(step, compensating);
     }
 
-    public async Task ProcessCommandResultAsync(Customer commandResult, bool compensating)
+    public async Task HandleCommandResultAsync(Customer result, bool compensating)
     {
         var step = Steps.Single(s => s.Sequence == CurrentStep);
         await ProcessCommandResultAsync(step, compensating);
     }
 
-    public async Task ProcessCommandResultAsync(Inventory commandResult, bool compensating)
+    public async Task HandleCommandResultAsync(Inventory result, bool compensating)
     {
         var step = Steps.Single(s => s.Sequence == CurrentStep);
         await ProcessCommandResultAsync(step, compensating);

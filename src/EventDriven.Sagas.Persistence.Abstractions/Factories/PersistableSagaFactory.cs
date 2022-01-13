@@ -1,4 +1,3 @@
-using EventDriven.DDD.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Factories;
 using EventDriven.Sagas.Configuration.Abstractions;
@@ -8,11 +7,9 @@ using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 namespace EventDriven.Sagas.Persistence.Abstractions.Factories;
 
 /// <inheritdoc />
-public class PersistableSagaFactory<TSaga, TSagaCommand, TEntity>
-    : SagaFactory<TSaga, TSagaCommand, TEntity>
-    where TSaga : PersistableSaga<TEntity>
-    where TEntity : Entity
-    where TSagaCommand : class, ISagaCommand
+public class PersistableSagaFactory<TSaga>
+    : SagaFactory<TSaga>
+    where TSaga : PersistableSaga, ISagaCommandResultHandler
 {
     private readonly SagaConfigurationOptions _sagaConfigOptions;
     private readonly ISagaConfigRepository _sagaConfigRepository;
@@ -20,12 +17,13 @@ public class PersistableSagaFactory<TSaga, TSagaCommand, TEntity>
 
     /// <inheritdoc />
     public PersistableSagaFactory(
-        ISagaCommandDispatcher<TEntity, TSagaCommand> sagaCommandDispatcher, 
+        ISagaCommandDispatcher sagaCommandDispatcher, 
         ISagaCommandResultEvaluator commandResultEvaluator,
+        IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers,
         SagaConfigurationOptions sagaConfigOptions,
         ISagaConfigRepository sagaConfigRepository,
         ISagaSnapshotRepository sagaSnapshotRepository) : 
-        base(sagaCommandDispatcher, commandResultEvaluator)
+        base(sagaCommandDispatcher, commandResultEvaluator, commandResultDispatchers)
     {
         _sagaConfigOptions = sagaConfigOptions;
         _sagaConfigRepository = sagaConfigRepository;
@@ -39,8 +37,6 @@ public class PersistableSagaFactory<TSaga, TSagaCommand, TEntity>
         saga.SagaConfigOptions = _sagaConfigOptions;
         saga.SagaConfigRepository = _sagaConfigRepository;
         saga.SagaSnapshotRepository = _sagaSnapshotRepository;
-        var dispatcher = (ISagaCommandDispatcher<TEntity, TSagaCommand>)SagaCommandDispatcher;
-        dispatcher.SagaCommandHandler.CommandResultProcessor = saga;
         return saga;
     }
 }

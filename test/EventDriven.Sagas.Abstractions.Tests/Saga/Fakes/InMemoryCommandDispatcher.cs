@@ -9,7 +9,7 @@ public class InMemoryCommandDispatcher : ISagaCommandDispatcher
     public CustomerCommandHandler CustomerCommandHandler { get; set; } = null!;
     public InventoryCommandHandler InventoryCommandHandler { get; set; } = null!;
 
-    public async Task DispatchAsync(SagaCommand command, bool compensating)
+    public async Task DispatchCommandAsync(SagaCommand command, bool compensating)
     {
         ISagaCommandHandler? handler = null;
         if (command.Name!.StartsWith("SetState"))

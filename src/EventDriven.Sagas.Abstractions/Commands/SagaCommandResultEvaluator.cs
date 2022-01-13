@@ -3,7 +3,7 @@
 namespace EventDriven.Sagas.Abstractions.Commands;
 
 /// <inheritdoc />
-public abstract class CommandResultEvaluator<TResult, TExpectedResult>
+public abstract class SagaCommandResultEvaluator<TResult, TExpectedResult>
     : ISagaCommandResultEvaluator<TResult, TExpectedResult>
 {
     private string _timeoutMessage = "Duration exceeded timeout.";

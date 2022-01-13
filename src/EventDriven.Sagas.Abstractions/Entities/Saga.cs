@@ -144,13 +144,15 @@ public abstract class Saga
     /// <summary>
     /// Start the saga.
     /// </summary>
+    /// <param name="entityId">Entity identifier.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public virtual async Task StartSagaAsync(CancellationToken cancellationToken = default)
+    public virtual async Task StartSagaAsync(Guid entityId = default, CancellationToken cancellationToken = default)
     {
-        // Set state, current step, cancellation token
+        // Set state, current step, entity id, cancellation token
         State = SagaState.Executing;
         CurrentStep = 1;
+        EntityId = entityId;
         CancellationToken = cancellationToken;
 
         // Dispatch current step command

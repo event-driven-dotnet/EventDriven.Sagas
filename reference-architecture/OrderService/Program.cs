@@ -9,7 +9,6 @@ using OrderService.Configuration;
 using OrderService.Domain.OrderAggregate;
 using OrderService.Domain.OrderAggregate.Commands.Dispatchers;
 using OrderService.Domain.OrderAggregate.Commands.Evaluators;
-using OrderService.Domain.OrderAggregate.Commands.SagaCommands;
 using OrderService.Domain.OrderAggregate.Sagas;
 using OrderService.Repositories;
 
@@ -35,7 +34,7 @@ builder.Services.AddMongoDbSettings<SagaSnapshotDatabaseSettings, SagaSnapshotDt
     builder.Configuration);
 
 // Saga registration
-builder.Services.AddSaga<CreateOrderSaga, Order, SetOrderStatePending,
+builder.Services.AddSaga<CreateOrderSaga,
     OrderCommandDispatcher, SetOrderStateResultEvaluator, 
     SagaConfigRepository, SagaSnapshotRepository, SagaConfigSettings>(
     builder.Configuration);
