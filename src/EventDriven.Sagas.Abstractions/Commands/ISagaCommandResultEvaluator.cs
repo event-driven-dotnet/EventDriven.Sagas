@@ -1,6 +1,4 @@
-﻿using EventDriven.Sagas.Abstractions.Entities;
-
-namespace EventDriven.Sagas.Abstractions.Commands;
+﻿namespace EventDriven.Sagas.Abstractions.Commands;
 
 /// <summary>
 /// Evaluator of a command result.
@@ -11,23 +9,6 @@ public interface ISagaCommandResultEvaluator
     /// Saga type.
     /// </summary>
     public Type? SagaType { get; set; }
-
-    /// <summary>
-    /// Saga state information.
-    /// </summary>
-    public string? SagaStateInfo { get; set; }
-    
-    /// <summary>
-    /// Evaluate a step result.
-    /// </summary>
-    /// <param name="step">Saga step.</param>
-    /// <param name="compensating">True if compensating step.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>
-    /// A task that represents the asynchronous operation.
-    /// The task result contains a boolean that is true if step completed successfully.
-    /// </returns>
-    Task<bool> EvaluateStepResultAsync(SagaStep step, bool compensating, CancellationToken cancellationToken);
 }
 
 /// <summary>

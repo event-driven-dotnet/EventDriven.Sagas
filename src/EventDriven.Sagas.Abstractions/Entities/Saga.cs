@@ -121,11 +121,101 @@ public abstract class Saga
     {
         var evaluator = GetCommandResultEvaluatorByResultType<TSaga, TResult, TExpectedResult>();
         var commandSuccessful = evaluator != null
-            && await evaluator.EvaluateStepResultAsync(step, compensating, CancellationToken);
-        StateInfo = evaluator?.SagaStateInfo;
+            && await EvaluateStepResultAsync(step, compensating, evaluator, CancellationToken);
         await TransitionSagaStateAsync(commandSuccessful);
     }
     
+    /// <summary>
+    /// Evaluate a step result.
+    /// </summary>
+    /// <param name="step">Saga step.</param>
+    /// <param name="compensating">True if compensating step.</param>
+    /// <param name="evaluator">Saga command result evaluator.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <typeparam name="TResult">Result type.</typeparam>
+    /// <typeparam name="TExpectedResult">Expected result type.</typeparam>
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains a boolean that is true if step completed successfully.
+    /// </returns>
+    public virtual async Task<bool> EvaluateStepResultAsync<TResult, TExpectedResult>(
+        SagaStep step, bool compensating, ISagaCommandResultEvaluator<TResult, TExpectedResult> evaluator,
+        CancellationToken cancellationToken)
+    {
+        // Evaluate result
+        var isCancelled = !compensating && cancellationToken.IsCancellationRequested;
+        var action = compensating ? step.CompensatingAction : step.Action;
+        if (action.Command is not ISagaCommand<TResult, TExpectedResult> command) return false;
+        var result = command.Result;
+        var expectedResult = command.ExpectedResult;
+        var commandSuccessful = !isCancelled
+            && await evaluator.EvaluateCommandResultAsync(command.Result, command.ExpectedResult);
+
+        // Check timeout
+        action.Completed = DateTime.UtcNow;
+        action.Duration = action.Completed - action.Started;
+        var duration = action.Duration;
+        var timeout = action.Timeout;
+        var commandTimedOut = commandSuccessful && action.Timeout != null && action.Duration > action.Timeout;
+        if (commandTimedOut) commandSuccessful = false;
+
+        // Transition action state
+        action.State = ActionState.Succeeded;
+        if (!commandSuccessful)
+        {
+            if (isCancelled)
+            {
+                action.State = ActionState.Cancelled;
+                action.StateInfo = GetCancellationMessage();
+            }
+            else if (!commandTimedOut)
+            {
+                action.State = ActionState.Failed;
+                action.StateInfo = GetFailureMessage(result, expectedResult);
+            }
+            else
+            {
+                action.State = ActionState.TimedOut;
+                action.StateInfo = GetTimeoutMessage(timeout, duration);
+            }
+
+            var commandName = action.Command.Name ?? "No name";
+            StateInfo = $"Step {step.Sequence} command '{commandName}' failed. {action.StateInfo}";
+            return false;
+        }
+        return true;
+    }
+    
+    /// <summary>
+    /// Get cancellation message.
+    /// </summary>
+    /// <returns>The cancellation message.</returns>
+    protected virtual string GetCancellationMessage() => "Cancellation requested.";
+    
+    /// <summary>
+    /// Get failure message.
+    /// </summary>
+    /// <typeparam name="TResult">Result type.</typeparam>
+    /// <typeparam name="TExpectedResult">Expected result type.</typeparam>
+    /// <returns>The failure message.</returns>
+    protected virtual string GetFailureMessage<TResult, TExpectedResult>(
+        TResult result, TExpectedResult expectedResult) =>
+        result == null || expectedResult == null
+            ? "Unexpected result."
+            : $"'{result}' returned when '{expectedResult}' was expected.";
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="timeout"></param>
+    /// <param name="duration"></param>
+    /// <returns></returns>
+    protected virtual string GetTimeoutMessage(
+        TimeSpan? timeout ,TimeSpan? duration) =>
+        timeout == null || duration == null
+            ? "Duration exceeded timeout."
+            : $"Duration of '{duration.Value:c}' exceeded timeout of '{timeout.Value:c}'";
+
     /// <summary>
     /// Transition saga state.
     /// </summary>

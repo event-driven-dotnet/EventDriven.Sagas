@@ -28,3 +28,20 @@ public interface ISagaCommand<TResult, TExpectedResult> : ISagaCommand
     /// </summary>
     public TExpectedResult ExpectedResult { get; set; }
 }
+
+/// <summary>
+/// Generic saga command.
+/// </summary>
+/// <typeparam name="TResult">Command result type.</typeparam>
+public interface ISagaCommand<TResult> : ISagaCommand
+{
+    /// <summary>
+    /// Command result.
+    /// </summary>
+    public TResult Result { get; set; }
+
+    /// <summary>
+    /// Command expected result.
+    /// </summary>
+    public TResult ExpectedResult { get; set; }
+}
