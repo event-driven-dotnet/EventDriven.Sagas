@@ -5,7 +5,7 @@ using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 using URF.Core.Abstractions;
 using URF.Core.Mongo;
 
-namespace EventDriven.Sagas.Persistence.Repositories;
+namespace EventDriven.Sagas.Persistence.Mongo.Repositories;
 
 /// <summary>
 /// Saga history repository.

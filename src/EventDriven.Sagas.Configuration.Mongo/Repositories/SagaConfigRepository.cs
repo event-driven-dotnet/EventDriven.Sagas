@@ -5,7 +5,7 @@ using EventDriven.Sagas.Configuration.Abstractions.DTO;
 using EventDriven.Sagas.Configuration.Abstractions.Repositories;
 using URF.Core.Abstractions;
 
-namespace EventDriven.Sagas.Configuration.Repositories;
+namespace EventDriven.Sagas.Configuration.Mongo.Repositories;
 
 /// <summary>
 /// Saga configuration repository.

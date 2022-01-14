@@ -14,9 +14,9 @@
         <PackageIcon>eda-logo.jpeg</PackageIcon>
         <RepositoryUrl>https://github.com/event-driven-dotnet/EventDriven.Sagas.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>sagas configuration event-driven event-driven-architecture</PackageTags>
+        <PackageTags>sagas event-driven event-driven-architecture</PackageTags>
         <PackageReleaseNotes>https://github.com/event-driven-dotnet/EventDriven.Sagas/releases/tag/v1.0.0-beta1</PackageReleaseNotes>
-        <PackageId>EventDriven.Sagas.Configuration</PackageId>
+        <PackageId>EventDriven.Sagas.Persistence.Mongo</PackageId>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
     </PropertyGroup>
 
@@ -30,9 +30,9 @@
             <PackagePath>\</PackagePath>
         </None>
     </ItemGroup>
-    
+
     <ItemGroup>
-      <ProjectReference Include="..\EventDriven.Sagas.Configuration.Abstractions\EventDriven.Sagas.Configuration.Abstractions.csproj" />
+      <ProjectReference Include="..\EventDriven.Sagas.Persistence.Abstractions\EventDriven.Sagas.Persistence.Abstractions.csproj" />
     </ItemGroup>
 
     <ItemGroup>

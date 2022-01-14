@@ -18,9 +18,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\EventDriven.DDD.Abstractions\src\EventDriven.DDD.Abstractions\EventDriven.DDD.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\EventDriven.Sagas.Abstractions\EventDriven.Sagas.Abstractions.csproj" />
-    <ProjectReference Include="..\..\src\EventDriven.Sagas.Configuration\EventDriven.Sagas.Configuration.csproj" />
+    <ProjectReference Include="..\..\src\EventDriven.Sagas.Configuration.Mongo\EventDriven.Sagas.Configuration.Mongo.csproj" />
     <ProjectReference Include="..\..\src\EventDriven.Sagas.DependencyInjection\EventDriven.Sagas.DependencyInjection.csproj" />
-    <ProjectReference Include="..\..\src\EventDriven.Sagas.Persistence\EventDriven.Sagas.Persistence.csproj" />
+    <ProjectReference Include="..\..\src\EventDriven.Sagas.Persistence.Mongo\EventDriven.Sagas.Persistence.Mongo.csproj" />
   </ItemGroup>
 
 </Project>

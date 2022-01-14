@@ -28,9 +28,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.Configura
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.Persistence.Abstractions", "src\EventDriven.Sagas.Persistence.Abstractions\EventDriven.Sagas.Persistence.Abstractions.csproj", "{C1F0CC31-314D-433E-B48F-F585B13C53F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.Configuration", "src\EventDriven.Sagas.Configuration\EventDriven.Sagas.Configuration.csproj", "{C81DA9A4-C566-4E70-99E5-EA88D2C73164}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.Configuration.Mongo", "src\EventDriven.Sagas.Configuration.Mongo\EventDriven.Sagas.Configuration.Mongo.csproj", "{C81DA9A4-C566-4E70-99E5-EA88D2C73164}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.Persistence", "src\EventDriven.Sagas.Persistence\EventDriven.Sagas.Persistence.csproj", "{D81D63CD-7376-4966-B0AE-4B889A037711}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.Persistence.Mongo", "src\EventDriven.Sagas.Persistence.Mongo\EventDriven.Sagas.Persistence.Mongo.csproj", "{D81D63CD-7376-4966-B0AE-4B889A037711}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.DependencyInjection", "src\EventDriven.Sagas.DependencyInjection\EventDriven.Sagas.DependencyInjection.csproj", "{A7032BED-74A6-4584-BC93-75F76F70A917}"
 EndProject
