@@ -9,6 +9,11 @@ public interface ISagaCommandResultDispatcher
     /// Saga command result handler.
     /// </summary>
     public ISagaCommandResultHandler SagaCommandResultHandler { get; set; }
+
+    /// <summary>
+    /// Saga type.
+    /// </summary>
+    public Type? SagaType { get; set; }
 }
 
 /// <summary>

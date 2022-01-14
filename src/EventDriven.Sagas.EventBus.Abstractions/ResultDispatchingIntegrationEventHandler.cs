@@ -1,5 +1,6 @@
 using EventDriven.EventBus.Abstractions;
 using EventDriven.Sagas.Abstractions.Commands;
+using EventDriven.Sagas.Abstractions.Entities;
 
 namespace EventDriven.Sagas.EventBus.Abstractions;
 
@@ -14,6 +15,11 @@ public abstract class ResultDispatchingIntegrationEventHandler<TIntegrationEvent
     where TIntegrationEvent : IIntegrationEvent
 {
     /// <summary>
+    /// Saga type.
+    /// </summary>
+    public Type? SagaType { get; set; }
+
+    /// <summary>
     /// Saga command result handler.
     /// </summary>
     public ISagaCommandResultHandler SagaCommandResultHandler { get; set; } = null!;
@@ -23,5 +29,25 @@ public abstract class ResultDispatchingIntegrationEventHandler<TIntegrationEvent
     {
         if (SagaCommandResultHandler is ISagaCommandResultHandler<TResult> handler)
             await handler.HandleCommandResultAsync(commandResult, compensating);
+    }
+}
+
+/// <summary>
+/// Integration event handler that can dispatch command results.
+/// </summary>
+/// <typeparam name="TSaga">Saga type.</typeparam>
+/// <typeparam name="TIntegrationEvent">Integration event type.</typeparam>
+/// <typeparam name="TResult">Result type.</typeparam>
+public abstract class ResultDispatchingIntegrationEventHandler<TSaga, TIntegrationEvent, TResult> :
+    ResultDispatchingIntegrationEventHandler<TIntegrationEvent, TResult>
+    where TSaga : Saga
+    where TIntegrationEvent : IIntegrationEvent
+{
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    protected ResultDispatchingIntegrationEventHandler()
+    {
+        SagaType = typeof(TSaga);
     }
 }

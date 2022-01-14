@@ -119,7 +119,8 @@ public static class ServiceCollectionExtensions
             {
                 var dispatcher = sp.GetRequiredService<TSagaCommandDispatcher>();
                 var evaluator = sp.GetRequiredService<TCommandResultEvaluator>();
-                var resultDispatchers = sp.GetServices<ISagaCommandResultDispatcher>();
+                var resultDispatchers = 
+                    sp.GetServices<ISagaCommandResultDispatcher>();
                 var configOptions = sp.GetRequiredService<SagaConfigurationOptions>();
                 var configRepo = sp.GetRequiredService<ISagaConfigRepository>();
                 var snapshotRepo = sp.GetRequiredService<ISagaSnapshotRepository>();

@@ -48,7 +48,8 @@ public class SagaFactory<TSaga> : ISagaFactory<TSaga>
             typeof(TSaga), SagaCommandDispatcher, SagaCommandResultEvaluator);
         if (saga == null)
             throw new Exception($"Unable to create instance of {typeof(TSaga).Name}");
-        foreach (var commandResultDispatcher in SagaCommandResultDispatchers)
+        foreach (var commandResultDispatcher in SagaCommandResultDispatchers
+            .Where(d => d.SagaType == null || d.SagaType == typeof(TSaga)))
             commandResultDispatcher.SagaCommandResultHandler = saga;
         return saga;
     }

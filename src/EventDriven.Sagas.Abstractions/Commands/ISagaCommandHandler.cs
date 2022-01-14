@@ -38,7 +38,6 @@ public interface ISagaCommandHandler<TEntity, in TSagaCommand> : ISagaCommandHan
     /// Handles a command.
     /// </summary>
     /// <param name="command">The command.</param>
-    /// <typeparam name="TEntity">Entity type.</typeparam>
     /// <returns>The command result.</returns>
     Task<CommandResult<TEntity>> HandleCommandAsync(TSagaCommand command);
 }
