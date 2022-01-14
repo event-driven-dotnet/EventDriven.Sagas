@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OrderService.Domain.OrderAggregate;
-using OrderService.Domain.OrderAggregate.Commands.SagaCommands;
+using OrderService.Domain.OrderAggregate.Sagas.Commands;
 using TestClient.Configuration;
 using TestClient.Services;
 

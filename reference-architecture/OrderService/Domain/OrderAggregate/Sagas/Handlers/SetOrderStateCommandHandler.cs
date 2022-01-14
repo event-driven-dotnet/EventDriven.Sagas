@@ -1,11 +1,10 @@
 ﻿using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.DDD.Abstractions.Repositories;
 using EventDriven.Sagas.Abstractions.Commands;
-using OrderService.Domain.OrderAggregate.Commands.SagaCommands;
-using OrderService.Domain.OrderAggregate.Sagas;
+using OrderService.Domain.OrderAggregate.Sagas.Commands;
 using OrderService.Repositories;
 
-namespace OrderService.Domain.OrderAggregate.Commands.Handlers;
+namespace OrderService.Domain.OrderAggregate.Sagas.Handlers;
 
 public class SetOrderStateCommandHandler :
     ResultDispatchingSagaCommandHandler<CreateOrderSaga, SetOrderStatePending, OrderState>

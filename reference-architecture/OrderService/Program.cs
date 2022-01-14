@@ -7,8 +7,8 @@ using EventDriven.Sagas.Persistence.Abstractions.DTO;
 using EventDriven.Sagas.Persistence.Repositories;
 using OrderService.Configuration;
 using OrderService.Domain.OrderAggregate;
-using OrderService.Domain.OrderAggregate.Commands.Dispatchers;
 using OrderService.Domain.OrderAggregate.Sagas;
+using OrderService.Domain.OrderAggregate.Sagas.Dispatchers;
 using OrderService.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);

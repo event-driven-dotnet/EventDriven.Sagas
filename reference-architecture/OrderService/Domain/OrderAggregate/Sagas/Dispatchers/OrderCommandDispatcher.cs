@@ -1,7 +1,7 @@
 ﻿using EventDriven.Sagas.Abstractions.Commands;
-using OrderService.Domain.OrderAggregate.Commands.SagaCommands;
+using OrderService.Domain.OrderAggregate.Sagas.Commands;
 
-namespace OrderService.Domain.OrderAggregate.Commands.Dispatchers;
+namespace OrderService.Domain.OrderAggregate.Sagas.Dispatchers;
 
 public class OrderCommandDispatcher : SagaCommandDispatcher
 {

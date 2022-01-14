@@ -4,16 +4,16 @@
   "Name": "CreateOrderSaga",
   "Steps": [
     {
-      "Id": "f2fcf7c0-1873-4bba-a0f4-bea7a5bfb76d",
+      "Id": "6a877e23-bace-4de1-bdf5-70bd2d03fb9b",
       "Sequence": 1,
       "Action": {
-        "Id": "b0c64333-3431-481e-8748-6e1bfb2fc760",
-        "Command": "{\"Result\":0,\"ExpectedResult\":1,\"Name\":\"OrderService.Domain.OrderAggregate.Commands.SagaCommands.SetOrderStatePending\",\"EntityId\":\"00000000-0000-0000-0000-000000000000\"}",
+        "Id": "83b859f0-99b8-4acf-a2b7-5d1de1009ea6",
+        "Command": "{\"Result\":0,\"ExpectedResult\":1,\"Name\":\"OrderService.Domain.OrderAggregate.Sagas.Commands.SetOrderStatePending\",\"EntityId\":\"00000000-0000-0000-0000-000000000000\"}",
         "Timeout": null
       },
       "CompensatingAction": {
-        "Id": "28579db1-10e4-466c-919b-e7815bc6594d",
-        "Command": "{\"Result\":0,\"ExpectedResult\":0,\"Name\":\"OrderService.Domain.OrderAggregate.Commands.SagaCommands.SetOrderStateInitial\",\"EntityId\":\"00000000-0000-0000-0000-000000000000\"}",
+        "Id": "27cc906b-b535-4e94-bcdb-fb43da45ce84",
+        "Command": "{\"Result\":0,\"ExpectedResult\":0,\"Name\":\"OrderService.Domain.OrderAggregate.Sagas.Commands.SetOrderStateInitial\",\"EntityId\":\"00000000-0000-0000-0000-000000000000\"}",
         "Timeout": null
       }
     }

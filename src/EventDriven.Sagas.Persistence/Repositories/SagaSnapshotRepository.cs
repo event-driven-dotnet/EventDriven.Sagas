@@ -40,6 +40,7 @@ public class SagaSnapshotRepository : ISagaSnapshotRepository
     public async Task PersistSagaSnapshotAsync(PersistableSaga entity)
     {
         var max = await GetMax(entity.Id);
+        entity.Id = Guid.NewGuid();
         entity.ETag = Guid.NewGuid().ToString();
         entity.Sequence = max + 1;
         var dto = _mapper.Map<SagaSnapshotDto>(entity);
