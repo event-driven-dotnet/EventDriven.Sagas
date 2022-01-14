@@ -1,6 +1,6 @@
 using EventDriven.EventBus.Abstractions;
+using EventDriven.Sagas.Abstractions;
 using EventDriven.Sagas.Abstractions.Commands;
-using EventDriven.Sagas.Abstractions.Entities;
 
 namespace EventDriven.Sagas.EventBus.Abstractions;
 

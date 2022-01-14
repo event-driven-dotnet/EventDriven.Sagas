@@ -1,4 +1,4 @@
-﻿namespace EventDriven.Sagas.Abstractions.Entities;
+﻿namespace EventDriven.Sagas.Abstractions;
 
 /// <summary>
 /// Saga step consisting of both an action and compensating action.

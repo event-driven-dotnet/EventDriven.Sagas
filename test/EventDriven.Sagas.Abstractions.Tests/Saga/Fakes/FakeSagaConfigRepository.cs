@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Configuration.Abstractions;
 using EventDriven.Sagas.Configuration.Abstractions.Repositories;
 

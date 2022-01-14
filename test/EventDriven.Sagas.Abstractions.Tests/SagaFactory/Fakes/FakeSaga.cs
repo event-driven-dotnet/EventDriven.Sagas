@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Commands;
-using EventDriven.Sagas.Abstractions.Entities;
 
 namespace EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
 
 public class FakeSaga :
-    Entities.Saga,
+    Abstractions.Saga,
     ISagaCommandResultHandler<FakeEntity>
 {
     public const string SuccessState = "Success";

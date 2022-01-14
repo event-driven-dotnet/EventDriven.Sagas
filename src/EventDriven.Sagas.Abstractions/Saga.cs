@@ -1,6 +1,6 @@
 ﻿using EventDriven.Sagas.Abstractions.Commands;
 
-namespace EventDriven.Sagas.Abstractions.Entities;
+namespace EventDriven.Sagas.Abstractions;
 
 /// <summary>
 /// Enables the execution of atomic operations which span multiple services.

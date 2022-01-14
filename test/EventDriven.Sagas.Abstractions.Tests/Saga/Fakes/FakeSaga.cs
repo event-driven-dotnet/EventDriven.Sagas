@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Commands;
-using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Persistence.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 

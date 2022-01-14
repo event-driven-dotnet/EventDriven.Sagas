@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Commands;
-using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Persistence.Abstractions;
 
 namespace EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;

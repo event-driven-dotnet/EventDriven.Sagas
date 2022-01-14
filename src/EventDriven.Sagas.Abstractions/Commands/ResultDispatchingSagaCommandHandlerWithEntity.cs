@@ -1,6 +1,5 @@
 using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.DDD.Abstractions.Entities;
-using EventDriven.Sagas.Abstractions.Entities;
 
 namespace EventDriven.Sagas.Abstractions.Commands;
 

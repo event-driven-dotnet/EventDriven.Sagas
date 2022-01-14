@@ -1,5 +1,3 @@
-using EventDriven.Sagas.Abstractions.Entities;
-
 namespace EventDriven.Sagas.Abstractions.Factories;
 
 /// <summary>

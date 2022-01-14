@@ -1,4 +1,4 @@
-﻿namespace EventDriven.Sagas.Abstractions.Entities;
+﻿namespace EventDriven.Sagas.Abstractions;
 
 /// <summary>
 /// The state of a saga.

@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Commands;
-using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Factories;
 using EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
 using EventDriven.Sagas.Configuration.Abstractions;
@@ -34,7 +33,7 @@ public class SagaFactoryTests
             var dispatcher = sp.GetRequiredService<FakeSagaCommandDispatcher>();
             var evaluators = sp.GetServices<ISagaCommandResultEvaluator>();
             var resultDispatchers = sp.GetServices<ISagaCommandResultDispatcher>();
-            ISagaFactory<Entities.Saga> factory;
+            ISagaFactory<Abstractions.Saga> factory;
             switch (sagaType)
             {
                 case SagaType.Configurable:
@@ -56,14 +55,14 @@ public class SagaFactoryTests
         });
         services.AddSingleton(sp =>
         {
-            var factory = sp.GetRequiredService<ISagaFactory<Entities.Saga>>();
+            var factory = sp.GetRequiredService<ISagaFactory<Abstractions.Saga>>();
             var saga = factory.CreateSaga();
             return saga;
         });
 
         // Act
         var provider = services.BuildServiceProvider();
-        var saga = provider.GetRequiredService<Entities.Saga>();
+        var saga = provider.GetRequiredService<Abstractions.Saga>();
         await saga.StartSagaAsync();
 
         // Assert

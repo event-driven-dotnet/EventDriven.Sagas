@@ -1,4 +1,4 @@
-﻿using EventDriven.Sagas.Abstractions.Entities;
+﻿using EventDriven.Sagas.Abstractions;
 
 namespace EventDriven.Sagas.Persistence.Abstractions.DTO;
 

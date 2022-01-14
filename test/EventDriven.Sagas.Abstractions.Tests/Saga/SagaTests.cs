@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventDriven.Sagas.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Tests.Saga.Fakes;
 using Xunit;
 

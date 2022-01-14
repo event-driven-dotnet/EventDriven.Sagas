@@ -1,6 +1,4 @@
-﻿using EventDriven.Sagas.Abstractions.Entities;
-
-namespace EventDriven.Sagas.Abstractions.Commands;
+﻿namespace EventDriven.Sagas.Abstractions.Commands;
 
 /// <summary>
 /// Evaluator of a command result.
