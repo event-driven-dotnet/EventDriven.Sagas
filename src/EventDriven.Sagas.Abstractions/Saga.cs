@@ -80,19 +80,21 @@ public abstract class Saga
     /// Command result evaluators.
     /// </summary>
     protected IEnumerable<ISagaCommandResultEvaluator> CommandResultEvaluators { get; set; }
-
+    
     /// <summary>
     /// Execute the current action.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected abstract Task ExecuteCurrentActionAsync();
+    protected virtual async Task ExecuteCurrentActionAsync() =>
+        await ExecuteCurrentActionCommonAsync();
 
     /// <summary>
     /// Execute the current compensating action.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected abstract Task ExecuteCurrentCompensatingActionAsync();
-
+    protected virtual async Task ExecuteCurrentCompensatingActionAsync() => 
+        await ExecuteCurrentActionCommonAsync();
+    
     /// <summary>
     /// Get command result evaluator for this saga by result type.
     /// </summary>
@@ -280,5 +282,14 @@ public abstract class Saga
 
         // Dispatch current step command
         await ExecuteCurrentActionAsync();
+    }
+    
+    private async Task ExecuteCurrentActionCommonAsync()
+    {
+        var action = Steps.Single(s => s.Sequence == CurrentStep).Action;
+        action.State = ActionState.Running;
+        action.Started = DateTime.UtcNow;
+        action.Command = action.Command with { EntityId = EntityId };
+        await SagaCommandDispatcher.DispatchCommandAsync(action.Command, true);
     }
 }

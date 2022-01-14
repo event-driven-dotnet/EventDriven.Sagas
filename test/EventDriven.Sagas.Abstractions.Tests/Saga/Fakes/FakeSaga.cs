@@ -16,7 +16,6 @@ public class FakeSaga : PersistableSaga,
 {
     private readonly int _cancelOnStep;
     private readonly CancellationTokenSource? _tokenSource;
-    private readonly ISagaCommandDispatcher _commandDispatcher;
 
     public FakeSaga(List<SagaStep> steps, ISagaCommandDispatcher commandDispatcher,
         IEnumerable<ISagaCommandResultEvaluator<string?, string?>> resultEvaluators, 
@@ -24,7 +23,7 @@ public class FakeSaga : PersistableSaga,
         int cancelOnStep = 0, CancellationTokenSource? tokenSource = null) :
         base(commandDispatcher, resultEvaluators)
     {
-        _commandDispatcher = commandDispatcher;
+        SagaCommandDispatcher = commandDispatcher;
         _cancelOnStep = cancelOnStep;
         _tokenSource = tokenSource;
         Steps = steps;
@@ -38,7 +37,7 @@ public class FakeSaga : PersistableSaga,
         action.State = ActionState.Running;
         action.Started = DateTime.UtcNow;
         await PersistAsync();
-        await _commandDispatcher.DispatchCommandAsync(action.Command, false);
+        await SagaCommandDispatcher.DispatchCommandAsync(action.Command, false);
     }
 
     protected override async Task ExecuteCurrentCompensatingActionAsync()
@@ -47,7 +46,7 @@ public class FakeSaga : PersistableSaga,
         action.State = ActionState.Running;
         action.Started = DateTime.UtcNow;
         await PersistAsync();
-        await _commandDispatcher.DispatchCommandAsync(action.Command, true);
+        await SagaCommandDispatcher.DispatchCommandAsync(action.Command, true);
     }
 
     public async Task HandleCommandResultAsync(Order result, bool compensating)

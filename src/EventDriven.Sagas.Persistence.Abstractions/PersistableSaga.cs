@@ -30,4 +30,18 @@ public abstract class PersistableSaga : ConfigurableSaga
         if (SagaSnapshotRepository != null)
             await SagaSnapshotRepository.PersistSagaSnapshotAsync(this);
     }
+
+    /// <inheritdoc />
+    protected override async Task ExecuteCurrentActionAsync()
+    {
+        await base.ExecuteCurrentActionAsync();
+        await PersistAsync();
+    }
+
+    /// <inheritdoc />
+    protected override async Task ExecuteCurrentCompensatingActionAsync()
+    {
+         await base.ExecuteCurrentCompensatingActionAsync();
+         await PersistAsync();
+    }
 }
