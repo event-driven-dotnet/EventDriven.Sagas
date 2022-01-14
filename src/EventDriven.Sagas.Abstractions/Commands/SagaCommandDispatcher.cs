@@ -25,14 +25,12 @@ public abstract class SagaCommandDispatcher : ISagaCommandDispatcher
     /// <summary>
     /// Get saga command handler by command type.
     /// </summary>
-    /// <param name="sagaCommand">Saga command.</param>
     /// <typeparam name="TSagaCommand">Saga command type.</typeparam>
     /// <returns>Strongly typed ISagaCommandHandler.</returns>
-    protected virtual ISagaCommandHandler<TSagaCommand>? GetSagaCommandHandlerByCommandType<TSagaCommand>(
-        SagaCommand sagaCommand)
+    protected virtual ISagaCommandHandler<TSagaCommand>? GetSagaCommandHandlerByCommandType<TSagaCommand>()
         where TSagaCommand : class, ISagaCommand =>
         SagaCommandHandlers.OfType<ISagaCommandHandler<TSagaCommand>>().FirstOrDefault();
-
+    
     /// <summary>
     /// Get saga command handler by command type.
     /// </summary>

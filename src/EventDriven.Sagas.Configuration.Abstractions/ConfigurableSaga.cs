@@ -12,8 +12,8 @@ public abstract class ConfigurableSaga : Saga
     /// <inheritdoc />
     protected ConfigurableSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
-        ISagaCommandResultEvaluator commandResultEvaluator) : 
-        base(sagaCommandDispatcher, commandResultEvaluator)
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) : 
+        base(sagaCommandDispatcher, commandResultEvaluators)
     {
     }
     

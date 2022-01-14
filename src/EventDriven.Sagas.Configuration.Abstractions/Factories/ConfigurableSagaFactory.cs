@@ -15,11 +15,11 @@ public class ConfigurableSagaFactory<TSaga>
     /// <inheritdoc />
     public ConfigurableSagaFactory(
         ISagaCommandDispatcher sagaCommandDispatcher, 
-        ISagaCommandResultEvaluator commandResultEvaluator,
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
         IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers,
         SagaConfigurationOptions sagaConfigOptions,
         ISagaConfigRepository sagaConfigRepository) : 
-        base(sagaCommandDispatcher, commandResultEvaluator, commandResultDispatchers)
+        base(sagaCommandDispatcher, commandResultEvaluators, commandResultDispatchers)
     {
         _sagaConfigOptions = sagaConfigOptions;
         _sagaConfigRepository = sagaConfigRepository;

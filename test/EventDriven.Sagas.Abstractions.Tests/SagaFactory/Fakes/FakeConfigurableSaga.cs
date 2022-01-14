@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Entities;
@@ -15,8 +16,8 @@ public class FakeConfigurableSaga :
 
     public FakeConfigurableSaga(
         ISagaCommandDispatcher sagaCommandDispatcher, 
-        ISagaCommandResultEvaluator commandResultEvaluator) : 
-        base(sagaCommandDispatcher, commandResultEvaluator)
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) : 
+        base(sagaCommandDispatcher, commandResultEvaluators)
     {
     }
 
@@ -31,8 +32,9 @@ public class FakeConfigurableSaga :
 
     public async Task HandleCommandResultAsync(string result, bool compensating)
     {
-        var evaluator = (ISagaCommandResultEvaluator<string, string>)CommandResultEvaluator;
-        var success = await evaluator.EvaluateCommandResultAsync(result, SuccessState);
+        var evaluator = GetCommandResultEvaluatorByResultType<FakeSaga, string, string>();
+        var success = evaluator != null
+            && await evaluator.EvaluateCommandResultAsync(result, SuccessState);
         StateInfo = success ? SuccessState : FailureState;
         State = SagaState.Executed;
     }

@@ -27,19 +27,16 @@ public static class ServiceCollectionExtensions
     /// <param name="configuration">The application's <see cref="IConfiguration"/>.</param>
     /// <typeparam name="TPersistableSaga">Concrete saga type that extends PersistableSaga.</typeparam>
     /// <typeparam name="TSagaCommandDispatcher">Saga command dispatcher type.</typeparam>
-    /// <typeparam name="TCommandResultEvaluator">Command result evaluator type.</typeparam>
     /// <typeparam name="TSagaConfigRepository">Saga config repository type.</typeparam>
     /// <typeparam name="TSagaSnapshotRepository">Saga snapshot repository type.</typeparam>
     /// <typeparam name="TSagaConfigSettings">Concrete implementation of <see cref="ISagaConfigSettings"/></typeparam>
     /// <returns>A reference to this instance after the operation has completed.</returns>
-    public static IServiceCollection AddSaga<TPersistableSaga,
-        TSagaCommandDispatcher, TCommandResultEvaluator,
+    public static IServiceCollection AddSaga<TPersistableSaga, TSagaCommandDispatcher,
         TSagaConfigRepository, TSagaSnapshotRepository, TSagaConfigSettings>(
         this IServiceCollection services, 
         IConfiguration configuration)
         where TPersistableSaga : PersistableSaga, ISagaCommandResultHandler
         where TSagaCommandDispatcher : ISagaCommandDispatcher
-        where TCommandResultEvaluator : ISagaCommandResultEvaluator
         where TSagaConfigRepository : class, ISagaConfigRepository
         where TSagaSnapshotRepository : class, ISagaSnapshotRepository
         where TSagaConfigSettings : ISagaConfigSettings, new()
@@ -50,8 +47,7 @@ public static class ServiceCollectionExtensions
         configSection.Bind(settings);
         if (settings.SagaConfigId == Guid.Empty)
             throw new Exception($"'SagaConfigId' property not present in configuration section {configTypeName}");
-        return services.AddSaga<TPersistableSaga, TSagaCommandDispatcher, TCommandResultEvaluator,
-            TSagaConfigRepository, TSagaSnapshotRepository>(settings.SagaConfigId);
+        return services.AddSaga<TPersistableSaga, TSagaCommandDispatcher, TSagaConfigRepository, TSagaSnapshotRepository>(settings.SagaConfigId);
     }
 
     /// <summary>
@@ -61,21 +57,18 @@ public static class ServiceCollectionExtensions
     /// <param name="sagaConfigId">Optional saga configuration identifier.</param>
     /// <typeparam name="TPersistableSaga">Concrete saga type that extends PersistableSaga.</typeparam>
     /// <typeparam name="TSagaCommandDispatcher">Saga command dispatcher type.</typeparam>
-    /// <typeparam name="TCommandResultEvaluator">Command result evaluator type.</typeparam>
     /// <typeparam name="TSagaConfigRepository">Saga config repository type.</typeparam>
     /// <typeparam name="TSagaSnapshotRepository">Saga snapshot repository type.</typeparam>
     /// <returns>A reference to this instance after the operation has completed.</returns>
-    public static IServiceCollection AddSaga<TPersistableSaga, TSagaCommandDispatcher,
-        TCommandResultEvaluator, TSagaConfigRepository, TSagaSnapshotRepository>(
+    public static IServiceCollection AddSaga<TPersistableSaga,
+        TSagaCommandDispatcher, TSagaConfigRepository, TSagaSnapshotRepository>(
         this IServiceCollection services, 
         Guid? sagaConfigId = null)
         where TPersistableSaga : PersistableSaga, ISagaCommandResultHandler
         where TSagaCommandDispatcher : ISagaCommandDispatcher
-        where TCommandResultEvaluator : ISagaCommandResultEvaluator
         where TSagaConfigRepository : class, ISagaConfigRepository
         where TSagaSnapshotRepository : class, ISagaSnapshotRepository
-        => services.AddSaga<TPersistableSaga, TSagaCommandDispatcher, TCommandResultEvaluator,
-            TSagaConfigRepository, TSagaSnapshotRepository>(options => 
+        => services.AddSaga<TPersistableSaga, TSagaCommandDispatcher, TSagaConfigRepository, TSagaSnapshotRepository>(options => 
             options.SagaConfigId = sagaConfigId);
 
     /// <summary>
@@ -85,18 +78,15 @@ public static class ServiceCollectionExtensions
     /// <param name="configure">Method for configuring saga options.</param>
     /// <typeparam name="TPersistableSaga">Concrete saga type that extends PersistableSaga.</typeparam>
     /// <typeparam name="TSagaCommandDispatcher">Saga command dispatcher type.</typeparam>
-    /// <typeparam name="TCommandResultEvaluator">Command result evaluator type.</typeparam>
     /// <typeparam name="TSagaConfigRepository">Saga config repository type.</typeparam>
     /// <typeparam name="TSagaSnapshotRepository">Saga snapshot repository type.</typeparam>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddSaga<
-        TPersistableSaga, TSagaCommandDispatcher,
-        TCommandResultEvaluator, TSagaConfigRepository, TSagaSnapshotRepository>(
+        TPersistableSaga, TSagaCommandDispatcher, TSagaConfigRepository, TSagaSnapshotRepository>(
         this IServiceCollection services, 
         Action<SagaConfigurationOptions> configure)
         where TPersistableSaga : PersistableSaga, ISagaCommandResultHandler
         where TSagaCommandDispatcher : ISagaCommandDispatcher
-        where TCommandResultEvaluator : ISagaCommandResultEvaluator
         where TSagaConfigRepository : class, ISagaConfigRepository
         where TSagaSnapshotRepository : class, ISagaSnapshotRepository
     {
@@ -118,14 +108,14 @@ public static class ServiceCollectionExtensions
             .AddSingleton<ISagaFactory<TPersistableSaga>>(sp =>
             {
                 var dispatcher = sp.GetRequiredService<TSagaCommandDispatcher>();
-                var evaluator = sp.GetRequiredService<TCommandResultEvaluator>();
+                var evaluators = sp.GetServices<ISagaCommandResultEvaluator>();
                 var resultDispatchers = 
                     sp.GetServices<ISagaCommandResultDispatcher>();
                 var configOptions = sp.GetRequiredService<SagaConfigurationOptions>();
                 var configRepo = sp.GetRequiredService<ISagaConfigRepository>();
                 var snapshotRepo = sp.GetRequiredService<ISagaSnapshotRepository>();
                 return new PersistableSagaFactory<TPersistableSaga>(
-                    dispatcher, evaluator, resultDispatchers, configOptions, configRepo, snapshotRepo);
+                    dispatcher, evaluators, resultDispatchers, configOptions, configRepo, snapshotRepo);
             })
             .AddSingleton(sp =>
             {
@@ -160,7 +150,7 @@ public static class ServiceCollectionExtensions
                     .WithSingletonLifetime()
                 .AddClasses(classes => classes.AssignableTo<ISagaCommandResultEvaluator>())
                     .UsingRegistrationStrategy(RegistrationStrategy.Skip)
-                    .AsSelf()
+                    .AsSelfWithInterfaces()
                     .WithSingletonLifetime()
                 .AddClasses(classes => classes.AssignableTo(typeof(ISagaCommandHandler<,>)))
                     .UsingRegistrationStrategy(RegistrationStrategy.Skip)

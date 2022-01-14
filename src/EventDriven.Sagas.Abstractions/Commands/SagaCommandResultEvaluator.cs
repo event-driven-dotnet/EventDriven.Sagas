@@ -66,6 +66,9 @@ public abstract class SagaCommandResultEvaluator<TResult, TExpectedResult>
     public virtual string? SagaStateInfo { get; set; }
 
     /// <inheritdoc />
+    public Type? SagaType { get; set; }
+
+    /// <inheritdoc />
     public abstract Task<bool> EvaluateCommandResultAsync(TResult commandResult, TExpectedResult expectedResult);
 
     /// <inheritdoc />
@@ -114,5 +117,24 @@ public abstract class SagaCommandResultEvaluator<TResult, TExpectedResult>
             return false;
         }
         return true;
+    }
+}
+
+/// <summary>
+/// Evaluator of a command result.
+/// </summary>
+/// <typeparam name="TSaga">Saga type.</typeparam>
+/// <typeparam name="TResult">Result type.</typeparam>
+/// <typeparam name="TExpectedResult">Expected result type.</typeparam>
+public abstract class SagaCommandResultEvaluator<TSaga, TResult, TExpectedResult>
+    : SagaCommandResultEvaluator<TResult, TExpectedResult>
+    where TSaga : Saga
+{
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    protected SagaCommandResultEvaluator()
+    {
+        SagaType = typeof(TSaga);
     }
 }

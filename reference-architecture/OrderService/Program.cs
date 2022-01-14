@@ -8,7 +8,6 @@ using EventDriven.Sagas.Persistence.Repositories;
 using OrderService.Configuration;
 using OrderService.Domain.OrderAggregate;
 using OrderService.Domain.OrderAggregate.Commands.Dispatchers;
-using OrderService.Domain.OrderAggregate.Commands.Evaluators;
 using OrderService.Domain.OrderAggregate.Sagas;
 using OrderService.Repositories;
 
@@ -34,8 +33,7 @@ builder.Services.AddMongoDbSettings<SagaSnapshotDatabaseSettings, SagaSnapshotDt
     builder.Configuration);
 
 // Saga registration
-builder.Services.AddSaga<CreateOrderSaga,
-    OrderCommandDispatcher, SetOrderStateResultEvaluator, 
+builder.Services.AddSaga<CreateOrderSaga, OrderCommandDispatcher,
     SagaConfigRepository, SagaSnapshotRepository, SagaConfigSettings>(
     builder.Configuration);
 

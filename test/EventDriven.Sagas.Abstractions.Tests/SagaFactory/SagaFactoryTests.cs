@@ -23,7 +23,7 @@ public class SagaFactoryTests
         var services = new ServiceCollection();
         services.AddSingleton<FakeSagaCommandDispatcher>();
         services.AddSingleton<FakeSagaCommandHandler>();
-        services.AddSingleton<ISagaCommandResultEvaluator<string, string>, FakeCommandResultEvaluator>();
+        services.AddSingleton<ISagaCommandResultEvaluator, FakeCommandResultEvaluator>();
         services.AddSingleton<ISagaCommandHandler, FakeSagaCommandHandler>(sp =>
             sp.GetRequiredService<FakeSagaCommandHandler>());
         services.AddSingleton<ISagaCommandResultDispatcher, FakeSagaCommandHandler>(sp =>
@@ -32,24 +32,24 @@ public class SagaFactoryTests
         {
             var sagaConfigOptions = new SagaConfigurationOptions();
             var dispatcher = sp.GetRequiredService<FakeSagaCommandDispatcher>();
-            var evaluator = sp.GetRequiredService<ISagaCommandResultEvaluator<string, string>>();
+            var evaluators = sp.GetServices<ISagaCommandResultEvaluator>();
             var resultDispatchers = sp.GetServices<ISagaCommandResultDispatcher>();
             ISagaFactory<Entities.Saga> factory;
             switch (sagaType)
             {
                 case SagaType.Configurable:
                     factory = new ConfigurableSagaFactory<FakeConfigurableSaga>(
-                        dispatcher, evaluator, resultDispatchers, 
+                        dispatcher, evaluators, resultDispatchers, 
                         sagaConfigOptions, null!);
                     break;
                 case SagaType.Persistable:
                     factory = new PersistableSagaFactory<FakePersistableSaga>(
-                        dispatcher, evaluator, resultDispatchers,
+                        dispatcher, evaluators, resultDispatchers,
                         sagaConfigOptions, null!, null!);
                     break;
                 default:
                     factory = new SagaFactory<FakeSaga>(
-                        dispatcher, evaluator, resultDispatchers);
+                        dispatcher, evaluators, resultDispatchers);
                     break;
             }
             return factory;

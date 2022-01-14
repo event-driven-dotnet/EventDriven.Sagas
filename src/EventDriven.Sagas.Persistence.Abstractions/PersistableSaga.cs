@@ -12,8 +12,8 @@ public abstract class PersistableSaga : ConfigurableSaga
     /// <inheritdoc />
     protected PersistableSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
-        ISagaCommandResultEvaluator commandResultEvaluator) : 
-        base(sagaCommandDispatcher, commandResultEvaluator)
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) : 
+        base(sagaCommandDispatcher, commandResultEvaluators)
     {
     }
 

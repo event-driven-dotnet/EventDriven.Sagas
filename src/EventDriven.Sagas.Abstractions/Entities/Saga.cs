@@ -11,13 +11,13 @@ public abstract class Saga
     /// Constructor.
     /// </summary>
     /// <param name="sagaCommandDispatcher">Saga command dispatcher.</param>
-    /// <param name="commandResultEvaluator">Command result evaluator.</param>
+    /// <param name="commandResultEvaluators">Command result evaluators.</param>
     protected Saga(
         ISagaCommandDispatcher sagaCommandDispatcher,
-        ISagaCommandResultEvaluator commandResultEvaluator)
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators)
     {
         SagaCommandDispatcher = sagaCommandDispatcher;
-        CommandResultEvaluator = commandResultEvaluator;
+        CommandResultEvaluators = commandResultEvaluators;
     }
 
     /// <summary>
@@ -77,9 +77,9 @@ public abstract class Saga
     protected ISagaCommandDispatcher SagaCommandDispatcher { get; set; }
 
     /// <summary>
-    /// Command result evaluator.
+    /// Command result evaluators.
     /// </summary>
-    protected ISagaCommandResultEvaluator CommandResultEvaluator { get; set; }
+    protected IEnumerable<ISagaCommandResultEvaluator> CommandResultEvaluators { get; set; }
 
     /// <summary>
     /// Execute the current action.
@@ -93,6 +93,39 @@ public abstract class Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected abstract Task ExecuteCurrentCompensatingActionAsync();
 
+    /// <summary>
+    /// Get command result evaluator for this saga by result type.
+    /// </summary>
+    /// <typeparam name="TSaga">Saga type.</typeparam>
+    /// <typeparam name="TResult">Result type.</typeparam>
+    /// <typeparam name="TExpectedResult">Expected result type.</typeparam>
+    /// <returns>ISagaCommandResultEvaluator for this saga with the specified result type.</returns>
+    protected virtual ISagaCommandResultEvaluator<TResult, TExpectedResult>? GetCommandResultEvaluatorByResultType
+        <TSaga, TResult, TExpectedResult>()
+        where TSaga : Saga =>
+        CommandResultEvaluators
+            .Where(e => e.SagaType == null || e.SagaType == typeof(TSaga))
+            .OfType<ISagaCommandResultEvaluator<TResult, TExpectedResult>>().FirstOrDefault();
+
+    /// <summary>
+    /// Handle command result for step.
+    /// </summary>
+    /// <param name="step">Saga step.</param>
+    /// <param name="compensating">True if compensating step.</param>
+    /// <typeparam name="TSaga">Saga type.</typeparam>
+    /// <typeparam name="TResult">Result type.</typeparam>
+    /// <typeparam name="TExpectedResult">Expected result type.</typeparam>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    protected virtual async Task HandleCommandResultForStepAsync<TSaga, TResult, TExpectedResult>(SagaStep step, bool compensating)
+        where TSaga : Saga
+    {
+        var evaluator = GetCommandResultEvaluatorByResultType<TSaga, TResult, TExpectedResult>();
+        var commandSuccessful = evaluator != null
+            && await evaluator.EvaluateStepResultAsync(step, compensating, CancellationToken);
+        StateInfo = evaluator?.SagaStateInfo;
+        await TransitionSagaStateAsync(commandSuccessful);
+    }
+    
     /// <summary>
     /// Transition saga state.
     /// </summary>

@@ -18,20 +18,18 @@ public class FakeSaga : PersistableSaga,
     private readonly int _cancelOnStep;
     private readonly CancellationTokenSource? _tokenSource;
     private readonly ISagaCommandDispatcher _commandDispatcher;
-    private readonly ISagaCommandResultEvaluator<string?, string?> _resultEvaluator;
 
     public FakeSaga(List<SagaStep> steps, ISagaCommandDispatcher commandDispatcher,
-        ISagaCommandResultEvaluator<string?, string?> resultEvaluator, 
+        IEnumerable<ISagaCommandResultEvaluator<string?, string?>> resultEvaluators, 
         ISagaSnapshotRepository sagaSnapshotRepository,
         int cancelOnStep = 0, CancellationTokenSource? tokenSource = null) :
-        base(commandDispatcher, resultEvaluator)
+        base(commandDispatcher, resultEvaluators)
     {
         _commandDispatcher = commandDispatcher;
-        _resultEvaluator = resultEvaluator;
-        SagaSnapshotRepository = sagaSnapshotRepository;
         _cancelOnStep = cancelOnStep;
         _tokenSource = tokenSource;
         Steps = steps;
+        SagaSnapshotRepository = sagaSnapshotRepository;
     }
 
     protected override async Task ExecuteCurrentActionAsync()
@@ -73,9 +71,6 @@ public class FakeSaga : PersistableSaga,
 
     private async Task ProcessCommandResultAsync(SagaStep step, bool compensating)
     {
-        var commandSuccessful = await _resultEvaluator.EvaluateStepResultAsync(
-            step, compensating, CancellationToken);
-        StateInfo = _resultEvaluator.SagaStateInfo;
-        await TransitionSagaStateAsync(commandSuccessful);
+        await HandleCommandResultForStepAsync<FakeSaga, string, string>(step, compensating);
     }
 }

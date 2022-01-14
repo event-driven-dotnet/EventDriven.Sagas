@@ -18,12 +18,12 @@ public class PersistableSagaFactory<TSaga>
     /// <inheritdoc />
     public PersistableSagaFactory(
         ISagaCommandDispatcher sagaCommandDispatcher, 
-        ISagaCommandResultEvaluator commandResultEvaluator,
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
         IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers,
         SagaConfigurationOptions sagaConfigOptions,
         ISagaConfigRepository sagaConfigRepository,
         ISagaSnapshotRepository sagaSnapshotRepository) : 
-        base(sagaCommandDispatcher, commandResultEvaluator, commandResultDispatchers)
+        base(sagaCommandDispatcher, commandResultEvaluators, commandResultDispatchers)
     {
         _sagaConfigOptions = sagaConfigOptions;
         _sagaConfigRepository = sagaConfigRepository;

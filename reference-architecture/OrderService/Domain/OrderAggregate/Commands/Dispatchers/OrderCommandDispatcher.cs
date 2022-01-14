@@ -12,7 +12,7 @@ public class OrderCommandDispatcher : SagaCommandDispatcher
 
     public override async Task DispatchCommandAsync(SagaCommand command, bool compensating)
     {
-        var handler = GetSagaCommandHandlerByCommandType<SetOrderStatePending>(command);
+        var handler = GetSagaCommandHandlerByCommandType<SetOrderStatePending>();
         if (handler != null)
             await handler.HandleCommandAsync(new SetOrderStatePending(command.EntityId)
             {

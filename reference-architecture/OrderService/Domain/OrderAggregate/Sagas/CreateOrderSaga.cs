@@ -10,8 +10,8 @@ public class CreateOrderSaga :
 {
     public CreateOrderSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
-        ISagaCommandResultEvaluator commandResultEvaluator) :
-        base(sagaCommandDispatcher, commandResultEvaluator)
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) :
+        base(sagaCommandDispatcher, commandResultEvaluators)
     {
     }
 
@@ -37,18 +37,10 @@ public class CreateOrderSaga :
     
     public async Task HandleCommandResultAsync(OrderState result, bool compensating)
     {
-        var action = Steps.Single(s => s.Sequence == CurrentStep).Action;
+        var step = Steps.Single(s => s.Sequence == CurrentStep);
+        var action = step.Action;
         if (action.Command is SagaCommand<OrderState, OrderState> command)
             command.Result = result;
-        var step = Steps.Single(s => s.Sequence == CurrentStep);
-        await HandleCommandResultAsync(step, compensating);
-    }
-
-    private async Task HandleCommandResultAsync(SagaStep step, bool compensating)
-    {
-        var commandSuccessful = await CommandResultEvaluator.EvaluateStepResultAsync(
-            step, compensating, CancellationToken);
-        StateInfo = CommandResultEvaluator.SagaStateInfo;
-        await TransitionSagaStateAsync(commandSuccessful);
+        await HandleCommandResultForStepAsync<CreateOrderSaga, OrderState, OrderState>(step, compensating);
     }
 }

@@ -22,11 +22,11 @@ public class SagaTests
         var dispatcher = new InMemoryCommandDispatcher();
         var configRepo = new FakeSagaConfigRepository();
         var snapshotRepo = new FakeSnapshotRepository();
-        var resultEvaluator = new FakeCommandResultEvaluator();
+        var resultEvaluators = new List<FakeCommandResultEvaluator>{ new() };
         var config = await configRepo.GetSagaConfigurationAsync(Guid.Empty);
         var steps = new List<SagaStep>(config?.Steps.Where(s => s.Sequence <= step)
                                        ?? Array.Empty<SagaStep>());
-        var saga = new FakeSaga(steps, dispatcher, resultEvaluator, snapshotRepo);
+        var saga = new FakeSaga(steps, dispatcher, resultEvaluators, snapshotRepo);
         var order = new Order();
         var customer = new Customer();
         var inventory = new Inventory();
@@ -97,12 +97,12 @@ public class SagaTests
         var dispatcher = new InMemoryCommandDispatcher();
         var configRepo = new FakeSagaConfigRepository();
         var snapshotRepo = new FakeSnapshotRepository();
-        var resultEvaluator = new FakeCommandResultEvaluator();
+        var resultEvaluators = new List<FakeCommandResultEvaluator>{ new() };
         var config = await configRepo.GetSagaConfigurationAsync(Guid.Empty);
         var steps = new List<SagaStep>(config?.Steps.Where(s => s.Sequence <= step)
-                                       ?? Array.Empty<SagaStep>());
+            ?? Array.Empty<SagaStep>());
         var cancelOnStep = cancel ? step : 0;
-        var saga = new FakeSaga(steps, dispatcher, resultEvaluator, snapshotRepo, cancelOnStep, tokenSource);
+        var saga = new FakeSaga(steps, dispatcher, resultEvaluators, snapshotRepo, cancelOnStep, tokenSource);
         var order = new Order();
         var customer = new Customer();
         var inventory = new Inventory();

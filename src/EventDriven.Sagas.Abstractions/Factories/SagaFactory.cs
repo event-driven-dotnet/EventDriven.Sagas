@@ -14,15 +14,15 @@ public class SagaFactory<TSaga> : ISagaFactory<TSaga>
     /// Constructor.
     /// </summary>
     /// <param name="sagaCommandDispatcher">Saga command dispatcher.</param>
-    /// <param name="sagaCommandResultEvaluator">Saga command result evaluator.</param>
+    /// <param name="sagaCommandResultEvaluators">Saga command result evaluator.</param>
     /// <param name="commandResultDispatchers">Command result dispatchers</param>
     public SagaFactory(
         ISagaCommandDispatcher sagaCommandDispatcher,
-        ISagaCommandResultEvaluator sagaCommandResultEvaluator,
+        IEnumerable<ISagaCommandResultEvaluator> sagaCommandResultEvaluators,
         IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers)
     {
         SagaCommandDispatcher = sagaCommandDispatcher;
-        SagaCommandResultEvaluator = sagaCommandResultEvaluator;
+        SagaCommandResultEvaluators = sagaCommandResultEvaluators;
         SagaCommandResultDispatchers = commandResultDispatchers;
     }
 
@@ -34,18 +34,18 @@ public class SagaFactory<TSaga> : ISagaFactory<TSaga>
     /// <summary>
     /// Command result evaluator.
     /// </summary>
-    public virtual ISagaCommandResultEvaluator SagaCommandResultEvaluator { get; }
+    public virtual IEnumerable<ISagaCommandResultEvaluator> SagaCommandResultEvaluators { get; }
 
     /// <summary>
     /// Command result dispatchers.
     /// </summary>
-    protected IEnumerable<ISagaCommandResultDispatcher> SagaCommandResultDispatchers { get; set; }
+    protected IEnumerable<ISagaCommandResultDispatcher> SagaCommandResultDispatchers { get; }
 
     /// <inheritdoc />
     public virtual TSaga CreateSaga()
     {
         var saga = (TSaga?)Activator.CreateInstance(
-            typeof(TSaga), SagaCommandDispatcher, SagaCommandResultEvaluator);
+            typeof(TSaga), SagaCommandDispatcher, SagaCommandResultEvaluators);
         if (saga == null)
             throw new Exception($"Unable to create instance of {typeof(TSaga).Name}");
         foreach (var commandResultDispatcher in SagaCommandResultDispatchers

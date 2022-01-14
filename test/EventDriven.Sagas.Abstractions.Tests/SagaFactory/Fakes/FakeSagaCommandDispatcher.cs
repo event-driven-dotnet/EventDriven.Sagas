@@ -14,7 +14,7 @@ public class FakeSagaCommandDispatcher : SagaCommandDispatcher
 
     public override async Task DispatchCommandAsync(SagaCommand command, bool compensating)
     {
-        var handler = GetSagaCommandHandlerByCommandType<FakeSagaCommand>(command);
+        var handler = GetSagaCommandHandlerByCommandType<FakeSagaCommand>();
         if (handler != null)
             await handler.HandleCommandAsync(new FakeSagaCommand
             {

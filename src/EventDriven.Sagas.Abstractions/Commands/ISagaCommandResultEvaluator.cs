@@ -8,6 +8,11 @@ namespace EventDriven.Sagas.Abstractions.Commands;
 public interface ISagaCommandResultEvaluator
 {
     /// <summary>
+    /// Saga type.
+    /// </summary>
+    public Type? SagaType { get; set; }
+
+    /// <summary>
     /// Saga state information.
     /// </summary>
     public string? SagaStateInfo { get; set; }
