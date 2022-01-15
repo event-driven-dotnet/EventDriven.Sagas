@@ -1,4 +1,3 @@
-using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Handlers;
 
@@ -21,7 +20,7 @@ public abstract class ResultDispatchingSagaCommandHandler<TSagaCommand, TResult>
     public Type? SagaType { get; set; }
 
     /// <inheritdoc />
-    public abstract Task<CommandResult> HandleCommandAsync(TSagaCommand command);
+    public abstract Task HandleCommandAsync(TSagaCommand command);
 
     /// <inheritdoc />
     public async Task DispatchCommandResultAsync(TResult commandResult, bool compensating)

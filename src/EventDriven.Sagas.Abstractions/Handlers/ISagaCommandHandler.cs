@@ -1,4 +1,3 @@
-using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.DDD.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Commands;
 
@@ -23,7 +22,7 @@ public interface ISagaCommandHandler<in TSagaCommand> : ISagaCommandHandler
     /// </summary>
     /// <param name="command">The command.</param>
     /// <returns>The command result.</returns>
-    Task<CommandResult> HandleCommandAsync(TSagaCommand command);
+    Task HandleCommandAsync(TSagaCommand command);
 }
 
 /// <summary>
@@ -40,5 +39,5 @@ public interface ISagaCommandHandler<TEntity, in TSagaCommand> : ISagaCommandHan
     /// </summary>
     /// <param name="command">The command.</param>
     /// <returns>The command result.</returns>
-    Task<CommandResult<TEntity>> HandleCommandAsync(TSagaCommand command);
+    Task<TEntity> HandleCommandAsync(TSagaCommand command);
 }

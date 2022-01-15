@@ -1,4 +1,3 @@
-using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.DDD.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Handlers;
@@ -24,7 +23,7 @@ public abstract class ResultDispatchingSagaCommandHandlerWithEntity<TEntity, TSa
     public Type? SagaType { get; set; }
 
     /// <inheritdoc />
-    public abstract Task<CommandResult<TEntity>> HandleCommandAsync(TSagaCommand command);
+    public abstract Task<TEntity> HandleCommandAsync(TSagaCommand command);
 
     /// <inheritdoc />
     public async Task DispatchCommandResultAsync(TResult commandResult, bool compensating)
