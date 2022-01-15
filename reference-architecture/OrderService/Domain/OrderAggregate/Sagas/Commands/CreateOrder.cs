@@ -2,4 +2,4 @@
 
 namespace OrderService.Domain.OrderAggregate.Sagas.Commands;
 
-public record ReserveCustomerCredit(Guid? EntityId = default) : SagaCommand(EntityId);
+public record CreateOrder : SagaCommand<OrderState, OrderState>;

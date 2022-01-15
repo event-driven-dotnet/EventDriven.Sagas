@@ -1,7 +1,8 @@
 using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.DDD.Abstractions.Entities;
+using EventDriven.Sagas.Abstractions.Commands;
 
-namespace EventDriven.Sagas.Abstractions.Commands;
+namespace EventDriven.Sagas.Abstractions.Handlers;
 
 /// <inheritdoc />
 public abstract class SagaCommandHandler<TSagaCommand> :

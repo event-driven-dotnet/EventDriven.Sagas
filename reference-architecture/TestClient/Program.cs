@@ -37,7 +37,7 @@ if (key1 == ConsoleKey.Y)
 }
 
 Console.WriteLine("\nUpdate saga configuration? {Y} {N}");
-var key2 = settings.Debug ? ConsoleKey.N : Console.ReadKey(true).Key;
+var key2 = settings.Debug ? ConsoleKey.Y : Console.ReadKey(true).Key;
 Console.WriteLine(key2);
 if (key2 == ConsoleKey.Y)
 {
@@ -113,15 +113,15 @@ SagaConfigurationDto CreateSagaConfig(Guid id)
             Sequence = 1,
             Action = new SagaActionDto
             {
-                Command = JsonSerializer.Serialize(new SetOrderStatePending
+                Command = JsonSerializer.Serialize(new SagaCommandDto<OrderState>
                 {
-                    Name = typeof(SetOrderStatePending).FullName,
+                    Name = typeof(CreateOrder).FullName,
                     ExpectedResult = OrderState.Pending
                 })
             },
-            CompensatingAction = new SagaActionDto()
+            CompensatingAction = new SagaActionDto
             {
-                Command = JsonSerializer.Serialize(new SetOrderStateInitial
+                Command = JsonSerializer.Serialize(new SagaCommandDto<OrderState>
                 {
                     Name = typeof(SetOrderStateInitial).FullName,
                     ExpectedResult = OrderState.Initial

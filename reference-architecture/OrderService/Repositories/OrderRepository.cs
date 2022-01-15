@@ -20,7 +20,7 @@ public class OrderRepository : IOrderRepository
     public async Task<IEnumerable<Order>> GetCustomerOrders(Guid customerId) =>
         await _documentRepository.FindManyAsync(e => e.CustomerId == customerId);
 
-    public async Task<Order?> GetOrderAsync(Guid id) =>
+    public async Task<Order?> GetOrderAsync(Guid? id) =>
         await _documentRepository.FindOneAsync(e => e.Id == id);
 
     public async Task<Order?> AddOrderAsync(Order entity)

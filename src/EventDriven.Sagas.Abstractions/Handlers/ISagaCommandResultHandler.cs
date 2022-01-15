@@ -1,4 +1,4 @@
-﻿namespace EventDriven.Sagas.Abstractions.Commands;
+﻿namespace EventDriven.Sagas.Abstractions.Handlers;
 
 /// <summary>
 /// Processor of a command result.

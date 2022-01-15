@@ -1,4 +1,6 @@
-namespace EventDriven.Sagas.Abstractions.Commands;
+using EventDriven.Sagas.Abstractions.Handlers;
+
+namespace EventDriven.Sagas.Abstractions.Dispatchers;
 
 /// <summary>
 /// Saga command result dispatcher.

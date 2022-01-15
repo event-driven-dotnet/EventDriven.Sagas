@@ -2,4 +2,4 @@
 
 namespace OrderService.Domain.OrderAggregate.Sagas.Commands;
 
-public record SetOrderStatePending(Guid EntityId = default) : SagaCommand<OrderState, OrderState>(EntityId);
+public record GetOrderState(Guid? EntityId = default) : SagaCommand(EntityId);

@@ -1,5 +1,7 @@
-using EventDriven.Sagas.Abstractions.Commands;
+using EventDriven.Sagas.Abstractions.Dispatchers;
+using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Factories;
+using EventDriven.Sagas.Abstractions.Handlers;
 using EventDriven.Sagas.Configuration.Abstractions.Repositories;
 
 namespace EventDriven.Sagas.Configuration.Abstractions.Factories;
@@ -17,18 +19,21 @@ public class ConfigurableSagaFactory<TSaga>
         ISagaCommandDispatcher sagaCommandDispatcher, 
         IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
         IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers,
+        IEnumerable<ICheckSagaLockCommandHandler> checkLockCommandHandlers,
         SagaConfigurationOptions sagaConfigOptions,
         ISagaConfigRepository sagaConfigRepository) : 
-        base(sagaCommandDispatcher, commandResultEvaluators, commandResultDispatchers)
+        base(sagaCommandDispatcher, commandResultEvaluators,
+            commandResultDispatchers, checkLockCommandHandlers)
     {
         _sagaConfigOptions = sagaConfigOptions;
         _sagaConfigRepository = sagaConfigRepository;
     }
 
+    /// <param name="overrideLock"></param>
     /// <inheritdoc />
-    public override TSaga CreateSaga()
+    public override TSaga CreateSaga(bool overrideLock)
     {
-        var saga = base.CreateSaga();
+        var saga = base.CreateSaga(overrideLock);
         saga.SagaConfigOptions = _sagaConfigOptions;
         saga.SagaConfigRepository = _sagaConfigRepository;
         return saga;

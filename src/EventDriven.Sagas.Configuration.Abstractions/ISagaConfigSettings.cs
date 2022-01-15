@@ -9,4 +9,9 @@ public interface ISagaConfigSettings
     /// Saga config identifier.
     /// </summary>
     public Guid SagaConfigId { get; set; }
+    
+    /// <summary>
+    /// Override lock check.
+    /// </summary>
+    public bool OverrideLockCheck { get; set; }
 }

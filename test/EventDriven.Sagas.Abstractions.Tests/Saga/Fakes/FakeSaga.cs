@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EventDriven.Sagas.Abstractions.Commands;
+using EventDriven.Sagas.Abstractions.Dispatchers;
+using EventDriven.Sagas.Abstractions.Evaluators;
+using EventDriven.Sagas.Abstractions.Handlers;
 using EventDriven.Sagas.Persistence.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 
@@ -30,6 +32,8 @@ public class FakeSaga : PersistableSaga,
         SagaSnapshotRepository = sagaSnapshotRepository;
     }
 
+    protected override Task<bool> CheckLock(Guid entityId) => Task.FromResult(false);
+
     protected override async Task ExecuteCurrentActionAsync()
     {
         if (CurrentStep == _cancelOnStep && _tokenSource != null) _tokenSource.Cancel();
@@ -51,24 +55,16 @@ public class FakeSaga : PersistableSaga,
 
     public async Task HandleCommandResultAsync(Order result, bool compensating)
     {
-        var step = Steps.Single(s => s.Sequence == CurrentStep);
-        await ProcessCommandResultAsync(step, compensating);
+        await HandleCommandResultForStepAsync<FakeSaga, string, string>(compensating);
     }
 
     public async Task HandleCommandResultAsync(Customer result, bool compensating)
     {
-        var step = Steps.Single(s => s.Sequence == CurrentStep);
-        await ProcessCommandResultAsync(step, compensating);
+        await HandleCommandResultForStepAsync<FakeSaga, string, string>(compensating);
     }
 
     public async Task HandleCommandResultAsync(Inventory result, bool compensating)
     {
-        var step = Steps.Single(s => s.Sequence == CurrentStep);
-        await ProcessCommandResultAsync(step, compensating);
-    }
-
-    private async Task ProcessCommandResultAsync(SagaStep step, bool compensating)
-    {
-        await HandleCommandResultForStepAsync<FakeSaga, string, string>(step, compensating);
+        await HandleCommandResultForStepAsync<FakeSaga, string, string>(compensating);
     }
 }

@@ -1,7 +1,8 @@
 using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.DDD.Abstractions.Entities;
+using EventDriven.Sagas.Abstractions.Commands;
 
-namespace EventDriven.Sagas.Abstractions.Commands;
+namespace EventDriven.Sagas.Abstractions.Handlers;
 
 /// <summary>
 /// Saga command handler.

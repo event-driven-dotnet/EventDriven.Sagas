@@ -1,4 +1,8 @@
-﻿using EventDriven.Sagas.Abstractions.Commands;
+﻿using EventDriven.DDD.Abstractions.Entities;
+using EventDriven.Sagas.Abstractions.Commands;
+using EventDriven.Sagas.Abstractions.Dispatchers;
+using EventDriven.Sagas.Abstractions.Evaluators;
+using EventDriven.Sagas.Abstractions.Handlers;
 
 namespace EventDriven.Sagas.Abstractions;
 
@@ -46,6 +50,11 @@ public abstract class Saga
     public Guid EntityId { get; set; }
 
     /// <summary>
+    /// Entity.
+    /// </summary>
+    public IEntity? Entity { get; set; }
+
+    /// <summary>
     /// The current saga step.
     /// </summary>
     public int CurrentStep { get; set; }
@@ -61,6 +70,16 @@ public abstract class Saga
     public string? StateInfo { get; set; }
 
     /// <summary>
+    /// True if saga is locked.
+    /// </summary>
+    public bool IsLocked { get; set; }
+
+    /// <summary>
+    /// If true override lock check.
+    /// </summary>
+    public bool OverrideLockCheck { get; set; }
+
+    /// <summary>
     /// Represents a unique ID that must change atomically with each store of the entity
     /// to its underlying storage medium.
     /// </summary>
@@ -72,6 +91,11 @@ public abstract class Saga
     public List<SagaStep> Steps { get; set; } = new();
 
     /// <summary>
+    /// Check lock command handler.
+    /// </summary>
+    public ICheckSagaLockCommandHandler? CheckLockCommandHandler { get; set; }
+
+    /// <summary>
     /// Saga command dispatcher.
     /// </summary>
     protected ISagaCommandDispatcher SagaCommandDispatcher { get; set; }
@@ -79,22 +103,39 @@ public abstract class Saga
     /// <summary>
     /// Command result evaluators.
     /// </summary>
-    protected IEnumerable<ISagaCommandResultEvaluator> CommandResultEvaluators { get; set; }
+    protected IEnumerable<ISagaCommandResultEvaluator> CommandResultEvaluators { get; }
+
+    /// <summary>
+    /// Check if saga is locked.
+    /// </summary>
+    /// <param name="entityId">Entity identifier.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    protected abstract Task<bool> CheckLock(Guid entityId);
     
     /// <summary>
     /// Execute the current action.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected virtual async Task ExecuteCurrentActionAsync() =>
-        await ExecuteCurrentActionCommonAsync();
+    protected virtual async Task ExecuteCurrentActionAsync()
+    {
+        var action = GetCurrentAction();
+        SetActionStateStarted(action);
+        SetActionCommand(action);
+        await SagaCommandDispatcher.DispatchCommandAsync(action.Command, false);
+    }
 
     /// <summary>
     /// Execute the current compensating action.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected virtual async Task ExecuteCurrentCompensatingActionAsync() => 
-        await ExecuteCurrentActionCommonAsync();
-    
+    protected virtual async Task ExecuteCurrentCompensatingActionAsync()
+    {
+        var action = GetCurrentAction();
+        SetActionStateStarted(action);
+        SetActionCommand(action);
+        await SagaCommandDispatcher.DispatchCommandAsync(action.Command, true);
+    }
+
     /// <summary>
     /// Get command result evaluator for this saga by result type.
     /// </summary>
@@ -112,19 +153,59 @@ public abstract class Saga
     /// <summary>
     /// Handle command result for step.
     /// </summary>
-    /// <param name="step">Saga step.</param>
     /// <param name="compensating">True if compensating step.</param>
     /// <typeparam name="TSaga">Saga type.</typeparam>
     /// <typeparam name="TResult">Result type.</typeparam>
     /// <typeparam name="TExpectedResult">Expected result type.</typeparam>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected virtual async Task HandleCommandResultForStepAsync<TSaga, TResult, TExpectedResult>(SagaStep step, bool compensating)
+    protected virtual async Task HandleCommandResultForStepAsync<TSaga, TResult, TExpectedResult>(bool compensating)
         where TSaga : Saga
     {
+        var step = Steps.Single(s => s.Sequence == CurrentStep);
         var evaluator = GetCommandResultEvaluatorByResultType<TSaga, TResult, TExpectedResult>();
         var commandSuccessful = evaluator != null
             && await EvaluateStepResultAsync(step, compensating, evaluator, CancellationToken);
         await TransitionSagaStateAsync(commandSuccessful);
+    }
+
+    /// <summary>
+    /// Get current action.
+    /// </summary>
+    /// <returns>The current action.</returns>
+    protected virtual SagaAction GetCurrentAction() =>
+        Steps.Single(s => s.Sequence == CurrentStep).Action;
+
+    /// <summary>
+    /// Set action state and started time.
+    /// </summary>
+    /// <param name="action">Saga action.</param>
+    protected virtual void SetActionStateStarted(SagaAction action)
+    {
+        action.State = ActionState.Running;
+        action.Started = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Set action command.
+    /// </summary>
+    /// <param name="action">Saga action.</param>
+    /// <param name="commandEntity">Command entity.</param>
+    protected virtual void SetActionCommand(SagaAction action, IEntity? commandEntity = null) => 
+        action.Command = commandEntity != null
+        ? action.Command with { Entity = commandEntity, EntityId = commandEntity.Id }
+        : action.Command with { EntityId = EntityId };
+
+    /// <summary>
+    /// Set current action command result.
+    /// </summary>
+    /// <param name="result">Result.</param>
+    /// <typeparam name="TResult">Result type.</typeparam>
+    protected virtual void SetCurrentActionCommandResult<TResult>(TResult result)
+    {
+        var step = Steps.Single(s => s.Sequence == CurrentStep);
+        var action = step.Action;
+        if (action.Command is SagaCommand<TResult, TResult> command)
+            command.Result = result;
     }
     
     /// <summary>
@@ -271,9 +352,14 @@ public abstract class Saga
     /// </summary>
     /// <param name="entityId">Entity identifier.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
+    /// <exception cref="Exception">Thrown when saga is locked.</exception>
     /// <returns>A task that represents the asynchronous operation.</returns>
     public virtual async Task StartSagaAsync(Guid entityId = default, CancellationToken cancellationToken = default)
     {
+        // Check if locked
+        if (!OverrideLockCheck) IsLocked = await CheckLock(entityId);
+        if (IsLocked) throw new Exception("Saga is currently locked.");
+
         // Set state, current step, entity id, cancellation token
         State = SagaState.Executing;
         CurrentStep = 1;
@@ -283,13 +369,16 @@ public abstract class Saga
         // Dispatch current step command
         await ExecuteCurrentActionAsync();
     }
-    
-    private async Task ExecuteCurrentActionCommonAsync()
+
+    /// <summary>
+    /// Start the saga.
+    /// </summary>
+    /// <param name="entity">Entity.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public virtual async Task StartSagaAsync(IEntity entity, CancellationToken cancellationToken = default)
     {
-        var action = Steps.Single(s => s.Sequence == CurrentStep).Action;
-        action.State = ActionState.Running;
-        action.Started = DateTime.UtcNow;
-        action.Command = action.Command with { EntityId = EntityId };
-        await SagaCommandDispatcher.DispatchCommandAsync(action.Command, true);
+        Entity = entity;
+        await StartSagaAsync(entity.Id, cancellationToken);
     }
 }

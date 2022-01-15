@@ -2,4 +2,4 @@
 
 namespace OrderService.Domain.OrderAggregate.Sagas.Commands;
 
-public record ReserveInventoryStock(Guid EntityId = default) : SagaCommand(EntityId);
+public record ReserveInventoryStock(Guid? EntityId = default) : SagaCommand(EntityId);

@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using Entities = OrderService.Domain.OrderAggregate;
-using SagaEntities = EventDriven.Sagas.Abstractions;
+using Order = OrderService.DTO.Order;
+using OrderItem = OrderService.DTO.OrderItem;
 
-namespace OrderService.DTO;
+namespace OrderService.Mapping;
 
 public class AutoMapperProfile : Profile
 {

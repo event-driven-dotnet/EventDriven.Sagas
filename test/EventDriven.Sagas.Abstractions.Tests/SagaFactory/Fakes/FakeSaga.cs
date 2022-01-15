@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using EventDriven.Sagas.Abstractions.Commands;
+using EventDriven.Sagas.Abstractions.Dispatchers;
+using EventDriven.Sagas.Abstractions.Evaluators;
+using EventDriven.Sagas.Abstractions.Handlers;
 
 namespace EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
 
@@ -18,6 +20,8 @@ public class FakeSaga :
         base(sagaCommandDispatcher, commandResultEvaluators)
     {
     }
+
+    protected override Task<bool> CheckLock(Guid entityId) => Task.FromResult(false);
 
     protected override async Task ExecuteCurrentActionAsync() =>
         await SagaCommandDispatcher.DispatchCommandAsync(new FakeSagaCommand

@@ -1,5 +1,7 @@
-using EventDriven.Sagas.Abstractions.Commands;
+using EventDriven.Sagas.Abstractions.Dispatchers;
+using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Factories;
+using EventDriven.Sagas.Abstractions.Handlers;
 using EventDriven.Sagas.Configuration.Abstractions;
 using EventDriven.Sagas.Configuration.Abstractions.Repositories;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
@@ -20,20 +22,23 @@ public class PersistableSagaFactory<TSaga>
         ISagaCommandDispatcher sagaCommandDispatcher, 
         IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
         IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers,
+        IEnumerable<ICheckSagaLockCommandHandler> checkLockCommandHandlers,
         SagaConfigurationOptions sagaConfigOptions,
         ISagaConfigRepository sagaConfigRepository,
         ISagaSnapshotRepository sagaSnapshotRepository) : 
-        base(sagaCommandDispatcher, commandResultEvaluators, commandResultDispatchers)
+        base(sagaCommandDispatcher, commandResultEvaluators,
+            commandResultDispatchers, checkLockCommandHandlers)
     {
         _sagaConfigOptions = sagaConfigOptions;
         _sagaConfigRepository = sagaConfigRepository;
         _sagaSnapshotRepository = sagaSnapshotRepository;
     }
 
+    /// <param name="overrideLock"></param>
     /// <inheritdoc />
-    public override TSaga CreateSaga()
+    public override TSaga CreateSaga(bool overrideLock)
     {
-        var saga = base.CreateSaga();
+        var saga = base.CreateSaga(overrideLock);
         saga.SagaConfigOptions = _sagaConfigOptions;
         saga.SagaConfigRepository = _sagaConfigRepository;
         saga.SagaSnapshotRepository = _sagaSnapshotRepository;

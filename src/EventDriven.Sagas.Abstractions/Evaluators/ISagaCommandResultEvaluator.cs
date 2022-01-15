@@ -1,4 +1,4 @@
-﻿namespace EventDriven.Sagas.Abstractions.Commands;
+﻿namespace EventDriven.Sagas.Abstractions.Evaluators;
 
 /// <summary>
 /// Evaluator of a command result.

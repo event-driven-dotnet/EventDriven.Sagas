@@ -1,4 +1,6 @@
-﻿namespace EventDriven.Sagas.Abstractions.Commands;
+﻿using EventDriven.Sagas.Abstractions.Commands;
+
+namespace EventDriven.Sagas.Abstractions.Dispatchers;
 
 /// <summary>
 /// Dispatches saga commands.

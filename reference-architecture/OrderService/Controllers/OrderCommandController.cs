@@ -11,10 +11,10 @@ namespace OrderService.Controllers
     [Route("api/order")]
     public class OrderCommandController : ControllerBase
     {
-        private readonly CreateOrderCommandHandler _commandHandler;
+        private readonly StartCreateOrderSagaCommandHandler _commandHandler;
         private readonly IMapper _mapper;
 
-        public OrderCommandController(CreateOrderCommandHandler commandHandler, IMapper mapper)
+        public OrderCommandController(StartCreateOrderSagaCommandHandler commandHandler, IMapper mapper)
         {
             _commandHandler = commandHandler;
             _mapper = mapper;
@@ -25,7 +25,7 @@ namespace OrderService.Controllers
         public async Task<IActionResult> Create([FromBody] DTO.Order orderDto)
         {
             var orderIn = _mapper.Map<Domain.OrderAggregate.Order>(orderDto);
-            var result = await _commandHandler.Handle(new CreateOrder(orderIn));
+            var result = await _commandHandler.Handle(new StartCreateOrderSaga(orderIn));
 
             if (result.Outcome != CommandOutcome.Accepted)
                 return result.ToActionResult();

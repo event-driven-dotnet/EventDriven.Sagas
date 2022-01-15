@@ -1,6 +1,9 @@
+using System.Linq;
 using System.Threading.Tasks;
-using EventDriven.Sagas.Abstractions.Commands;
+using EventDriven.Sagas.Abstractions.Dispatchers;
+using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Factories;
+using EventDriven.Sagas.Abstractions.Handlers;
 using EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
 using EventDriven.Sagas.Configuration.Abstractions;
 using EventDriven.Sagas.Configuration.Abstractions.Factories;
@@ -38,17 +41,18 @@ public class SagaFactoryTests
             {
                 case SagaType.Configurable:
                     factory = new ConfigurableSagaFactory<FakeConfigurableSaga>(
-                        dispatcher, evaluators, resultDispatchers, 
+                        dispatcher, evaluators, resultDispatchers, Enumerable.Empty<ICheckSagaLockCommandHandler>(), 
                         sagaConfigOptions, null!);
                     break;
                 case SagaType.Persistable:
                     factory = new PersistableSagaFactory<FakePersistableSaga>(
-                        dispatcher, evaluators, resultDispatchers,
+                        dispatcher, evaluators, resultDispatchers, Enumerable.Empty<ICheckSagaLockCommandHandler>(), 
                         sagaConfigOptions, null!, null!);
                     break;
                 default:
                     factory = new SagaFactory<FakeSaga>(
-                        dispatcher, evaluators, resultDispatchers);
+                        dispatcher, evaluators, resultDispatchers,
+                        Enumerable.Empty<ICheckSagaLockCommandHandler>());
                     break;
             }
             return factory;
@@ -56,7 +60,7 @@ public class SagaFactoryTests
         services.AddSingleton(sp =>
         {
             var factory = sp.GetRequiredService<ISagaFactory<Abstractions.Saga>>();
-            var saga = factory.CreateSaga();
+            var saga = factory.CreateSaga(true);
             return saga;
         });
 

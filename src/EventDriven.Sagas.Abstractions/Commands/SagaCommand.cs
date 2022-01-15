@@ -5,7 +5,7 @@ namespace EventDriven.Sagas.Abstractions.Commands;
 /// <summary>
 /// Saga command.
 /// </summary>
-public abstract record SagaCommand(Guid EntityId = default) : Command(EntityId), ISagaCommand
+public abstract record SagaCommand(Guid? EntityId = default) : Command(EntityId), ISagaCommand
 {
     /// <inheritdoc />
     public string? Name { get; set; }
@@ -16,7 +16,7 @@ public abstract record SagaCommand(Guid EntityId = default) : Command(EntityId),
 /// </summary>
 /// <typeparam name="TResult">Command result type.</typeparam>
 /// <typeparam name="TExpectedResult">Command expected result type.</typeparam>
-public abstract record SagaCommand<TResult, TExpectedResult>(Guid EntityId = default) :
+public abstract record SagaCommand<TResult, TExpectedResult>(Guid? EntityId = default) :
     SagaCommand(EntityId), ISagaCommand<TResult, TExpectedResult>
 {
     /// <inheritdoc />
