@@ -10,12 +10,17 @@ public static class CommandResultExtensions
         switch (result.Outcome)
         {
             case CommandOutcome.Accepted:
-                if (entity != null) return new OkObjectResult(entity);
-                return new OkResult();
+                return entity != null
+                    ? new OkObjectResult(entity)
+                    : new OkResult();
             case CommandOutcome.Conflict:
-                return new ConflictResult();
+                return result.Errors != null
+                    ? new ConflictObjectResult(result.Errors)
+                    : new ConflictResult();
             case CommandOutcome.NotFound:
-                return new NotFoundResult();
+                return result.Errors != null
+                    ? new NotFoundObjectResult(result.Errors)
+                    : new NotFoundResult();
             default:
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
         }

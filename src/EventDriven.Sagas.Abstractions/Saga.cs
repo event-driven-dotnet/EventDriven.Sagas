@@ -352,13 +352,13 @@ public abstract class Saga
     /// </summary>
     /// <param name="entityId">Entity identifier.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <exception cref="Exception">Thrown when saga is locked.</exception>
+    /// <exception cref="SagaLockedException">Thrown when the saga is locked.</exception>
     /// <returns>A task that represents the asynchronous operation.</returns>
     public virtual async Task StartSagaAsync(Guid entityId = default, CancellationToken cancellationToken = default)
     {
         // Check if locked
         if (!OverrideLockCheck) IsLocked = await CheckLock(entityId);
-        if (IsLocked) throw new Exception("Saga is currently locked.");
+        if (IsLocked) throw new SagaLockedException($"Saga '{Id}' is currently locked.");
 
         // Set state, current step, entity id, cancellation token
         State = SagaState.Executing;

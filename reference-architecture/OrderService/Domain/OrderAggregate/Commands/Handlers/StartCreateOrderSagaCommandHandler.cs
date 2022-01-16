@@ -1,5 +1,7 @@
 using EventDriven.DDD.Abstractions.Commands;
+using EventDriven.Sagas.Abstractions;
 using OrderService.Domain.OrderAggregate.Sagas;
+using OrderService.Helpers;
 using OrderService.Repositories;
 
 namespace OrderService.Domain.OrderAggregate.Commands.Handlers;
@@ -36,10 +38,10 @@ public class StartCreateOrderSagaCommandHandler :
                 ? new CommandResult<Order>(CommandOutcome.NotFound)
                 : new CommandResult<Order>(CommandOutcome.Accepted, order);
         }
-        catch (Exception e)
+        catch (SagaLockedException e)
         {
             _logger.LogError(e, "{Message}", e.Message);
-            return new CommandResult<Order>(CommandOutcome.InvalidState);
+            return new CommandResult<Order>(CommandOutcome.Conflict, e.ToErrors());
         }
     }
 }
