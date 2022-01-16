@@ -3,9 +3,12 @@ namespace EventDriven.Sagas.Abstractions.Commands;
 /// <summary>
 /// Check saga lock command.
 /// </summary>
-/// <param name="EntityId">Entity identifier.</param>
-public record CheckSagaLockCommand(Guid EntityId) : ISagaCommand
+public record CheckSagaLockCommand : SagaCommand
 {
     /// <inheritdoc />
-    public string? Name { get; set; } = "Check Saga Lock";
+    public CheckSagaLockCommand(Guid entityId)
+    {
+        EntityId = entityId;
+        Name = "Check Saga Lock";
+    }
 }

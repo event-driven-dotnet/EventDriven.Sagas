@@ -1,4 +1,6 @@
-﻿namespace EventDriven.Sagas.Abstractions.Commands;
+﻿using EventDriven.DDD.Abstractions.Entities;
+
+namespace EventDriven.Sagas.Abstractions.Commands;
 
 /// <summary>
 /// Saga command.
@@ -9,6 +11,16 @@ public interface ISagaCommand
     /// Optional command name.
     /// </summary>
     public string? Name { get; set; }
+    
+    /// <summary>
+    /// Represents the ID of the entity the command is in reference to.
+    /// </summary>
+    Guid? EntityId { get; }
+
+    /// <summary>
+    /// The entity the command is in reference to.
+    /// </summary>
+    public IEntity? Entity { get; }
 }
 
 /// <summary>

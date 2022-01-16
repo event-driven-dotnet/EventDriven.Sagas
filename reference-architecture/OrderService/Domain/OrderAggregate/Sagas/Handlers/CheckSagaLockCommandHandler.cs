@@ -22,7 +22,7 @@ public class CheckSagaLockCommandHandler : CheckSagaLockCommandHandler<CreateOrd
     {
         _logger.LogInformation("Handling command: {CommandName}", nameof(CreateOrder));
     
-        var orderState = await _repository.GetOrderStateAsync(command.EntityId);
+        var orderState = await _repository.GetOrderStateAsync(command.EntityId.GetValueOrDefault());
         return orderState is OrderState.Pending;
     }
 }

@@ -1,11 +1,11 @@
-using EventDriven.DDD.Abstractions.Commands;
+using EventDriven.DDD.Abstractions.Entities;
 
 namespace EventDriven.Sagas.Abstractions.Commands;
 
 /// <summary>
 /// Saga command.
 /// </summary>
-public abstract record SagaCommand(Guid? EntityId = default) : Command(EntityId), ISagaCommand
+public abstract record SagaCommand(Guid? EntityId = default, IEntity? Entity = null) : ISagaCommand
 {
     /// <inheritdoc />
     public string? Name { get; set; }
