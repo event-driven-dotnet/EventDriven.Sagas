@@ -32,10 +32,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\EventDriven.DDD.Abstractions\src\EventDriven.DDD.Abstractions\EventDriven.DDD.Abstractions.csproj" />
       <ProjectReference Include="..\EventDriven.Sagas.Abstractions\EventDriven.Sagas.Abstractions.csproj" />
       <ProjectReference Include="..\EventDriven.Sagas.Configuration.Abstractions\EventDriven.Sagas.Configuration.Abstractions.csproj" />
       <ProjectReference Include="..\EventDriven.Sagas.Persistence.Abstractions\EventDriven.Sagas.Persistence.Abstractions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="EventDriven.DDD.Abstractions" Version="1.1.0-beta1" />
     </ItemGroup>
 
 </Project>
