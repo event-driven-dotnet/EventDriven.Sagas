@@ -30,7 +30,7 @@ public class StartCreateOrderSagaCommandHandler :
         try
         {
             // Start create order saga
-            await _saga.StartSagaAsync(command.Order);
+            await _saga.StartSagaAsync(command.Entity);
             
             // Return created order
             var order = await _repository.GetOrderAsync(command.EntityId);
