@@ -23,7 +23,7 @@ public class Customer :
         // To process command, return one or more domain events
         new List<IDomainEvent>
         {
-            new CustomerCreated(command.Customer)
+            new CustomerCreated(command.Entity)
         };
 
     public void Apply(CustomerCreated domainEvent) =>
@@ -46,7 +46,7 @@ public class Customer :
     // To process command, return one or more domain events
     new List<IDomainEvent>
     {
-        new CustomerUpdated(command.Customer)
+        new CustomerUpdated(command.Entity)
     };
 
     public void Apply(CustomerUpdated domainEvent)

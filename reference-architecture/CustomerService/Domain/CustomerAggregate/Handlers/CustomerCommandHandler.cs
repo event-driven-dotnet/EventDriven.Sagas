@@ -25,15 +25,15 @@ public class CustomerCommandHandler :
     {
         // Process command
         _logger.LogInformation("Handling command: {CommandName}", nameof(CreateCustomer));
-        var events = command.Customer.Process(command);
+        var events = command.Entity.Process(command);
             
         // Apply events
         var domainEvent = events.OfType<CustomerCreated>().SingleOrDefault();
         if (domainEvent == null) return new CommandResult<Customer>(CommandOutcome.NotHandled);
-        command.Customer.Apply(domainEvent);
+        command.Entity.Apply(domainEvent);
             
         // Persist entity
-        var entity = await _repository.Add(command.Customer);
+        var entity = await _repository.Add(command.Entity);
         if (entity == null) return new CommandResult<Customer>(CommandOutcome.InvalidCommand);
         return new CommandResult<Customer>(CommandOutcome.Accepted, entity);
     }
@@ -42,15 +42,15 @@ public class CustomerCommandHandler :
     {
         // Process command
         _logger.LogInformation("Handling command: {CommandName}", nameof(UpdateCustomer));
-        var events = command.Customer.Process(command);
+        var events = command.Entity.Process(command);
             
         // Apply events
         var domainEvent = events.OfType<CustomerUpdated>().SingleOrDefault();
         if (domainEvent == null) return new CommandResult<Customer>(CommandOutcome.NotHandled);
-        command.Customer.Apply(domainEvent);
+        command.Entity.Apply(domainEvent);
             
         // Persist entity
-        var entity = await _repository.Update(command.Customer);
+        var entity = await _repository.Update(command.Entity);
         if (entity == null) return new CommandResult<Customer>(CommandOutcome.InvalidCommand);
         return new CommandResult<Customer>(CommandOutcome.Accepted, entity);
     }
