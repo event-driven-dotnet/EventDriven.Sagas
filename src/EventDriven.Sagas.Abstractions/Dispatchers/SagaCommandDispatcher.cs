@@ -25,13 +25,26 @@ public abstract class SagaCommandDispatcher : ISagaCommandDispatcher
     public abstract Task DispatchCommandAsync(SagaCommand command, bool compensating);
 
     /// <summary>
-    /// Get saga command handler by command type.
+    /// Dispatch command to saga command handler.
     /// </summary>
+    /// <param name="command">Saga command.</param>
     /// <typeparam name="TSagaCommand">Saga command type.</typeparam>
-    /// <returns>Strongly typed ISagaCommandHandler.</returns>
-    protected virtual ISagaCommandHandler<TSagaCommand>? GetSagaCommandHandlerByCommandType<TSagaCommand>()
-        where TSagaCommand : class, ISagaCommand =>
-        SagaCommandHandlers.OfType<ISagaCommandHandler<TSagaCommand>>().FirstOrDefault();
+    /// <returns>
+    /// A task that represents the asynchronous operation.
+    /// The task result contains a boolean that is true if command dispatched successfully.
+    /// </returns>
+    protected virtual async Task<bool> DispatchSagaCommandHandlerAsync<TSagaCommand>(SagaCommand command)
+        where TSagaCommand : class, ISagaCommand
+    {
+        if (command is TSagaCommand sagaCommand &&
+            SagaCommandHandlers.OfType<ISagaCommandHandler<TSagaCommand>>().FirstOrDefault() is { } handler)
+        {
+            await handler.HandleCommandAsync(sagaCommand);
+            return true;
+        }
+
+        return false;
+    }
     
     /// <summary>
     /// Get saga command handler by command type.

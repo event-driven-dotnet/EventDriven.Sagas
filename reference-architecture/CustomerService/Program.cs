@@ -1,8 +1,10 @@
 using CustomerService.Configuration;
 using CustomerService.Domain.CustomerAggregate;
-using CustomerService.Domain.CustomerAggregate.Handlers;
+using CustomerService.Integration.Handlers;
 using CustomerService.Repositories;
 using EventDriven.DependencyInjection.URF.Mongo;
+using EventDriven.Sagas.DependencyInjection;
+using Integration.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,15 +15,19 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Automapper
+// Add automapper
 builder.Services.AddAutoMapper(typeof(Program));
 
-// Command handler registrations
-builder.Services.AddSingleton<CustomerCommandHandler>();
-
-// Database registrations
+// Add database settings
 builder.Services.AddSingleton<ICustomerRepository, CustomerRepository>();
 builder.Services.AddMongoDbSettings<CustomerDatabaseSettings, Customer>(builder.Configuration);
+
+// Add command handlers
+builder.Services.AddCommandHandlers();
+
+// Add Dapr Event Bus and event handler
+builder.Services.AddDaprEventBus(builder.Configuration, true);
+builder.Services.AddSingleton<CustomerCreditReserveRequestedEventHandler>();
 
 var app = builder.Build();
 
@@ -32,10 +38,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
+app.UseRouting();
 app.UseAuthorization();
 
-app.MapControllers();
+// Map Dapr Event Bus subscribers
+app.UseCloudEvents();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapSubscribeHandler();
+    endpoints.MapDaprEventBus(eventBus =>
+    {
+        var customerCreditRequestedEventHandler = app.Services.GetRequiredService<CustomerCreditReserveRequestedEventHandler>();
+        eventBus.Subscribe(customerCreditRequestedEventHandler, nameof(CustomerCreditReserveRequested), "v1");
+    });
+});
 
 app.Run();

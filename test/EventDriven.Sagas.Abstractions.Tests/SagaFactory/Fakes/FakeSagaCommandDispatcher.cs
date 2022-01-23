@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Dispatchers;
@@ -16,11 +17,12 @@ public class FakeSagaCommandDispatcher : SagaCommandDispatcher
 
     public override async Task DispatchCommandAsync(SagaCommand command, bool compensating)
     {
-        var handler = GetSagaCommandHandlerByCommandType<FakeSagaCommand>();
-        if (handler != null)
+        if (SagaCommandHandlers.OfType<ISagaCommandHandler<FakeSagaCommand>>().FirstOrDefault() is { } handler)
+        {
             await handler.HandleCommandAsync(new FakeSagaCommand
             {
                 Name = command.Name
             });
+        }
     }
 }

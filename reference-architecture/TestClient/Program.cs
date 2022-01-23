@@ -2,11 +2,12 @@
 using System.Text.Json;
 using EventDriven.DependencyInjection;
 using EventDriven.Sagas.Configuration.Abstractions.DTO;
+using Integration.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OrderService.Domain.OrderAggregate;
-using OrderService.Domain.OrderAggregate.Sagas.Commands;
+using OrderService.Sagas.Commands;
 using TestClient.Configuration;
 using TestClient.Services;
 
@@ -117,6 +118,46 @@ SagaConfigurationDto CreateSagaConfig(Guid id)
                 {
                     Name = typeof(CreateOrder).FullName,
                     ExpectedResult = OrderState.Pending
+                })
+            },
+            CompensatingAction = new SagaActionDto
+            {
+                Command = JsonSerializer.Serialize(new SagaCommandDto<OrderState>
+                {
+                    Name = typeof(SetOrderStateInitial).FullName,
+                    ExpectedResult = OrderState.Initial
+                })
+            }
+        },
+        new SagaStepDto
+        {
+            Sequence = 2,
+            Action = new SagaActionDto
+            {
+                Command = JsonSerializer.Serialize(new SagaCommandDto<CustomerCreditReserveResponse>
+                {
+                    Name = typeof(ReserveCustomerCredit).FullName,
+                    ExpectedResult = new CustomerCreditReserveResponse(Guid.Empty, 0, 0)
+                })
+            },
+            CompensatingAction = new SagaActionDto
+            {
+                Command = JsonSerializer.Serialize(new SagaCommandDto<CustomerCreditReleaseResponse>
+                {
+                    Name = typeof(ReleaseCustomerCredit).FullName,
+                    ExpectedResult = new CustomerCreditReleaseResponse(Guid.Empty, 0, 0)
+                })
+            }
+        },
+        new SagaStepDto
+        {
+            Sequence = 3,
+            Action = new SagaActionDto
+            {
+                Command = JsonSerializer.Serialize(new SagaCommandDto<OrderState>
+                {
+                    Name = typeof(SetOrderStateCreated).FullName,
+                    ExpectedResult = OrderState.Created
                 })
             },
             CompensatingAction = new SagaActionDto

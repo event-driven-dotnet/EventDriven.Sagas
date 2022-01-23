@@ -63,14 +63,11 @@ public class OrderRepository : IOrderRepository
         return existing?.State;
     }
 
-    public async Task<Order?> UpdateOrderStateAsync(Order entity, OrderState orderState)
+    public async Task<Order?> UpdateOrderStateAsync(Guid id, OrderState orderState)
     {
-        var existing = await GetOrderAsync(entity.Id);
+        var existing = await GetOrderAsync(id);
         if (existing == null) return null;
-        if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
-            throw new ConcurrencyException(entity.Id);
-        entity.ETag = Guid.NewGuid().ToString();
-        entity.State = orderState;
-        return await _documentRepository.FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+        existing.State = orderState;
+        return await UpdateOrderAsync(existing);
     }
 }

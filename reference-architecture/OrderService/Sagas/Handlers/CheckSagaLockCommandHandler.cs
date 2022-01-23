@@ -1,9 +1,10 @@
 ﻿using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Handlers;
-using OrderService.Domain.OrderAggregate.Sagas.Commands;
+using OrderService.Domain.OrderAggregate;
+using OrderService.Sagas.Commands;
 using OrderService.Repositories;
 
-namespace OrderService.Domain.OrderAggregate.Sagas.Handlers;
+namespace OrderService.Sagas.Handlers;
 
 public class CheckSagaLockCommandHandler : CheckSagaLockCommandHandler<CreateOrderSaga>
 {

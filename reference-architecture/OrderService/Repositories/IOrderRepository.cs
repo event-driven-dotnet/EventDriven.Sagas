@@ -10,5 +10,5 @@ public interface IOrderRepository
     Task<Order?> AddUpdateOrderAsync(Order entity);
     Task<int> RemoveOrder(Guid id);
     Task<OrderState?> GetOrderStateAsync(Guid id);
-    Task<Order?> UpdateOrderStateAsync(Order entity, OrderState orderState);
+    Task<Order?> UpdateOrderStateAsync(Guid id, OrderState orderState);
 }

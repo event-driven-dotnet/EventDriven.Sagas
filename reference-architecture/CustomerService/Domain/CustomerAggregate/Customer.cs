@@ -13,10 +13,13 @@ public class Customer :
     ICommandProcessor<UpdateCustomer>,
     IEventApplier<CustomerUpdated>,
     ICommandProcessor<RemoveCustomer>,
-    IEventApplier<CustomerRemoved>
+    IEventApplier<CustomerRemoved>,
+    ICommandProcessor<ReserveCredit>,
+    IEventApplier<CreditReserved>
 {
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;
+    public decimal CreditAvailable { get; set; }
     public Address ShippingAddress { get; set; } = null!;
 
     public IEnumerable<IDomainEvent> Process(CreateCustomer command) =>
@@ -52,6 +55,26 @@ public class Customer :
     public void Apply(CustomerUpdated domainEvent)
     {
         // Set ETag
+        if (domainEvent.EntityETag != null) ETag = domainEvent.EntityETag;
+    }
+
+    public IEnumerable<IDomainEvent> Process(ReserveCredit command)
+    {
+        // If customer has insufficient credit, return zero domain events
+        if (CreditAvailable <= command.AmountRequested)
+        {
+            return Enumerable.Empty<IDomainEvent>();
+        }
+        // Otherwise, return one or more domain events
+        return new List<IDomainEvent>
+        {
+            new CreditReserved(command.EntityId, command.AmountRequested)
+        };
+    }
+
+    public void Apply(CreditReserved domainEvent)
+    {
+        CreditAvailable -= domainEvent.AmountReserved;
         if (domainEvent.EntityETag != null) ETag = domainEvent.EntityETag;
     }
 }

@@ -1,6 +1,6 @@
 using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions;
-using OrderService.Domain.OrderAggregate.Sagas;
+using OrderService.Sagas;
 using OrderService.Helpers;
 using OrderService.Repositories;
 

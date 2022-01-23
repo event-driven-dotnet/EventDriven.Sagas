@@ -12,7 +12,6 @@ using EventDriven.Sagas.Persistence.Abstractions.Factories;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Scrutor;
 using SagaConfigAutoMapperProfile = EventDriven.Sagas.Configuration.Abstractions.SagaConfigAutoMapperProfile;
 
 namespace EventDriven.Sagas.DependencyInjection;
@@ -121,7 +120,7 @@ public static class ServiceCollectionExtensions
                 var evaluators = sp.GetServices<ISagaCommandResultEvaluator>();
                 var checkLockHandlers = sp.GetServices<ICheckSagaLockCommandHandler>();
                 var resultDispatchers = 
-                    sp.GetServices<ISagaCommandResultDispatcher>();
+                    sp.GetServices<ISagaCommandResultDispatcher>().DistinctBy(e => e.GetType()).ToList();
                 var configOptions = sp.GetRequiredService<SagaConfigurationOptions>();
                 var configRepo = sp.GetRequiredService<ISagaConfigRepository>();
                 var snapshotRepo = sp.GetRequiredService<ISagaSnapshotRepository>();
@@ -158,23 +157,18 @@ public static class ServiceCollectionExtensions
         {
             scan.FromEntryAssembly()
                 .AddClasses(classes => classes.AssignableTo<ISagaCommandDispatcher>())
-                    .UsingRegistrationStrategy(RegistrationStrategy.Skip)
                     .AsSelf()
                     .WithSingletonLifetime()
                 .AddClasses(classes => classes.AssignableTo<ISagaCommandResultEvaluator>())
-                    .UsingRegistrationStrategy(RegistrationStrategy.Skip)
                     .AsSelfWithInterfaces()
                     .WithSingletonLifetime()
                 .AddClasses(classes => classes.AssignableTo<ISagaCommandHandler>())
-                    .UsingRegistrationStrategy(RegistrationStrategy.Skip)
                     .AsSelfWithInterfaces()
                     .WithSingletonLifetime()
                 .AddClasses(classes => classes.AssignableTo<ICheckSagaLockCommandHandler>())
-                    .UsingRegistrationStrategy(RegistrationStrategy.Skip)
                     .AsSelfWithInterfaces()
                     .WithSingletonLifetime()
                 .AddClasses(classes => classes.AssignableTo<ISagaCommandResultDispatcher>())
-                    .UsingRegistrationStrategy(RegistrationStrategy.Skip)
                     .AsSelfWithInterfaces()
                     .WithSingletonLifetime();
         });

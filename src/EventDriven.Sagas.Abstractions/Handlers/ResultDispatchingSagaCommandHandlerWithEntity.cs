@@ -1,16 +1,19 @@
+using EventDriven.DDD.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Commands;
-using EventDriven.Sagas.Abstractions.Handlers;
+using EventDriven.Sagas.Abstractions.Dispatchers;
 
-namespace EventDriven.Sagas.Abstractions.Dispatchers;
+namespace EventDriven.Sagas.Abstractions.Handlers;
 
 /// <summary>
 /// Command handler that can dispatch command results.
 /// </summary>
+/// <typeparam name="TEntity">Entity type.</typeparam>
 /// <typeparam name="TSagaCommand">Command type.</typeparam>
 /// <typeparam name="TResult">Result type.</typeparam>
-public abstract class ResultDispatchingSagaCommandHandler<TSagaCommand, TResult> :
-    ISagaCommandHandler<TSagaCommand>,
+public abstract class ResultDispatchingSagaCommandHandlerWithEntity<TEntity, TSagaCommand, TResult> :
+    ISagaCommandHandler<TEntity, TSagaCommand>,
     ISagaCommandResultDispatcher<TResult>
+    where TEntity : Entity
     where TSagaCommand : class, ISagaCommand
 {
     /// <inheritdoc />
@@ -20,7 +23,7 @@ public abstract class ResultDispatchingSagaCommandHandler<TSagaCommand, TResult>
     public Type? SagaType { get; set; }
 
     /// <inheritdoc />
-    public abstract Task HandleCommandAsync(TSagaCommand command);
+    public abstract Task<TEntity> HandleCommandAsync(TSagaCommand command);
 
     /// <inheritdoc />
     public async Task DispatchCommandResultAsync(TResult commandResult, bool compensating)
@@ -34,11 +37,13 @@ public abstract class ResultDispatchingSagaCommandHandler<TSagaCommand, TResult>
 /// Command handler that can dispatch command results.
 /// </summary>
 /// <typeparam name="TSaga">Saga type.</typeparam>
+/// <typeparam name="TEntity">Entity type.</typeparam>
 /// <typeparam name="TSagaCommand">Command type.</typeparam>
 /// <typeparam name="TResult">Result type.</typeparam>
-public abstract class ResultDispatchingSagaCommandHandler<TSaga, TSagaCommand, TResult> :
-    ResultDispatchingSagaCommandHandler<TSagaCommand, TResult>
+public abstract class ResultDispatchingSagaCommandHandler<TSaga, TEntity, TSagaCommand, TResult> :
+    ResultDispatchingSagaCommandHandlerWithEntity<TEntity, TSagaCommand, TResult>
     where TSaga : Saga
+    where TEntity : Entity
     where TSagaCommand : class, ISagaCommand
 {
     /// <summary>

@@ -1,9 +1,10 @@
 ﻿using EventDriven.DDD.Abstractions.Repositories;
-using EventDriven.Sagas.Abstractions.Dispatchers;
-using OrderService.Domain.OrderAggregate.Sagas.Commands;
+using EventDriven.Sagas.Abstractions.Handlers;
+using OrderService.Domain.OrderAggregate;
+using OrderService.Sagas.Commands;
 using OrderService.Repositories;
 
-namespace OrderService.Domain.OrderAggregate.Sagas.Handlers;
+namespace OrderService.Sagas.Handlers;
 
 public class CreateOrderCommandHandler :
     ResultDispatchingSagaCommandHandler<CreateOrderSaga, CreateOrder, OrderState>

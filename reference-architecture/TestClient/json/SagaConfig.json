@@ -4,16 +4,44 @@
   "Name": "CreateOrderSaga",
   "Steps": [
     {
-      "Id": "630404eb-9403-48ae-a0d0-c1adc30757f6",
+      "Id": "7c6aa450-49b9-48ab-b924-a6eb07f5c1e5",
       "Sequence": 1,
       "Action": {
-        "Id": "06b6ad54-e5cc-43eb-be2e-8c934de4c56d",
-        "Command": "{\"Name\":\"OrderService.Domain.OrderAggregate.Sagas.Commands.CreateOrder\",\"ExpectedResult\":1}",
+        "Id": "79bc0aa5-4cc2-43ac-b2be-d7df8b33cf48",
+        "Command": "{\"Name\":\"OrderService.Sagas.Commands.CreateOrder\",\"ExpectedResult\":1}",
         "Timeout": null
       },
       "CompensatingAction": {
-        "Id": "974d3724-cc08-4868-9020-3c3eac9f766c",
-        "Command": "{\"Name\":\"OrderService.Domain.OrderAggregate.Sagas.Commands.SetOrderStateInitial\",\"ExpectedResult\":0}",
+        "Id": "177b67d1-904a-4e36-b705-f1f52f232883",
+        "Command": "{\"Name\":\"OrderService.Sagas.Commands.SetOrderStateInitial\",\"ExpectedResult\":0}",
+        "Timeout": null
+      }
+    },
+    {
+      "Id": "f5e0c155-786a-4d7e-8052-e846d7fc5b2c",
+      "Sequence": 2,
+      "Action": {
+        "Id": "32245eb0-ded9-4c57-b57c-23cb3d826dc5",
+        "Command": "{\"Name\":\"OrderService.Sagas.Commands.ReserveCustomerCredit\",\"ExpectedResult\":{\"CustomerId\":\"00000000-0000-0000-0000-000000000000\",\"CreditReserved\":0,\"CreditRemaining\":0}}",
+        "Timeout": null
+      },
+      "CompensatingAction": {
+        "Id": "2c56b95b-7d48-413f-9380-1791d06b6d47",
+        "Command": "{\"Name\":\"OrderService.Sagas.Commands.ReleaseCustomerCredit\",\"ExpectedResult\":{\"CustomerId\":\"00000000-0000-0000-0000-000000000000\",\"CreditReleased\":0,\"CreditRemaining\":0}}",
+        "Timeout": null
+      }
+    },
+    {
+      "Id": "5aa1a682-2288-4fb2-a3ed-431857dee7d0",
+      "Sequence": 3,
+      "Action": {
+        "Id": "737c7736-ca15-4230-83df-ed79bb814a80",
+        "Command": "{\"Name\":\"OrderService.Sagas.Commands.SetOrderStateCreated\",\"ExpectedResult\":2}",
+        "Timeout": null
+      },
+      "CompensatingAction": {
+        "Id": "dc11bafe-74eb-4435-afe1-9bb71061565d",
+        "Command": "{\"Name\":\"OrderService.Sagas.Commands.SetOrderStateInitial\",\"ExpectedResult\":0}",
         "Timeout": null
       }
     }

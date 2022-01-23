@@ -13,6 +13,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{7340565F-A10B-4B7D-B75E-9320CAE5BD05}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "reference-architecture", "reference-architecture", "{2F6C2678-B38D-4784-AEDA-1DF293E1296A}"
+	ProjectSection(SolutionItems) = preProject
+		reference-architecture\tye.yaml = reference-architecture\tye.yaml
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventDriven.Sagas.Abstractions", "src\EventDriven.Sagas.Abstractions\EventDriven.Sagas.Abstractions.csproj", "{56917503-E11F-4707-88C0-913209154C7F}"
 EndProject
@@ -41,6 +44,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.EventBus.Abstractions", "src\EventDriven.Sagas.EventBus.Abstractions\EventDriven.Sagas.EventBus.Abstractions.csproj", "{2B5858C2-076D-4FB5-8ED7-600C65CD1CC4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomerService", "reference-architecture\CustomerService\CustomerService.csproj", "{F4BE08B6-5627-41A1-A584-B727BF700542}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dapr", "dapr", "{F73C909F-1A16-4DDD-B4EE-6E2304A36477}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", "{1C36C3B5-1DCE-45DA-AFAE-161338CB978C}"
+	ProjectSection(SolutionItems) = preProject
+		reference-architecture\dapr\components\pubsub.yaml = reference-architecture\dapr\components\pubsub.yaml
+		reference-architecture\dapr\components\snssqs-pubsub.yaml = reference-architecture\dapr\components\snssqs-pubsub.yaml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integration", "reference-architecture\Integration\Integration.csproj", "{D839C66B-8DCA-4BD8-96D2-B228569CC26E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -100,6 +113,10 @@ Global
 		{F4BE08B6-5627-41A1-A584-B727BF700542}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4BE08B6-5627-41A1-A584-B727BF700542}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4BE08B6-5627-41A1-A584-B727BF700542}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D839C66B-8DCA-4BD8-96D2-B228569CC26E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D839C66B-8DCA-4BD8-96D2-B228569CC26E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D839C66B-8DCA-4BD8-96D2-B228569CC26E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D839C66B-8DCA-4BD8-96D2-B228569CC26E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -118,6 +135,9 @@ Global
 		{44A44FFE-7B6A-4243-A7BD-0F8108C2ED8A} = {8C5A2F59-0441-437A-AD5E-26F76E4F2DA8}
 		{2B5858C2-076D-4FB5-8ED7-600C65CD1CC4} = {4B466731-0CE1-4A92-B93A-AE088C5B6784}
 		{F4BE08B6-5627-41A1-A584-B727BF700542} = {2F6C2678-B38D-4784-AEDA-1DF293E1296A}
+		{F73C909F-1A16-4DDD-B4EE-6E2304A36477} = {2F6C2678-B38D-4784-AEDA-1DF293E1296A}
+		{1C36C3B5-1DCE-45DA-AFAE-161338CB978C} = {F73C909F-1A16-4DDD-B4EE-6E2304A36477}
+		{D839C66B-8DCA-4BD8-96D2-B228569CC26E} = {2F6C2678-B38D-4784-AEDA-1DF293E1296A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3BFC4ACA-7DDF-4583-A578-5CAB3893AE40}

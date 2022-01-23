@@ -130,7 +130,7 @@ public abstract class Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected virtual async Task ExecuteCurrentCompensatingActionAsync()
     {
-        var action = GetCurrentAction();
+        var action = GetCurrentCompensatingAction();
         SetActionStateStarted(action);
         SetActionCommand(action);
         await SagaCommandDispatcher.DispatchCommandAsync(action.Command, true);
@@ -174,6 +174,13 @@ public abstract class Saga
     /// <returns>The current action.</returns>
     protected virtual SagaAction GetCurrentAction() =>
         Steps.Single(s => s.Sequence == CurrentStep).Action;
+
+    /// <summary>
+    /// Get current compensating action.
+    /// </summary>
+    /// <returns>The current compensating action.</returns>
+    protected virtual SagaAction GetCurrentCompensatingAction() =>
+        Steps.Single(s => s.Sequence == CurrentStep).CompensatingAction;
 
     /// <summary>
     /// Set action state and started time.
