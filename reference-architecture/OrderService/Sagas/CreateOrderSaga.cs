@@ -40,20 +40,22 @@ public class CreateOrderSaga :
                     SetActionStateStarted(action);
                     SetActionCommand(action, order);
                     await SagaCommandDispatcher.DispatchCommandAsync(action.Command, false);
-                    return;
+                    break;
                 case ReserveCustomerCredit command:
                     command.CustomerId = order.CustomerId;
                     command.CreditRequested = order.OrderItems.Sum(e => e.ProductPrice);
                     SetActionStateStarted(action);
                     SetActionCommand(action);
                     await SagaCommandDispatcher.DispatchCommandAsync(action.Command, false);
-                    return;
+                    break;
                 case SetOrderStateCreated:
                     SetActionStateStarted(action);
                     SetActionCommand(action, order);
                     await SagaCommandDispatcher.DispatchCommandAsync(action.Command, false);
-                    return;
+                    break;
             }
+            await PersistAsync();
+            return;
         }
         await base.ExecuteCurrentActionAsync();
     }

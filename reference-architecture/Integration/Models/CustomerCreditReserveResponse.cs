@@ -1,3 +1,3 @@
 namespace Integration.Models;
 
-public record CustomerCreditReserveResponse(Guid CustomerId, decimal CreditReserved, decimal CreditRemaining);
+public record CustomerCreditReserveResponse(Guid CustomerId, decimal CreditRequested, decimal CreditAvailable, bool Success);

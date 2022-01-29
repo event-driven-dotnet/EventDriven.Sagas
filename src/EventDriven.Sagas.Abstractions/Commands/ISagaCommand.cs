@@ -33,7 +33,7 @@ public interface ISagaCommand<TResult, TExpectedResult> : ISagaCommand
     /// <summary>
     /// Command result.
     /// </summary>
-    public TResult Result { get; set; }
+    public TResult? Result { get; set; }
 
     /// <summary>
     /// Command expected result.

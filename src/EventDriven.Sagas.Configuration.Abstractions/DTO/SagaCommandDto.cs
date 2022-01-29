@@ -14,5 +14,5 @@ public record SagaCommandDto<TExpectedResult>
     /// <summary>
     /// Command expected result.
     /// </summary>
-    public TExpectedResult ExpectedResult { get; set; } = default!;
+    public TExpectedResult? ExpectedResult { get; set; }
 }

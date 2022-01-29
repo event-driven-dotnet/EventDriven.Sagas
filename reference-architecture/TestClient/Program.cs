@@ -137,7 +137,7 @@ SagaConfigurationDto CreateSagaConfig(Guid id)
                 Command = JsonSerializer.Serialize(new SagaCommandDto<CustomerCreditReserveResponse>
                 {
                     Name = typeof(ReserveCustomerCredit).FullName,
-                    ExpectedResult = new CustomerCreditReserveResponse(Guid.Empty, 0, 0)
+                    ExpectedResult = null
                 })
             },
             CompensatingAction = new SagaActionDto
@@ -145,7 +145,7 @@ SagaConfigurationDto CreateSagaConfig(Guid id)
                 Command = JsonSerializer.Serialize(new SagaCommandDto<CustomerCreditReleaseResponse>
                 {
                     Name = typeof(ReleaseCustomerCredit).FullName,
-                    ExpectedResult = new CustomerCreditReleaseResponse(Guid.Empty, 0, 0)
+                    ExpectedResult = null
                 })
             }
         },

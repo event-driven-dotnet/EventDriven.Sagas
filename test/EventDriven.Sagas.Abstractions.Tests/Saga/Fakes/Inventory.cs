@@ -2,5 +2,5 @@
 
 public class Inventory
 {
-    public string Stock { get; set; } = "Available";
+    public string? Stock { get; set; } = "Available";
 }

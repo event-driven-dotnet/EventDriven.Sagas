@@ -27,5 +27,5 @@ public interface ISagaCommandResultEvaluator<in TResult, in TExpectedResult> : I
     /// A task that represents the asynchronous operation.
     /// The task result contains a boolean.
     /// </returns>
-    Task<bool> EvaluateCommandResultAsync(TResult commandResult, TExpectedResult expectedResult);
+    Task<bool> EvaluateCommandResultAsync(TResult? commandResult, TExpectedResult? expectedResult);
 }

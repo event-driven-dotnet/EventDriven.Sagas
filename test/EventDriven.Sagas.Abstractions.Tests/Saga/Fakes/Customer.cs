@@ -2,5 +2,5 @@
 
 public class Customer
 {
-    public string Credit { get; set; } = "Available";
+    public string? Credit { get; set; } = "Available";
 }

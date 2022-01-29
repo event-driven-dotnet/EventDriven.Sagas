@@ -29,13 +29,15 @@ public class SetOrderStateInitialCommandHandler :
             // Set order state to initial
             var updatedOrder = await _repository.UpdateOrderStateAsync(
                 command.EntityId.GetValueOrDefault(), OrderState.Initial);
-            if (updatedOrder == null) return;
-
-            await DispatchCommandResultAsync(updatedOrder.State, true);
+            if (updatedOrder != null)
+                await DispatchCommandResultAsync(updatedOrder.State, false);
+            else
+                await DispatchCommandResultAsync(OrderState.Pending, true);
         }
         catch (ConcurrencyException e)
         {
             _logger.LogError(e, "{Message}", e.Message);
+            await DispatchCommandResultAsync(OrderState.Pending, true);
         }
     }
 }

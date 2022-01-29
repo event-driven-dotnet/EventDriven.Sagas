@@ -2,5 +2,5 @@
 
 public class Order
 {
-    public string State { get; set; } = "Initial";
+    public string? State { get; set; } = "Initial";
 }

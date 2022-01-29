@@ -20,7 +20,7 @@ public abstract record SagaCommand<TResult, TExpectedResult>(Guid? EntityId = de
     SagaCommand(EntityId), ISagaCommand<TResult, TExpectedResult>
 {
     /// <inheritdoc />
-    public TResult Result { get; set; } = default!;
+    public TResult? Result { get; set; } = default!;
 
     /// <inheritdoc />
     public TExpectedResult ExpectedResult { get; set; } = default!;

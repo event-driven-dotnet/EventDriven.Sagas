@@ -5,7 +5,7 @@ namespace OrderService.Sagas.Evaluators;
 
 public class ReserveCustomerCreditResultEvaluator : SagaCommandResultEvaluator<CreateOrderSaga, CustomerCreditReserveResponse, CustomerCreditReserveResponse>
 {
-    public override Task<bool> EvaluateCommandResultAsync(CustomerCreditReserveResponse commandResult,
-        CustomerCreditReserveResponse expectedResult) =>
-        Task.FromResult(commandResult.CreditReserved > 0);
+    public override Task<bool> EvaluateCommandResultAsync(CustomerCreditReserveResponse? commandResult,
+        CustomerCreditReserveResponse? expectedResult) =>
+        Task.FromResult(commandResult?.Success == true);
 }

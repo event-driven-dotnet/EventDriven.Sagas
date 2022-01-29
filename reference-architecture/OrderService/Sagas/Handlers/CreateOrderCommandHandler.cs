@@ -22,21 +22,22 @@ public class CreateOrderCommandHandler :
     
     public override async Task HandleCommandAsync(CreateOrder command)
     {
-        _logger.LogInformation("Handling command: {CommandName}", nameof(CreateOrder));
-        
         try
         {
             // Add or update order
+            _logger.LogInformation("Handling command: {CommandName}", nameof(CreateOrder));
             if (command.Entity is not Order order) return;
             order.State = OrderState.Pending;
             var addedOrder = await _repository.AddUpdateOrderAsync(order);
-            if (addedOrder == null) return;
-
-            await DispatchCommandResultAsync(order.State, false);
+            if (addedOrder != null)
+                await DispatchCommandResultAsync(addedOrder.State, false);
+            else
+                await DispatchCommandResultAsync(OrderState.Initial, true);
         }
         catch (ConcurrencyException e)
         {
             _logger.LogError(e, "{Message}", e.Message);
+            await DispatchCommandResultAsync(OrderState.Initial, true);
         }
     }
 }

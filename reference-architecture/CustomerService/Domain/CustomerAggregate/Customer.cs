@@ -8,49 +8,33 @@ namespace CustomerService.Domain.CustomerAggregate;
 
 public class Customer :
     Entity,
-    ICommandProcessor<CreateCustomer>,
+    ICommandProcessor<CreateCustomer, CustomerCreated>,
     IEventApplier<CustomerCreated>,
-    ICommandProcessor<UpdateCustomer>,
+    ICommandProcessor<UpdateCustomer, CustomerUpdated>,
     IEventApplier<CustomerUpdated>,
-    ICommandProcessor<RemoveCustomer>,
+    ICommandProcessor<RemoveCustomer, CustomerRemoved>,
     IEventApplier<CustomerRemoved>,
     ICommandProcessor<ReserveCredit>,
-    IEventApplier<CreditReserved>
+    IEventApplier<CreditReserveSucceeded>,
+    ICommandProcessor<ReleaseCredit, CreditReleased>,
+    IEventApplier<CreditReleased>
 {
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;
     public decimal CreditAvailable { get; set; }
     public Address ShippingAddress { get; set; } = null!;
 
-    public IEnumerable<IDomainEvent> Process(CreateCustomer command) =>
-        // To process command, return one or more domain events
-        new List<IDomainEvent>
-        {
-            new CustomerCreated(command.Entity)
-        };
+    public CustomerCreated Process(CreateCustomer command) =>
+        // To process command, return a domain event
+        new(command.Entity);
 
     public void Apply(CustomerCreated domainEvent) =>
     // Set Id
     Id = domainEvent.EntityId != default(Guid) ? domainEvent.EntityId : Guid.NewGuid();
 
-    public IEnumerable<IDomainEvent> Process(RemoveCustomer command) =>
-        // To process command, return one or more domain events
-        new List<IDomainEvent>
-        {
-            new CustomerRemoved(command.EntityId)
-        };
-
-    public void Apply(CustomerRemoved domainEvent)
-    {
-        // Could mutate state here to implement a soft delete
-    }
-
-    public IEnumerable<IDomainEvent> Process(UpdateCustomer command) =>
-    // To process command, return one or more domain events
-    new List<IDomainEvent>
-    {
-        new CustomerUpdated(command.Entity)
-    };
+    public CustomerUpdated Process(UpdateCustomer command) =>
+        // To process command, return a domain event
+        new(command.Entity);
 
     public void Apply(CustomerUpdated domainEvent)
     {
@@ -58,23 +42,37 @@ public class Customer :
         if (domainEvent.EntityETag != null) ETag = domainEvent.EntityETag;
     }
 
-    public IEnumerable<IDomainEvent> Process(ReserveCredit command)
+    public CustomerRemoved Process(RemoveCustomer command) =>
+        // To process command, return a domain event
+        new(command.EntityId);
+
+    public void Apply(CustomerRemoved domainEvent)
     {
-        // If customer has insufficient credit, return zero domain events
-        if (CreditAvailable <= command.AmountRequested)
-        {
-            return Enumerable.Empty<IDomainEvent>();
-        }
-        // Otherwise, return one or more domain events
-        return new List<IDomainEvent>
-        {
-            new CreditReserved(command.EntityId, command.AmountRequested)
-        };
+        // Could mutate state here to implement a soft delete
     }
 
-    public void Apply(CreditReserved domainEvent)
+    public IDomainEvent Process(ReserveCredit command)
     {
-        CreditAvailable -= domainEvent.AmountReserved;
+        // If customer has sufficient credit, return CreditReserveSucceeded event
+        if (CreditAvailable >= command.CreditRequested)
+            return new CreditReserveSucceeded(command.EntityId, command.CreditRequested) { EntityETag = ETag };
+        // Otherwise, return CreditReserveFailed event
+        return new CreditReserveFailed(command.EntityId, command.CreditRequested) { EntityETag = ETag };
+    }
+
+    public void Apply(CreditReserveSucceeded domainEvent)
+    {
+        CreditAvailable -= domainEvent.AmountRequested;
+        if (domainEvent.EntityETag != null) ETag = domainEvent.EntityETag;
+    }
+    
+    public CreditReleased Process(ReleaseCredit command) =>
+        // To process command, return a domain event
+        new(command.EntityId, command.CreditReleased) { EntityETag = ETag };
+
+    public void Apply(CreditReleased domainEvent)
+    {
+        CreditAvailable += domainEvent.AmountRequested;
         if (domainEvent.EntityETag != null) ETag = domainEvent.EntityETag;
     }
 }

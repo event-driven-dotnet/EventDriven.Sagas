@@ -32,8 +32,9 @@ public class CustomerCreditReserveFulfilledEventHandler :
         _logger.LogInformation("Handling event: {EventName}", $"v1.{nameof(CustomerCreditReserveFulfilled)}");
         await DispatchCommandResultAsync(new CustomerCreditReserveResponse(
             @event.CustomerCreditReserveResponse.CustomerId,
-            @event.CustomerCreditReserveResponse.CreditReserved,
-            @event.CustomerCreditReserveResponse.CreditRemaining
-        ), false);
+            @event.CustomerCreditReserveResponse.CreditRequested,
+            @event.CustomerCreditReserveResponse.CreditAvailable,
+            @event.CustomerCreditReserveResponse.Success
+        ), !@event.CustomerCreditReserveResponse.Success);
     }
 }

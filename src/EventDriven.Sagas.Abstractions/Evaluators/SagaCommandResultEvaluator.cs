@@ -9,7 +9,7 @@ public abstract class SagaCommandResultEvaluator<TResult, TExpectedResult>
     : ISagaCommandResultEvaluator<TResult, TExpectedResult>
 {
     /// <inheritdoc />
-    public abstract Task<bool> EvaluateCommandResultAsync(TResult commandResult, TExpectedResult expectedResult);
+    public abstract Task<bool> EvaluateCommandResultAsync(TResult? commandResult, TExpectedResult? expectedResult);
 
     /// <inheritdoc />
     public Type? SagaType { get; set; }
