@@ -313,6 +313,7 @@ public abstract class Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected virtual async Task TransitionSagaStateAsync(bool commandSuccessful)
     {
+        var reverseOnFailure = GetCurrentAction().ReverseOnFailure;
         switch (State)
         {
             case SagaState.Executing:
@@ -325,6 +326,7 @@ public abstract class Saga
                     }
                     else
                     {
+                        if (!reverseOnFailure) CurrentStep--;
                         State = SagaState.Compensating;
                         await ExecuteCurrentCompensatingActionAsync();
                     }
@@ -333,7 +335,10 @@ public abstract class Saga
                 {
                     State = commandSuccessful ? SagaState.Executed : SagaState.Compensating;
                     if (!commandSuccessful)
+                    {
+                        if (!reverseOnFailure) CurrentStep--;
                         await ExecuteCurrentCompensatingActionAsync();
+                    }
                 }
                 return;
             case SagaState.Compensating:

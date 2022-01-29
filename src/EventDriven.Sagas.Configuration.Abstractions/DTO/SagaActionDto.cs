@@ -19,4 +19,9 @@ public class SagaActionDto
     /// Saga action timeout.
     /// </summary>
     public TimeSpan? Timeout { get; set; }
+    
+    /// <summary>
+    /// Set to true to reverse action on failure.
+    /// </summary>
+    public bool ReverseOnFailure { get; set; }
 }

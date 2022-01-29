@@ -69,12 +69,14 @@ public class CreateOrderSaga :
     public async Task HandleCommandResultAsync(CustomerCreditReserveResponse result, bool compensating)
     {
         SetCurrentActionCommandResult(result);
-        await HandleCommandResultForStepAsync<CreateOrderSaga, CustomerCreditReserveResponse, CustomerCreditReserveResponse>(compensating);
+        await HandleCommandResultForStepAsync<CreateOrderSaga, CustomerCreditReserveResponse,
+            CustomerCreditReserveResponse>(compensating);
     }
 
     public async Task HandleCommandResultAsync(CustomerCreditReleaseResponse result, bool compensating)
     {
         SetCurrentActionCommandResult(result);
-        await HandleCommandResultForStepAsync<CreateOrderSaga, CustomerCreditReleaseResponse, CustomerCreditReleaseResponse>(compensating);
+        await HandleCommandResultForStepAsync<CreateOrderSaga, CustomerCreditReleaseResponse,
+            CustomerCreditReleaseResponse>(compensating);
     }
 }

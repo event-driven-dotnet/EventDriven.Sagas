@@ -118,7 +118,8 @@ SagaConfigurationDto CreateSagaConfig(Guid id)
                 {
                     Name = typeof(CreateOrder).FullName,
                     ExpectedResult = OrderState.Pending
-                })
+                }),
+                ReverseOnFailure = true
             },
             CompensatingAction = new SagaActionDto
             {
@@ -158,7 +159,8 @@ SagaConfigurationDto CreateSagaConfig(Guid id)
                 {
                     Name = typeof(SetOrderStateCreated).FullName,
                     ExpectedResult = OrderState.Created
-                })
+                }),
+                ReverseOnFailure = true
             },
             CompensatingAction = new SagaActionDto
             {

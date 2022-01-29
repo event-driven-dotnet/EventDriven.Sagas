@@ -22,7 +22,8 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
                             Name = "SetStatePending",
                             Result = "Pending",
                             ExpectedResult = "Pending"
-                        }
+                        },
+                        ReverseOnFailure = true
                     },
                     CompensatingAction = new SagaAction
                     {
@@ -44,7 +45,8 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
                             Name = "ReserveCredit",
                             Result = "Reserved",
                             ExpectedResult = "Reserved"
-                        }
+                        },
+                        ReverseOnFailure = true
                     },
                     CompensatingAction = new SagaAction
                     {
@@ -66,7 +68,8 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
                             Name = "ReserveInventory",
                             Result = "Reserved",
                             ExpectedResult = "Reserved"
-                        }
+                        },
+                        ReverseOnFailure = true
                     },
                     CompensatingAction = new SagaAction
                     {
@@ -88,7 +91,8 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
                             Name = "SetStateCreated",
                             Result = "Created",
                             ExpectedResult = "Created"
-                        }
+                        },
+                        ReverseOnFailure = true
                     },
                     CompensatingAction = new SagaAction
                     {

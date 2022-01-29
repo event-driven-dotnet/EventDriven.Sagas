@@ -4,45 +4,51 @@
   "Name": "CreateOrderSaga",
   "Steps": [
     {
-      "Id": "aab8a074-12ce-44d0-8fcb-3fc7f88ebb4c",
+      "Id": "c055c81a-8611-424c-8bc3-0649aaed5a86",
       "Sequence": 1,
       "Action": {
-        "Id": "0cdaa305-eb54-447d-be88-9645dcfca164",
+        "Id": "2867df4e-ae2c-4c75-914d-3520782b1aa0",
         "Command": "{\"Name\":\"OrderService.Sagas.Commands.CreateOrder\",\"ExpectedResult\":1}",
-        "Timeout": null
+        "Timeout": null,
+        "ReverseOnFailure": true
       },
       "CompensatingAction": {
-        "Id": "fa038de8-7298-4c93-97be-00b9c1b1b6ac",
+        "Id": "3215dd3d-ed04-4a98-9de6-b68de64ca61f",
         "Command": "{\"Name\":\"OrderService.Sagas.Commands.SetOrderStateInitial\",\"ExpectedResult\":0}",
-        "Timeout": null
+        "Timeout": null,
+        "ReverseOnFailure": false
       }
     },
     {
-      "Id": "de23741e-bdaf-4835-98ce-0160e2fd1aa9",
+      "Id": "a884ab66-6b4d-4b21-aa29-9a4311350fd6",
       "Sequence": 2,
       "Action": {
-        "Id": "8b5d764a-4ee2-4aaf-ab2e-49d990293654",
+        "Id": "b0d3cfcf-1c06-4d9e-b11a-600ef9813003",
         "Command": "{\"Name\":\"OrderService.Sagas.Commands.ReserveCustomerCredit\",\"ExpectedResult\":null}",
-        "Timeout": null
+        "Timeout": null,
+        "ReverseOnFailure": false
       },
       "CompensatingAction": {
-        "Id": "47a66185-9f98-4ebc-80c6-30a07b3b9cb4",
+        "Id": "c3baf781-f479-48a5-bc3f-9a5250b6a03a",
         "Command": "{\"Name\":\"OrderService.Sagas.Commands.ReleaseCustomerCredit\",\"ExpectedResult\":null}",
-        "Timeout": null
+        "Timeout": null,
+        "ReverseOnFailure": false
       }
     },
     {
-      "Id": "6300cfce-ee96-417a-873d-15d81e0cb539",
+      "Id": "870dac52-c205-41b0-bb60-0de6ced4be64",
       "Sequence": 3,
       "Action": {
-        "Id": "e39724bc-85b1-4467-8c30-86aca434d442",
+        "Id": "09903b34-33fc-405a-a387-a27c5eaa0fa5",
         "Command": "{\"Name\":\"OrderService.Sagas.Commands.SetOrderStateCreated\",\"ExpectedResult\":2}",
-        "Timeout": null
+        "Timeout": null,
+        "ReverseOnFailure": true
       },
       "CompensatingAction": {
-        "Id": "3f3b2df8-eb9c-48c2-aa3e-b708bf855c9d",
+        "Id": "7cca294a-15ec-4dad-b806-9302a8e103a0",
         "Command": "{\"Name\":\"OrderService.Sagas.Commands.SetOrderStateInitial\",\"ExpectedResult\":0}",
-        "Timeout": null
+        "Timeout": null,
+        "ReverseOnFailure": false
       }
     }
   ]

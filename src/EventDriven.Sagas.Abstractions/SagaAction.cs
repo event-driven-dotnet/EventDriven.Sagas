@@ -23,6 +23,11 @@ public class SagaAction
     public TimeSpan? Timeout { get; set; }
 
     /// <summary>
+    /// Set to true to reverse action on failure.
+    /// </summary>
+    public bool ReverseOnFailure { get; set; }
+
+    /// <summary>
     /// State of the action.
     /// </summary>
     public ActionState State { get; set; }

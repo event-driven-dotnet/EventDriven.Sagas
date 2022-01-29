@@ -9,11 +9,11 @@ namespace CustomerService.Integration.Handlers;
 public class CustomerCreditReserveReleaseEventHandler :
     IntegrationEventHandler<CustomerCreditReleaseRequested>
 {
-    private readonly ICommandHandler<Customer, ReserveCredit> _commandHandler;
+    private readonly ICommandHandler<Customer, ReleaseCredit> _commandHandler;
     private readonly ILogger<CustomerCreditReserveReleaseEventHandler> _logger;
 
     public CustomerCreditReserveReleaseEventHandler(
-        ICommandHandler<Customer, ReserveCredit> commandHandler,
+        ICommandHandler<Customer, ReleaseCredit> commandHandler,
         ILogger<CustomerCreditReserveReleaseEventHandler> logger)
     {
         _commandHandler = commandHandler;
@@ -24,7 +24,7 @@ public class CustomerCreditReserveReleaseEventHandler :
     {
         _logger.LogInformation("Handling event: {EventName}", $"v1.{nameof(CustomerCreditReleaseRequested)}");
 
-        var command = new ReserveCredit(
+        var command = new ReleaseCredit(
             @event.CustomerCreditReleaseRequest.CustomerId,
             @event.CustomerCreditReleaseRequest.CreditReleased);
         await _commandHandler.Handle(command);
