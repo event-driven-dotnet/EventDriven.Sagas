@@ -71,5 +71,5 @@ public class SagaSnapshotDto
     /// <summary>
     /// Steps performed by the saga.
     /// </summary>
-    public List<SagaStepDto> Steps { get; set; } = null!;
+    public List<SagaStepDto?> Steps { get; set; } = null!;
 }

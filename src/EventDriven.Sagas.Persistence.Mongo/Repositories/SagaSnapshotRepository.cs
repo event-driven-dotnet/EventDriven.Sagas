@@ -1,4 +1,5 @@
 using AutoMapper;
+using EventDriven.Sagas.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions.DTO;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
@@ -44,7 +45,22 @@ public class SagaSnapshotRepository : ISagaSnapshotRepository
         entity.Sequence = max + 1;
         var dto = _mapper.Map<SagaSnapshotDto>(entity);
         dto.Id = Guid.NewGuid();
+        RemoveNonExecutedItems(dto);
         await _documentRepository.InsertOneAsync(dto);
+    }
+
+    private void RemoveNonExecutedItems(SagaSnapshotDto dto)
+    {
+        for (var i = dto.Steps.Count - 1; i > -1; i--)
+        {
+            var step = dto.Steps[i];
+            if (step is { CompensatingAction.State: ActionState.Initial })
+                step.CompensatingAction = null;
+            if (step is { Action.State: ActionState.Initial })
+                step.Action = null;
+            if (step?.CompensatingAction == null && step?.Action == null)
+                dto.Steps.Remove(step);
+        }
     }
 
     private async Task<int> GetMax(Guid id)

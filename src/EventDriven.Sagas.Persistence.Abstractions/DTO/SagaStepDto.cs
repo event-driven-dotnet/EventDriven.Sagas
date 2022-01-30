@@ -18,10 +18,10 @@ public class SagaStepDto
     /// <summary>
     /// Saga step action.
     /// </summary>
-    public SagaActionDto Action { get; set; } = null!;
+    public SagaActionDto? Action { get; set; } = null!;
 
     /// <summary>
     /// Saga step compensating action.
     /// </summary>
-    public SagaActionDto CompensatingAction { get; set; } = null!;
+    public SagaActionDto? CompensatingAction { get; set; } = null!;
 }
