@@ -165,9 +165,10 @@ public class CustomerCommandHandler :
         _logger.LogInformation("Publishing event: {EventName}", $"v1.{nameof(CustomerCreditReserveFulfilled)}");
         try
         {
-            await _eventBus.PublishAsync(new CustomerCreditReserveFulfilled(
-                    new CustomerCreditReserveResponse(customer.Id, creditRequested,
-                        customer.CreditAvailable, success)),
+            var @event = new CustomerCreditReserveFulfilled(
+                new CustomerCreditReserveResponse(customer.Id, creditRequested,
+                    customer.CreditAvailable, success));
+            await _eventBus.PublishAsync(@event,
                 nameof(CustomerCreditReserveFulfilled), "v1");
             return new CommandResult<Customer>(CommandOutcome.Accepted, customer);
         }
@@ -184,9 +185,10 @@ public class CustomerCommandHandler :
         _logger.LogInformation("Publishing event: {EventName}", $"v1.{nameof(CustomerCreditReleaseFulfilled)}");
         try
         {
-            await _eventBus.PublishAsync(new CustomerCreditReleaseFulfilled(
-                    new CustomerCreditReleaseResponse(customer.Id, creditRequested,
-                        customer.CreditAvailable, success)),
+            var @event = new CustomerCreditReleaseFulfilled(
+                new CustomerCreditReleaseResponse(customer.Id, creditRequested,
+                    customer.CreditAvailable, success));
+            await _eventBus.PublishAsync(@event,
                 nameof(CustomerCreditReleaseFulfilled), "v1");
             return new CommandResult<Customer>(CommandOutcome.Accepted, customer);
         }

@@ -28,9 +28,9 @@ public class ReleaseCustomerCreditCommandHandler :
         try
         {
             _logger.LogInformation("Publishing event: {EventName}", $"v1.{nameof(ReleaseCustomerCredit)}");
-            await _eventBus.PublishAsync(
-                new CustomerCreditReleaseRequested(
-                    new CustomerCreditReleaseRequest(command.CustomerId, command.CreditReleased)),
+            var @event = new CustomerCreditReleaseRequested(
+                new CustomerCreditReleaseRequest(command.CustomerId, command.CreditReleased));
+            await _eventBus.PublishAsync(@event,
                 null, "v1");
         }
         catch (SchemaValidationException e)

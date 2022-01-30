@@ -28,9 +28,9 @@ public class ReserveCustomerCreditCommandHandler :
         try
         {
             _logger.LogInformation("Publishing event: {EventName}", $"v1.{nameof(ReserveCustomerCredit)}");
-            await _eventBus.PublishAsync(
-                new CustomerCreditReserveRequested(
-                    new CustomerCreditReserveRequest(command.CustomerId, command.CreditRequested)),
+            var @event = new CustomerCreditReserveRequested(
+                new CustomerCreditReserveRequest(command.CustomerId, command.CreditRequested));
+            await _eventBus.PublishAsync(@event,
                 nameof(CustomerCreditReserveRequested), "v1");
         }
         catch (SchemaValidationException e)
