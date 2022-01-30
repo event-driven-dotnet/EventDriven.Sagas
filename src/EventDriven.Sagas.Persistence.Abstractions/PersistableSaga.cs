@@ -1,3 +1,4 @@
+using EventDriven.Sagas.Abstractions;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Configuration.Abstractions;
@@ -28,21 +29,10 @@ public abstract class PersistableSaga : ConfigurableSaga
     /// </summary>
     protected virtual async Task PersistAsync()
     {
-        if (SagaSnapshotRepository != null)
-            await SagaSnapshotRepository.PersistSagaSnapshotAsync(this);
-    }
-
-    /// <inheritdoc />
-    protected override async Task ExecuteCurrentActionAsync()
-    {
-        await base.ExecuteCurrentActionAsync();
-        await PersistAsync();
-    }
-
-    /// <inheritdoc />
-    protected override async Task ExecuteCurrentCompensatingActionAsync()
-    {
-         await base.ExecuteCurrentCompensatingActionAsync();
-         await PersistAsync();
+        using (new TimedLock().Lock(LockTimeout))
+        {
+            if (SagaSnapshotRepository != null)
+                await SagaSnapshotRepository.PersistSagaSnapshotAsync(this);
+        }
     }
 }

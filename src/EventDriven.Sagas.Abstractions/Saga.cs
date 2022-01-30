@@ -25,6 +25,11 @@ public abstract class Saga
     }
 
     /// <summary>
+    /// Lock timeout for synchronizing multi-threaded access.
+    /// </summary>
+    protected TimeSpan LockTimeout = TimeSpan.FromSeconds(60);
+
+    /// <summary>
     /// Cancellation token.
     /// </summary>
     protected CancellationToken CancellationToken;
@@ -111,17 +116,26 @@ public abstract class Saga
     /// <param name="entityId">Entity identifier.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected abstract Task<bool> CheckLock(Guid entityId);
-    
+
+    /// <summary>
+    /// Hook for executing code after each step.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    protected virtual Task ExecuteAfterStep() => Task.CompletedTask;
+
     /// <summary>
     /// Execute the current action.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected virtual async Task ExecuteCurrentActionAsync()
     {
-        var action = GetCurrentAction();
-        SetActionStateStarted(action);
-        SetActionCommand(action);
-        await SagaCommandDispatcher.DispatchCommandAsync(action.Command, false);
+        using (new TimedLock().Lock(LockTimeout))
+        {
+            var action = GetCurrentAction();
+            SetActionStateStarted(action);
+            SetActionCommand(action);
+            await SagaCommandDispatcher.DispatchCommandAsync(action.Command, false);
+        }
     }
 
     /// <summary>
@@ -130,10 +144,13 @@ public abstract class Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected virtual async Task ExecuteCurrentCompensatingActionAsync()
     {
-        var action = GetCurrentCompensatingAction();
-        SetActionStateStarted(action);
-        SetActionCommand(action);
-        await SagaCommandDispatcher.DispatchCommandAsync(action.Command, true);
+        using (new TimedLock().Lock(LockTimeout))
+        {
+            var action = GetCurrentCompensatingAction();
+            SetActionStateStarted(action);
+            SetActionCommand(action);
+            await SagaCommandDispatcher.DispatchCommandAsync(action.Command, true);
+        }
     }
 
     /// <summary>
@@ -145,10 +162,15 @@ public abstract class Saga
     /// <returns>ISagaCommandResultEvaluator for this saga with the specified result type.</returns>
     protected virtual ISagaCommandResultEvaluator<TResult, TExpectedResult>? GetCommandResultEvaluatorByResultType
         <TSaga, TResult, TExpectedResult>()
-        where TSaga : Saga =>
-        CommandResultEvaluators
-            .Where(e => e.SagaType == null || e.SagaType == typeof(TSaga))
-            .OfType<ISagaCommandResultEvaluator<TResult, TExpectedResult>>().FirstOrDefault();
+        where TSaga : Saga
+    {
+        using (new TimedLock().Lock(LockTimeout))
+        {
+            return CommandResultEvaluators
+                .Where(e => e.SagaType == null || e.SagaType == typeof(TSaga))
+                .OfType<ISagaCommandResultEvaluator<TResult, TExpectedResult>>().FirstOrDefault();
+        }
+    }
 
     /// <summary>
     /// Handle command result for step.
@@ -161,26 +183,40 @@ public abstract class Saga
     protected virtual async Task HandleCommandResultForStepAsync<TSaga, TResult, TExpectedResult>(bool compensating)
         where TSaga : Saga
     {
-        var step = Steps.Single(s => s.Sequence == CurrentStep);
-        var evaluator = GetCommandResultEvaluatorByResultType<TSaga, TResult, TExpectedResult>();
-        var commandSuccessful = evaluator != null
-            && await EvaluateStepResultAsync(step, compensating, evaluator, CancellationToken);
-        await TransitionSagaStateAsync(commandSuccessful);
+        using (new TimedLock().Lock(LockTimeout))
+        {
+            var step = Steps.Single(s => s.Sequence == CurrentStep);
+            var evaluator = GetCommandResultEvaluatorByResultType<TSaga, TResult, TExpectedResult>();
+            var commandSuccessful = evaluator != null
+                && await EvaluateStepResultAsync(step, compensating, evaluator, CancellationToken);
+            await ExecuteAfterStep();
+            await TransitionSagaStateAsync(commandSuccessful);
+        }
     }
 
     /// <summary>
     /// Get current action.
     /// </summary>
     /// <returns>The current action.</returns>
-    protected virtual SagaAction GetCurrentAction() =>
-        Steps.Single(s => s.Sequence == CurrentStep).Action;
+    protected virtual SagaAction GetCurrentAction()
+    {
+        using (new TimedLock().Lock(LockTimeout))
+        {
+            return Steps.Single(s => s.Sequence == CurrentStep).Action;
+        }
+    }
 
     /// <summary>
     /// Get current compensating action.
     /// </summary>
     /// <returns>The current compensating action.</returns>
-    protected virtual SagaAction GetCurrentCompensatingAction() =>
-        Steps.Single(s => s.Sequence == CurrentStep).CompensatingAction;
+    protected virtual SagaAction GetCurrentCompensatingAction()
+    {
+        using (new TimedLock().Lock(LockTimeout))
+        {
+            return Steps.Single(s => s.Sequence == CurrentStep).CompensatingAction;
+        }
+    }
 
     /// <summary>
     /// Set action state and started time.
@@ -188,8 +224,11 @@ public abstract class Saga
     /// <param name="action">Saga action.</param>
     protected virtual void SetActionStateStarted(SagaAction action)
     {
-        action.State = ActionState.Running;
-        action.Started = DateTime.UtcNow;
+        using (new TimedLock().Lock(LockTimeout))
+        {
+            action.State = ActionState.Running;
+            action.Started = DateTime.UtcNow;
+        }
     }
 
     /// <summary>
@@ -209,10 +248,13 @@ public abstract class Saga
     /// <typeparam name="TResult">Result type.</typeparam>
     protected virtual void SetCurrentActionCommandResult<TResult>(TResult result)
     {
-        var step = Steps.Single(s => s.Sequence == CurrentStep);
-        var action = step.Action;
-        if (action.Command is SagaCommand<TResult, TResult> command)
-            command.Result = result;
+        using (new TimedLock().Lock(LockTimeout))
+        {
+            var step = Steps.Single(s => s.Sequence == CurrentStep);
+            var action = step.Action;
+            if (action.Command is SagaCommand<TResult, TResult> command)
+                command.Result = result;
+        }
     }
     
     /// <summary>
@@ -232,48 +274,51 @@ public abstract class Saga
         SagaStep step, bool compensating, ISagaCommandResultEvaluator<TResult, TExpectedResult> evaluator,
         CancellationToken cancellationToken)
     {
-        // Evaluate result
-        var isCancelled = !compensating && cancellationToken.IsCancellationRequested;
-        var action = compensating ? step.CompensatingAction : step.Action;
-        if (action.Command is not ISagaCommand<TResult, TExpectedResult> command) return false;
-        var result = command.Result;
-        var expectedResult = command.ExpectedResult;
-        var commandSuccessful = !isCancelled
-            && await evaluator.EvaluateCommandResultAsync(command.Result, command.ExpectedResult);
-
-        // Check timeout
-        action.Completed = DateTime.UtcNow;
-        action.Duration = action.Completed - action.Started;
-        var duration = action.Duration;
-        var timeout = action.Timeout;
-        var commandTimedOut = commandSuccessful && action.Timeout != null && action.Duration > action.Timeout;
-        if (commandTimedOut) commandSuccessful = false;
-
-        // Transition action state
-        action.State = ActionState.Succeeded;
-        if (!commandSuccessful)
+        using (new TimedLock().Lock(LockTimeout))
         {
-            if (isCancelled)
-            {
-                action.State = ActionState.Cancelled;
-                action.StateInfo = GetCancellationMessage();
-            }
-            else if (!commandTimedOut)
-            {
-                action.State = ActionState.Failed;
-                action.StateInfo = GetFailureMessage(result, expectedResult);
-            }
-            else
-            {
-                action.State = ActionState.TimedOut;
-                action.StateInfo = GetTimeoutMessage(timeout, duration);
-            }
+            // Evaluate result
+            var isCancelled = !compensating && cancellationToken.IsCancellationRequested;
+            var action = compensating ? step.CompensatingAction : step.Action;
+            if (action.Command is not ISagaCommand<TResult, TExpectedResult> command) return false;
+            var result = command.Result;
+            var expectedResult = command.ExpectedResult;
+            var commandSuccessful = !isCancelled
+                && await evaluator.EvaluateCommandResultAsync(command.Result, command.ExpectedResult);
 
-            var commandName = action.Command.Name ?? "No name";
-            StateInfo = $"Step {step.Sequence} command '{commandName}' failed. {action.StateInfo}";
-            return false;
+            // Check timeout
+            action.Completed = DateTime.UtcNow;
+            action.Duration = action.Completed - action.Started;
+            var duration = action.Duration;
+            var timeout = action.Timeout;
+            var commandTimedOut = commandSuccessful && action.Timeout != null && action.Duration > action.Timeout;
+            if (commandTimedOut) commandSuccessful = false;
+
+            // Transition action state
+            action.State = ActionState.Succeeded;
+            if (!commandSuccessful)
+            {
+                if (isCancelled)
+                {
+                    action.State = ActionState.Cancelled;
+                    action.StateInfo = GetCancellationMessage();
+                }
+                else if (!commandTimedOut)
+                {
+                    action.State = ActionState.Failed;
+                    action.StateInfo = GetFailureMessage(result, expectedResult);
+                }
+                else
+                {
+                    action.State = ActionState.TimedOut;
+                    action.StateInfo = GetTimeoutMessage(timeout, duration);
+                }
+
+                var commandName = action.Command.Name ?? "No name";
+                StateInfo = $"Step {step.Sequence} command '{commandName}' failed. {action.StateInfo}";
+                return false;
+            }
+            return true;
         }
-        return true;
     }
     
     /// <summary>
@@ -313,49 +358,52 @@ public abstract class Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected virtual async Task TransitionSagaStateAsync(bool commandSuccessful)
     {
-        var reverseOnFailure = GetCurrentAction().ReverseOnFailure;
-        switch (State)
+        using (new TimedLock().Lock(LockTimeout))
         {
-            case SagaState.Executing:
-                if (CurrentStep < Steps.Max(s => s.Sequence))
-                {
-                    if (commandSuccessful)
+            var reverseOnFailure = GetCurrentAction().ReverseOnFailure;
+            switch (State)
+            {
+                case SagaState.Executing:
+                    if (CurrentStep < Steps.Max(s => s.Sequence))
                     {
-                        CurrentStep++;
-                        await ExecuteCurrentActionAsync();
+                        if (commandSuccessful)
+                        {
+                            CurrentStep++;
+                            await ExecuteCurrentActionAsync();
+                        }
+                        else
+                        {
+                            if (!reverseOnFailure) CurrentStep--;
+                            State = SagaState.Compensating;
+                            await ExecuteCurrentCompensatingActionAsync();
+                        }
                     }
                     else
                     {
-                        if (!reverseOnFailure) CurrentStep--;
-                        State = SagaState.Compensating;
-                        await ExecuteCurrentCompensatingActionAsync();
+                        State = commandSuccessful ? SagaState.Executed : SagaState.Compensating;
+                        if (!commandSuccessful)
+                        {
+                            if (!reverseOnFailure) CurrentStep--;
+                            await ExecuteCurrentCompensatingActionAsync();
+                        }
                     }
-                }
-                else
-                {
-                    State = commandSuccessful ? SagaState.Executed : SagaState.Compensating;
-                    if (!commandSuccessful)
-                    {
-                        if (!reverseOnFailure) CurrentStep--;
-                        await ExecuteCurrentCompensatingActionAsync();
-                    }
-                }
-                return;
-            case SagaState.Compensating:
-                if (!commandSuccessful) // Exit if compensating action unsuccessful
                     return;
-                if (CurrentStep > Steps.Min(s => s.Sequence))
-                {
-                    CurrentStep--;
-                    await ExecuteCurrentCompensatingActionAsync();
-                }
-                else
-                {
-                    State = SagaState.Compensated;
-                }
-                return;
-            default:
-                return;
+                case SagaState.Compensating:
+                    if (!commandSuccessful) // Exit if compensating action unsuccessful
+                        return;
+                    if (CurrentStep > Steps.Min(s => s.Sequence))
+                    {
+                        CurrentStep--;
+                        await ExecuteCurrentCompensatingActionAsync();
+                    }
+                    else
+                    {
+                        State = SagaState.Compensated;
+                    }
+                    return;
+                default:
+                    return;
+            }
         }
     }
 
@@ -368,15 +416,18 @@ public abstract class Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     public virtual async Task StartSagaAsync(Guid entityId = default, CancellationToken cancellationToken = default)
     {
-        // Check if locked
-        if (!OverrideLockCheck) IsLocked = await CheckLock(entityId);
-        if (IsLocked) throw new SagaLockedException($"Saga '{Id}' is currently locked.");
+        using (new TimedLock().Lock(LockTimeout))
+        {
+            // Check if locked
+            if (!OverrideLockCheck) IsLocked = await CheckLock(entityId);
+            if (IsLocked) throw new SagaLockedException($"Saga '{Id}' is currently locked.");
 
-        // Set state, current step, entity id, cancellation token
-        State = SagaState.Executing;
-        CurrentStep = 1;
-        EntityId = entityId;
-        CancellationToken = cancellationToken;
+            // Set state, current step, entity id, cancellation token
+            State = SagaState.Executing;
+            CurrentStep = 1;
+            EntityId = entityId;
+            CancellationToken = cancellationToken;
+        }
 
         // Dispatch current step command
         await ExecuteCurrentActionAsync();

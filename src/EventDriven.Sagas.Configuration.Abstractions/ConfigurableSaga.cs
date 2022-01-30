@@ -44,15 +44,18 @@ public abstract class ConfigurableSaga : Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected virtual async Task ConfigureAsync()
     {
-        if (SagaConfigOptions?.SagaConfigId != null && SagaConfigRepository != null)
+        using (new TimedLock().Lock(LockTimeout))
         {
-            var sagaConfig = await SagaConfigRepository
-                .GetSagaConfigurationAsync(SagaConfigOptions.SagaConfigId.GetValueOrDefault());
-            if (sagaConfig == null)
-                throw new Exception($"Saga configuration with id '{SagaConfigOptions.SagaConfigId}' not present in Saga Configuration Repository.");
-            SagaConfigId = sagaConfig.Id;
-            SagaConfigName = sagaConfig.Name;
-            Steps = sagaConfig.Steps;
+            if (SagaConfigOptions?.SagaConfigId != null && SagaConfigRepository != null)
+            {
+                var sagaConfig = await SagaConfigRepository
+                    .GetSagaConfigurationAsync(SagaConfigOptions.SagaConfigId.GetValueOrDefault());
+                if (sagaConfig == null)
+                    throw new Exception($"Saga configuration with id '{SagaConfigOptions.SagaConfigId}' not present in Saga Configuration Repository.");
+                SagaConfigId = sagaConfig.Id;
+                SagaConfigName = sagaConfig.Name;
+                Steps = sagaConfig.Steps;
+            }
         }
     }
     
