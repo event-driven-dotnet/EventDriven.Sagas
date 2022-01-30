@@ -32,7 +32,7 @@ public abstract class Saga
     /// <summary>
     /// Saga identifier.
     /// </summary>
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Time the saga was started.

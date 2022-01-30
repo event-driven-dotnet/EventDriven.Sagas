@@ -30,11 +30,15 @@ public class SagaPersistAutoMapperProfile: Profile
         CreateMap<string, SagaCommand>()
             .ConvertUsing(new SagaStringToCommandConverter(SagaCommandTypeResolver!));
         CreateMap<PersistableSaga, SagaSnapshotDto>()
+            .ForMember(dest => dest.Id, opt =>
+                opt.MapFrom(src => Guid.Empty))
             .ForMember(dest => dest.SagaId, opt =>
                 opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.SagaStarted, opt =>
                 opt.MapFrom(src => src.Started));
         CreateMap<SagaSnapshotDto, PersistableSaga>()
+            .ForMember(dest => dest.Id, opt =>
+                opt.MapFrom(src => Guid.Empty))
             .ForMember(dest => dest.Id, opt =>
                 opt.MapFrom(src => src.SagaId))
             .ForMember(dest => dest.Started, opt =>

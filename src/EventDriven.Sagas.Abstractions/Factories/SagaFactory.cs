@@ -64,6 +64,7 @@ public class SagaFactory<TSaga> : ISagaFactory<TSaga>
             h => h.SagaType == typeof(TSaga));
         saga.OverrideLockCheck = overrideLock;
         saga.CheckLockCommandHandler = checkLockHandler;
+        saga.Id = Guid.NewGuid();
         return saga;
     }
 }

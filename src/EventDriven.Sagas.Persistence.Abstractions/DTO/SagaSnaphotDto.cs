@@ -10,7 +10,7 @@ public class SagaSnapshotDto
     /// <summary>
     /// Saga snapshot identifier.
     /// </summary>
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Time the snapshot was created.
