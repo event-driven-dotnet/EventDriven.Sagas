@@ -3,6 +3,7 @@ using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Handlers;
+using EventDriven.Utilities;
 
 namespace EventDriven.Sagas.Abstractions;
 
@@ -27,7 +28,7 @@ public abstract class Saga
     /// <summary>
     /// Lock timeout for synchronizing multi-threaded access.
     /// </summary>
-    protected TimeSpan LockTimeout = TimeSpan.FromSeconds(60);
+    protected TimeSpan LockTimeout { get; set; } = TimeSpan.FromSeconds(60);
 
     /// <summary>
     /// Cancellation token.
