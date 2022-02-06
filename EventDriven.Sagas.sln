@@ -50,7 +50,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", "{1C36C3B5-1DCE-45DA-AFAE-161338CB978C}"
 	ProjectSection(SolutionItems) = preProject
 		reference-architecture\dapr\components\pubsub.yaml = reference-architecture\dapr\components\pubsub.yaml
-		reference-architecture\dapr\components\snssqs-pubsub.yaml = reference-architecture\dapr\components\snssqs-pubsub.yaml
+		reference-architecture\dapr\components\pubsub-snssqs.yaml = reference-architecture\dapr\components\pubsub-snssqs.yaml
+		reference-architecture\dapr\components\statestore-mongodb.yaml = reference-architecture\dapr\components\statestore-mongodb.yaml
+		reference-architecture\dapr\components\statestore.yaml = reference-architecture\dapr\components\statestore.yaml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integration", "reference-architecture\Integration\Integration.csproj", "{D839C66B-8DCA-4BD8-96D2-B228569CC26E}"
