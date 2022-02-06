@@ -41,6 +41,7 @@ builder.Services.AddSaga<CreateOrderSaga, CreateOrderSagaCommandDispatcher,
 
 // Add Dapr Event Bus and event handler
 builder.Services.AddDaprEventBus(builder.Configuration, true);
+builder.Services.AddDaprMongoEventCache(builder.Configuration);
 builder.Services.AddSingleton<CustomerCreditReserveFulfilledEventHandler>();
 
 var app = builder.Build();

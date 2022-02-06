@@ -10,15 +10,12 @@ namespace EventDriven.Sagas.Configuration.Abstractions;
 /// </summary>
 public abstract class ConfigurableSaga : Saga
 {
-    private readonly SemaphoreSlim _semaphoreSyncRoot;
-
     /// <inheritdoc />
     protected ConfigurableSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
         IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) : 
         base(sagaCommandDispatcher, commandResultEvaluators)
     {
-        _semaphoreSyncRoot = new SemaphoreSlim(1, 1);
     }
     
     /// <summary>
@@ -47,23 +44,15 @@ public abstract class ConfigurableSaga : Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected virtual async Task ConfigureAsync()
     {
-        try
+        if (SagaConfigOptions?.SagaConfigId != null && SagaConfigRepository != null)
         {
-            await _semaphoreSyncRoot.WaitAsync(LockTimeout, CancellationToken);
-            if (SagaConfigOptions?.SagaConfigId != null && SagaConfigRepository != null)
-            {
-                var sagaConfig = await SagaConfigRepository
-                    .GetSagaConfigurationAsync(SagaConfigOptions.SagaConfigId.GetValueOrDefault());
-                if (sagaConfig == null)
-                    throw new Exception($"Saga configuration with id '{SagaConfigOptions.SagaConfigId}' not present in Saga Configuration Repository.");
-                SagaConfigId = sagaConfig.Id;
-                SagaConfigName = sagaConfig.Name;
-                Steps = sagaConfig.Steps;
-            }
-        }
-        finally
-        {
-            _semaphoreSyncRoot.Release();
+            var sagaConfig = await SagaConfigRepository
+                .GetSagaConfigurationAsync(SagaConfigOptions.SagaConfigId.GetValueOrDefault());
+            if (sagaConfig == null)
+                throw new Exception($"Saga configuration with id '{SagaConfigOptions.SagaConfigId}' not present in Saga Configuration Repository.");
+            SagaConfigId = sagaConfig.Id;
+            SagaConfigName = sagaConfig.Name;
+            Steps = sagaConfig.Steps;
         }
     }
     

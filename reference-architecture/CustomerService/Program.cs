@@ -27,6 +27,7 @@ builder.Services.AddCommandHandlers();
 
 // Add Dapr Event Bus and event handler
 builder.Services.AddDaprEventBus(builder.Configuration, true);
+builder.Services.AddDaprMongoEventCache(builder.Configuration);
 builder.Services.AddSingleton<CustomerCreditReserveRequestedEventHandler>();
 
 var app = builder.Build();
