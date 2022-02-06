@@ -3,7 +3,6 @@ using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Handlers;
 using EventDriven.Sagas.Persistence.Abstractions;
-using EventDriven.Utilities;
 using Integration.Models;
 using OrderService.Domain.OrderAggregate;
 using OrderService.Sagas.Commands;
@@ -16,13 +15,14 @@ public class CreateOrderSaga :
     ISagaCommandResultHandler<CustomerCreditReserveResponse>,
     ISagaCommandResultHandler<CustomerCreditReleaseResponse>
 {
+    private readonly SemaphoreSlim _semaphoreSyncRoot;
+
     public CreateOrderSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
         IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) :
         base(sagaCommandDispatcher, commandResultEvaluators)
     {
-        // Override default lock timeout
-        LockTimeout = TimeSpan.FromSeconds(10);
+        _semaphoreSyncRoot = new SemaphoreSlim(1, 1);
     }
 
     protected override async Task<bool> CheckLock(Guid entityId)
@@ -34,8 +34,9 @@ public class CreateOrderSaga :
 
     protected override async Task ExecuteCurrentActionAsync()
     {
-        using (new TimedLock().Lock(LockTimeout))
+        try
         {
+            await _semaphoreSyncRoot.WaitAsync(LockTimeout, CancellationToken);
             var action = GetCurrentAction();
             if (Entity is Order order)
             {
@@ -62,6 +63,10 @@ public class CreateOrderSaga :
                 return;
             }
         }
+        finally
+        {
+            _semaphoreSyncRoot.Release();
+        }
         await base.ExecuteCurrentActionAsync();
     }
 
@@ -69,30 +74,45 @@ public class CreateOrderSaga :
 
     public async Task HandleCommandResultAsync(OrderState result, bool compensating)
     {
-        using (new TimedLock().Lock(LockTimeout))
+        try
         {
+            await _semaphoreSyncRoot.WaitAsync(LockTimeout, CancellationToken);
             SetCurrentActionCommandResult(result);
             await HandleCommandResultForStepAsync<CreateOrderSaga, OrderState, OrderState>(compensating);
+        }
+        finally
+        {
+            _semaphoreSyncRoot.Release();
         }
     }
 
     public async Task HandleCommandResultAsync(CustomerCreditReserveResponse result, bool compensating)
     {
-        using (new TimedLock().Lock(LockTimeout))
+        try
         {
+            await _semaphoreSyncRoot.WaitAsync(LockTimeout, CancellationToken);
             SetCurrentActionCommandResult(result);
             await HandleCommandResultForStepAsync<CreateOrderSaga, CustomerCreditReserveResponse,
                 CustomerCreditReserveResponse>(compensating);
+        }
+        finally
+        {
+            _semaphoreSyncRoot.Release();
         }
     }
 
     public async Task HandleCommandResultAsync(CustomerCreditReleaseResponse result, bool compensating)
     {
-        using (new TimedLock().Lock(LockTimeout))
+        try
         {
+            await _semaphoreSyncRoot.WaitAsync(LockTimeout, CancellationToken);
             SetCurrentActionCommandResult(result);
             await HandleCommandResultForStepAsync<CreateOrderSaga, CustomerCreditReleaseResponse,
                 CustomerCreditReleaseResponse>(compensating);
+        }
+        finally
+        {
+            _semaphoreSyncRoot.Release();
         }
     }
 }

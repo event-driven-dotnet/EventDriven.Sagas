@@ -36,7 +36,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="EventDriven.EventBus.Abstractions" Version="1.2.0-beta1" />
+      <PackageReference Include="EventDriven.EventBus.Abstractions" Version="1.2.0-beta3" />
     </ItemGroup>
 
 </Project>

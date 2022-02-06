@@ -2,7 +2,6 @@ using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Configuration.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
-using EventDriven.Utilities;
 
 namespace EventDriven.Sagas.Persistence.Abstractions;
 
@@ -11,12 +10,15 @@ namespace EventDriven.Sagas.Persistence.Abstractions;
 /// </summary>
 public abstract class PersistableSaga : ConfigurableSaga
 {
+    private readonly SemaphoreSlim _semaphoreSyncRoot;
+
     /// <inheritdoc />
     protected PersistableSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
         IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) : 
         base(sagaCommandDispatcher, commandResultEvaluators)
     {
+        _semaphoreSyncRoot = new SemaphoreSlim(1, 1);
     }
 
     /// <summary>
@@ -29,10 +31,15 @@ public abstract class PersistableSaga : ConfigurableSaga
     /// </summary>
     protected virtual async Task PersistAsync()
     {
-        using (new TimedLock().Lock(LockTimeout))
+        try
         {
+            await _semaphoreSyncRoot.WaitAsync(LockTimeout, CancellationToken);
             if (SagaSnapshotRepository != null)
                 await SagaSnapshotRepository.PersistSagaSnapshotAsync(this);
+        }
+        finally
+        {
+            _semaphoreSyncRoot.Release();
         }
     }
 }

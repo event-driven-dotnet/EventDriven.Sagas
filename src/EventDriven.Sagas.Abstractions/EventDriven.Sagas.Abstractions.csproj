@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<Authors>Tony Sneed</Authors>
+	  <Authors>Tony Sneed</Authors>
     <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
     <PackageVersion>1.0.0-beta1</PackageVersion>
     <Description>A set of abstractions for implementing the Saga pattern.</Description>
@@ -34,10 +34,10 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="EventDriven.DDD.Abstractions" Version="1.1.0-beta2" />
-    <PackageReference Include="EventDriven.Utilities" Version="1.0.0-beta1" />
+    <PackageReference Include="EventDriven.Utilities" Version="1.0.0-beta2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-    <PackageReference Include="Scrutor" Version="3.3.0" />
+    <PackageReference Include="Scrutor" Version="4.0.0" />
   </ItemGroup>
 
 </Project>

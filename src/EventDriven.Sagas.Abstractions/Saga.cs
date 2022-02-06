@@ -12,6 +12,9 @@ namespace EventDriven.Sagas.Abstractions;
 /// </summary>
 public abstract class Saga
 {
+    private readonly object _monitorSyncRoot;
+    private readonly SemaphoreSlim _semaphoreSyncRoot;
+
     /// <summary>
     /// Constructor.
     /// </summary>
@@ -21,6 +24,8 @@ public abstract class Saga
         ISagaCommandDispatcher sagaCommandDispatcher,
         IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators)
     {
+        _monitorSyncRoot = new object();
+        _semaphoreSyncRoot = new SemaphoreSlim(1, 1);
         SagaCommandDispatcher = sagaCommandDispatcher;
         CommandResultEvaluators = commandResultEvaluators;
     }
@@ -130,12 +135,17 @@ public abstract class Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected virtual async Task ExecuteCurrentActionAsync()
     {
-        using (new TimedLock().Lock(LockTimeout))
+        try
         {
+            await _semaphoreSyncRoot.WaitAsync(LockTimeout, CancellationToken);
             var action = GetCurrentAction();
             SetActionStateStarted(action);
             SetActionCommand(action);
             await SagaCommandDispatcher.DispatchCommandAsync(action.Command, false);
+        }
+        finally
+        {
+            _semaphoreSyncRoot.Release();
         }
     }
 
@@ -145,12 +155,17 @@ public abstract class Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected virtual async Task ExecuteCurrentCompensatingActionAsync()
     {
-        using (new TimedLock().Lock(LockTimeout))
+        try
         {
+            await _semaphoreSyncRoot.WaitAsync(LockTimeout, CancellationToken);
             var action = GetCurrentCompensatingAction();
             SetActionStateStarted(action);
             SetActionCommand(action);
             await SagaCommandDispatcher.DispatchCommandAsync(action.Command, true);
+        }
+        finally
+        {
+            _semaphoreSyncRoot.Release();
         }
     }
 
@@ -165,7 +180,7 @@ public abstract class Saga
         <TSaga, TResult, TExpectedResult>()
         where TSaga : Saga
     {
-        using (new TimedLock().Lock(LockTimeout))
+        using (new TimedLock(_monitorSyncRoot).Lock(LockTimeout))
         {
             return CommandResultEvaluators
                 .Where(e => e.SagaType == null || e.SagaType == typeof(TSaga))
@@ -184,14 +199,19 @@ public abstract class Saga
     protected virtual async Task HandleCommandResultForStepAsync<TSaga, TResult, TExpectedResult>(bool compensating)
         where TSaga : Saga
     {
-        using (new TimedLock().Lock(LockTimeout))
+        try
         {
+            await _semaphoreSyncRoot.WaitAsync(LockTimeout, CancellationToken);
             var step = Steps.Single(s => s.Sequence == CurrentStep);
             var evaluator = GetCommandResultEvaluatorByResultType<TSaga, TResult, TExpectedResult>();
             var commandSuccessful = evaluator != null
                 && await EvaluateStepResultAsync(step, compensating, evaluator, CancellationToken);
             await ExecuteAfterStep();
             await TransitionSagaStateAsync(commandSuccessful);
+        }
+        finally
+        {
+            _semaphoreSyncRoot.Release();
         }
     }
 
@@ -201,7 +221,7 @@ public abstract class Saga
     /// <returns>The current action.</returns>
     protected virtual SagaAction GetCurrentAction()
     {
-        using (new TimedLock().Lock(LockTimeout))
+        using (new TimedLock(_monitorSyncRoot).Lock(LockTimeout))
         {
             return Steps.Single(s => s.Sequence == CurrentStep).Action;
         }
@@ -213,7 +233,7 @@ public abstract class Saga
     /// <returns>The current compensating action.</returns>
     protected virtual SagaAction GetCurrentCompensatingAction()
     {
-        using (new TimedLock().Lock(LockTimeout))
+        using (new TimedLock(_monitorSyncRoot).Lock(LockTimeout))
         {
             return Steps.Single(s => s.Sequence == CurrentStep).CompensatingAction;
         }
@@ -225,7 +245,7 @@ public abstract class Saga
     /// <param name="action">Saga action.</param>
     protected virtual void SetActionStateStarted(SagaAction action)
     {
-        using (new TimedLock().Lock(LockTimeout))
+        using (new TimedLock(_monitorSyncRoot).Lock(LockTimeout))
         {
             action.State = ActionState.Running;
             action.Started = DateTime.UtcNow;
@@ -249,7 +269,7 @@ public abstract class Saga
     /// <typeparam name="TResult">Result type.</typeparam>
     protected virtual void SetCurrentActionCommandResult<TResult>(TResult result)
     {
-        using (new TimedLock().Lock(LockTimeout))
+        using (new TimedLock(_monitorSyncRoot).Lock(LockTimeout))
         {
             var step = Steps.Single(s => s.Sequence == CurrentStep);
             var action = step.Action;
@@ -275,9 +295,10 @@ public abstract class Saga
         SagaStep step, bool compensating, ISagaCommandResultEvaluator<TResult, TExpectedResult> evaluator,
         CancellationToken cancellationToken)
     {
-        using (new TimedLock().Lock(LockTimeout))
+        try
         {
             // Evaluate result
+            await _semaphoreSyncRoot.WaitAsync(LockTimeout, CancellationToken);
             var isCancelled = !compensating && cancellationToken.IsCancellationRequested;
             var action = compensating ? step.CompensatingAction : step.Action;
             if (action.Command is not ISagaCommand<TResult, TExpectedResult> command) return false;
@@ -320,6 +341,10 @@ public abstract class Saga
             }
             return true;
         }
+        finally
+        {
+            _semaphoreSyncRoot.Release();
+        }
     }
     
     /// <summary>
@@ -359,8 +384,9 @@ public abstract class Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected virtual async Task TransitionSagaStateAsync(bool commandSuccessful)
     {
-        using (new TimedLock().Lock(LockTimeout))
+        try
         {
+            await _semaphoreSyncRoot.WaitAsync(LockTimeout, CancellationToken);
             var reverseOnFailure = GetCurrentAction().ReverseOnFailure;
             switch (State)
             {
@@ -406,6 +432,10 @@ public abstract class Saga
                     return;
             }
         }
+        finally
+        {
+            _semaphoreSyncRoot.Release();
+        }
     }
 
     /// <summary>
@@ -417,8 +447,9 @@ public abstract class Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     public virtual async Task StartSagaAsync(Guid entityId = default, CancellationToken cancellationToken = default)
     {
-        using (new TimedLock().Lock(LockTimeout))
+        try
         {
+            await _semaphoreSyncRoot.WaitAsync(LockTimeout, CancellationToken);
             // Check if locked
             if (!OverrideLockCheck) IsLocked = await CheckLock(entityId);
             if (IsLocked) throw new SagaLockedException($"Saga '{Id}' is currently locked.");
@@ -428,6 +459,10 @@ public abstract class Saga
             CurrentStep = 1;
             EntityId = entityId;
             CancellationToken = cancellationToken;
+        }
+        finally
+        {
+            _semaphoreSyncRoot.Release();
         }
 
         // Dispatch current step command

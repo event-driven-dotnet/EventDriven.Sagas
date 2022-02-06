@@ -2,7 +2,6 @@
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Configuration.Abstractions.Repositories;
-using EventDriven.Utilities;
 
 namespace EventDriven.Sagas.Configuration.Abstractions;
 
@@ -11,12 +10,15 @@ namespace EventDriven.Sagas.Configuration.Abstractions;
 /// </summary>
 public abstract class ConfigurableSaga : Saga
 {
+    private readonly SemaphoreSlim _semaphoreSyncRoot;
+
     /// <inheritdoc />
     protected ConfigurableSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
         IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) : 
         base(sagaCommandDispatcher, commandResultEvaluators)
     {
+        _semaphoreSyncRoot = new SemaphoreSlim(1, 1);
     }
     
     /// <summary>
@@ -45,8 +47,9 @@ public abstract class ConfigurableSaga : Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected virtual async Task ConfigureAsync()
     {
-        using (new TimedLock().Lock(LockTimeout))
+        try
         {
+            await _semaphoreSyncRoot.WaitAsync(LockTimeout, CancellationToken);
             if (SagaConfigOptions?.SagaConfigId != null && SagaConfigRepository != null)
             {
                 var sagaConfig = await SagaConfigRepository
@@ -57,6 +60,10 @@ public abstract class ConfigurableSaga : Saga
                 SagaConfigName = sagaConfig.Name;
                 Steps = sagaConfig.Steps;
             }
+        }
+        finally
+        {
+            _semaphoreSyncRoot.Release();
         }
     }
     
