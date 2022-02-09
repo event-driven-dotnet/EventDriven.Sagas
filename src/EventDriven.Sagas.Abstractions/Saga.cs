@@ -3,6 +3,7 @@ using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Handlers;
+using NeoSmart.AsyncLock;
 
 namespace EventDriven.Sagas.Abstractions;
 
@@ -11,7 +12,7 @@ namespace EventDriven.Sagas.Abstractions;
 /// </summary>
 public abstract class Saga
 {
-    private readonly SemaphoreSlim _semaphoreSyncRoot;
+    private readonly AsyncLock _syncRoot = new();
     
     /// <summary>
     /// Constructor.
@@ -22,7 +23,6 @@ public abstract class Saga
         ISagaCommandDispatcher sagaCommandDispatcher,
         IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators)
     {
-        _semaphoreSyncRoot = new SemaphoreSlim(1, 1);
         SagaCommandDispatcher = sagaCommandDispatcher;
         CommandResultEvaluators = commandResultEvaluators;
     }
@@ -249,56 +249,48 @@ public abstract class Saga
         SagaStep step, bool compensating, ISagaCommandResultEvaluator<TResult, TExpectedResult> evaluator,
         CancellationToken cancellationToken)
     {
-        try
+        // Evaluate result
+        var isCancelled = !compensating && cancellationToken.IsCancellationRequested;
+        var action = compensating ? step.CompensatingAction : step.Action;
+        if (action.Command is not ISagaCommand<TResult, TExpectedResult> command) return false;
+        var result = command.Result;
+        var expectedResult = command.ExpectedResult;
+        var commandSuccessful = !isCancelled
+                                && await evaluator.EvaluateCommandResultAsync(command.Result, command.ExpectedResult);
+
+        // Check timeout
+        action.Completed = DateTime.UtcNow;
+        action.Duration = action.Completed - action.Started;
+        var duration = action.Duration;
+        var timeout = action.Timeout;
+        var commandTimedOut = commandSuccessful && action.Timeout != null && action.Duration > action.Timeout;
+        if (commandTimedOut) commandSuccessful = false;
+
+        // Transition action state
+        action.State = ActionState.Succeeded;
+        if (!commandSuccessful)
         {
-            // Evaluate result
-            await _semaphoreSyncRoot.WaitAsync(LockTimeout, CancellationToken);
-            var isCancelled = !compensating && cancellationToken.IsCancellationRequested;
-            var action = compensating ? step.CompensatingAction : step.Action;
-            if (action.Command is not ISagaCommand<TResult, TExpectedResult> command) return false;
-            var result = command.Result;
-            var expectedResult = command.ExpectedResult;
-            var commandSuccessful = !isCancelled
-                && await evaluator.EvaluateCommandResultAsync(command.Result, command.ExpectedResult);
-
-            // Check timeout
-            action.Completed = DateTime.UtcNow;
-            action.Duration = action.Completed - action.Started;
-            var duration = action.Duration;
-            var timeout = action.Timeout;
-            var commandTimedOut = commandSuccessful && action.Timeout != null && action.Duration > action.Timeout;
-            if (commandTimedOut) commandSuccessful = false;
-
-            // Transition action state
-            action.State = ActionState.Succeeded;
-            if (!commandSuccessful)
+            if (isCancelled)
             {
-                if (isCancelled)
-                {
-                    action.State = ActionState.Cancelled;
-                    action.StateInfo = GetCancellationMessage();
-                }
-                else if (!commandTimedOut)
-                {
-                    action.State = ActionState.Failed;
-                    action.StateInfo = GetFailureMessage(result, expectedResult);
-                }
-                else
-                {
-                    action.State = ActionState.TimedOut;
-                    action.StateInfo = GetTimeoutMessage(timeout, duration);
-                }
-
-                var commandName = action.Command.Name ?? "No name";
-                StateInfo = $"Step {step.Sequence} command '{commandName}' failed. {action.StateInfo}";
-                return false;
+                action.State = ActionState.Cancelled;
+                action.StateInfo = GetCancellationMessage();
             }
-            return true;
+            else if (!commandTimedOut)
+            {
+                action.State = ActionState.Failed;
+                action.StateInfo = GetFailureMessage(result, expectedResult);
+            }
+            else
+            {
+                action.State = ActionState.TimedOut;
+                action.StateInfo = GetTimeoutMessage(timeout, duration);
+            }
+
+            var commandName = action.Command.Name ?? "No name";
+            StateInfo = $"Step {step.Sequence} command '{commandName}' failed. {action.StateInfo}";
+            return false;
         }
-        finally
-        {
-            _semaphoreSyncRoot.Release();
-        }
+        return true;
     }
     
     /// <summary>
@@ -338,9 +330,8 @@ public abstract class Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected virtual async Task TransitionSagaStateAsync(bool commandSuccessful)
     {
-        try
+        using (await _syncRoot.LockAsync())
         {
-            await _semaphoreSyncRoot.WaitAsync(LockTimeout, CancellationToken);
             var reverseOnFailure = GetCurrentAction().ReverseOnFailure;
             switch (State)
             {
@@ -385,10 +376,6 @@ public abstract class Saga
                 default:
                     return;
             }
-        }
-        finally
-        {
-            _semaphoreSyncRoot.Release();
         }
     }
 
