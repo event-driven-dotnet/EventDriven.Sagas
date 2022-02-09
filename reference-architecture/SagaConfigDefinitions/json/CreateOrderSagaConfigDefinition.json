@@ -1,0 +1,55 @@
+{
+  "Id": "d89ffb1e-7481-4111-a4dd-ac5123217293",
+  "ETag": "00000000-0000-0000-0000-000000000000",
+  "Name": "CreateOrderSaga",
+  "Steps": [
+    {
+      "Id": "20987473-24d9-4171-b604-29d71e947ccc",
+      "Sequence": 1,
+      "Action": {
+        "Id": "e2e326d2-d95f-4abf-b6d6-68905ea3e44e",
+        "Command": "{\"Name\":\"OrderService.Sagas.Commands.CreateOrder\",\"ExpectedResult\":1}",
+        "Timeout": null,
+        "ReverseOnFailure": true
+      },
+      "CompensatingAction": {
+        "Id": "3e6f82c7-f287-4700-b71e-7f3c536bf3a1",
+        "Command": "{\"Name\":\"OrderService.Sagas.Commands.SetOrderStateInitial\",\"ExpectedResult\":0}",
+        "Timeout": null,
+        "ReverseOnFailure": false
+      }
+    },
+    {
+      "Id": "43ff8167-42bc-4277-97ba-83855e872411",
+      "Sequence": 2,
+      "Action": {
+        "Id": "69e62abd-3bba-46fe-9951-a1e9c9511e17",
+        "Command": "{\"Name\":\"OrderService.Sagas.Commands.ReserveCustomerCredit\",\"ExpectedResult\":null}",
+        "Timeout": null,
+        "ReverseOnFailure": false
+      },
+      "CompensatingAction": {
+        "Id": "6887b41d-949b-4374-83ba-25acffcee587",
+        "Command": "{\"Name\":\"OrderService.Sagas.Commands.ReleaseCustomerCredit\",\"ExpectedResult\":null}",
+        "Timeout": null,
+        "ReverseOnFailure": false
+      }
+    },
+    {
+      "Id": "724297be-131b-4db5-8612-37b19bcbe782",
+      "Sequence": 3,
+      "Action": {
+        "Id": "2dad1542-0af2-454d-b587-416063d615e4",
+        "Command": "{\"Name\":\"OrderService.Sagas.Commands.SetOrderStateCreated\",\"ExpectedResult\":2}",
+        "Timeout": null,
+        "ReverseOnFailure": true
+      },
+      "CompensatingAction": {
+        "Id": "58bd9956-4084-4a45-8feb-aedb9e62aaa9",
+        "Command": "{\"Name\":\"OrderService.Sagas.Commands.SetOrderStateInitial\",\"ExpectedResult\":0}",
+        "Timeout": null,
+        "ReverseOnFailure": false
+      }
+    }
+  ]
+}

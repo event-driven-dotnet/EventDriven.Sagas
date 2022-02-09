@@ -18,7 +18,6 @@ var host = Host
         var config = services.BuildServiceProvider()
             .GetRequiredService<IConfiguration>();
         services.AddAppSettings<SagaConfigServiceSettings>(config);
-        services.AddAppSettings<OrderServiceSettings>(config);
         services.AddHttpClient();
         services.AddTransient<SagaConfigService>();
         services.AddTransient<TestClient.Services.OrderService>();

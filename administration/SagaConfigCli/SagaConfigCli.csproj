@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <PackAsTool>true</PackAsTool>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <Authors>Tony Sneed</Authors>
+        <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+        <PackageVersion>1.0.0-beta1</PackageVersion>
+        <Description>Saga configuration CLI.</Description>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/event-driven-dotnet/EventDriven.Sagas</PackageProjectUrl>
+        <PackageIcon>eda-logo.jpeg</PackageIcon>
+        <RepositoryUrl>https://github.com/event-driven-dotnet/EventDriven.Sagas.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>sagas event-driven event-driven-architecture</PackageTags>
+        <PackageReleaseNotes>https://github.com/event-driven-dotnet/EventDriven.Sagas/releases/tag/v1.0.0-beta1</PackageReleaseNotes>
+        <PackageId>EventDriven.Sagas.SagaConfig.CLI</PackageId>
+        <AssemblyName>sagaconfig</AssemblyName>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\..\ReadMe.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Include="..\..\images\eda-logo.jpeg">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\EventDriven.Sagas.Configuration.Abstractions\EventDriven.Sagas.Configuration.Abstractions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
+      <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22106.2" />
+    </ItemGroup>
+
+</Project>
