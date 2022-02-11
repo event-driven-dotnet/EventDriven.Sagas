@@ -54,7 +54,7 @@ public class OrderRepository : IOrderRepository
         return result;
     }
 
-    public async Task<int> RemoveOrder(Guid id) =>
+    public async Task<int> RemoveOrderAsync(Guid id) =>
         await _documentRepository.DeleteOneAsync(e => e.Id == id);
 
     public async Task<OrderState?> GetOrderStateAsync(Guid id)

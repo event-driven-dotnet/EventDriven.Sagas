@@ -24,7 +24,7 @@ namespace CustomerService.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var customers = await _repository.Get();
+            var customers = await _repository.GetAsync();
             var result = _mapper.Map<IEnumerable<CustomerView>>(customers);
             return Ok(result);
         }
@@ -33,7 +33,7 @@ namespace CustomerService.Controllers
         [HttpGet("{id:guid}", Name = nameof(Get))]
         public async Task<IActionResult> Get([FromRoute] Guid id)
         {
-            var customer = await _repository.Get(id);
+            var customer = await _repository.GetAsync(id);
             if (customer == null) return NotFound();
             var result = _mapper.Map<CustomerView>(customer);
             return Ok(result);

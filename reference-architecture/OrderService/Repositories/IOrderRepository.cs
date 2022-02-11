@@ -8,7 +8,7 @@ public interface IOrderRepository
     Task<Order?> AddOrderAsync(Order entity);
     Task<Order?> UpdateOrderAsync(Order entity);
     Task<Order?> AddUpdateOrderAsync(Order entity);
-    Task<int> RemoveOrder(Guid id);
+    Task<int> RemoveOrderAsync(Guid id);
     Task<OrderState?> GetOrderStateAsync(Guid id);
     Task<Order?> UpdateOrderStateAsync(Guid id, OrderState orderState);
 }

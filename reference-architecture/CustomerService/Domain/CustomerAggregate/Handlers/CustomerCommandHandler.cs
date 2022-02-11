@@ -41,7 +41,7 @@ public class CustomerCommandHandler :
         command.Entity.Apply(domainEvent);
             
         // Persist entity
-        var entity = await _repository.Add(command.Entity);
+        var entity = await _repository.AddAsync(command.Entity);
         if (entity == null) return new CommandResult<Customer>(CommandOutcome.InvalidCommand);
         return new CommandResult<Customer>(CommandOutcome.Accepted, entity);
     }
@@ -56,7 +56,7 @@ public class CustomerCommandHandler :
         command.Entity.Apply(domainEvent);
             
         // Persist entity
-        var entity = await _repository.Update(command.Entity);
+        var entity = await _repository.UpdateAsync(command.Entity);
         if (entity == null) return new CommandResult<Customer>(CommandOutcome.InvalidCommand);
         return new CommandResult<Customer>(CommandOutcome.Accepted, entity);
     }
@@ -65,7 +65,7 @@ public class CustomerCommandHandler :
     {
         // Process command
         _logger.LogInformation("Handling command: {CommandName}", nameof(RemoveCustomer));
-        var customer = await _repository.Get(command.EntityId);
+        var customer = await _repository.GetAsync(command.EntityId);
         if (customer == null) return new CommandResult<Customer>(CommandOutcome.InvalidCommand);
         var domainEvent = customer.Process(command);
         
@@ -73,7 +73,7 @@ public class CustomerCommandHandler :
         customer.Apply(domainEvent);
         
         // Persist entity
-        await _repository.Remove(command.EntityId);
+        await _repository.RemoveAsync(command.EntityId);
         return new CommandResult<Customer>(CommandOutcome.Accepted);
     }
 
@@ -81,7 +81,7 @@ public class CustomerCommandHandler :
     {
         // Process command to determine if customer has sufficient credit
         _logger.LogInformation("Handling command: {CommandName}", nameof(ReserveCredit));
-        var customer = await _repository.Get(command.EntityId);
+        var customer = await _repository.GetAsync(command.EntityId);
         if (customer == null) return new CommandResult<Customer>(CommandOutcome.InvalidCommand);
         var domainEvent = customer.Process(command);
 
@@ -97,7 +97,7 @@ public class CustomerCommandHandler :
         try
         {
             // Persist credit reservation
-            entity = await _repository.Update(customer);
+            entity = await _repository.UpdateAsync(customer);
             if (entity == null) return new CommandResult<Customer>(CommandOutcome.InvalidCommand);
             result = await PublishCreditReservedResponse(entity, command.CreditRequested, true);
             
@@ -107,7 +107,7 @@ public class CustomerCommandHandler :
                 var creditReleasedEvent = customer.Process(
                     new ReleaseCredit(customer.Id, command.CreditRequested));
                 customer.Apply(creditReleasedEvent);
-                entity = await _repository.Update(customer);
+                entity = await _repository.UpdateAsync(customer);
                 if (entity == null) return new CommandResult<Customer>(CommandOutcome.InvalidCommand);
             }
         }
@@ -124,7 +124,7 @@ public class CustomerCommandHandler :
     {
         // Process command to release credit
         _logger.LogInformation("Handling command: {CommandName}", nameof(ReserveCredit));
-        var customer = await _repository.Get(command.EntityId);
+        var customer = await _repository.GetAsync(command.EntityId);
         if (customer == null) return new CommandResult<Customer>(CommandOutcome.InvalidCommand);
         var domainEvent = customer.Process(command);
         
@@ -136,7 +136,7 @@ public class CustomerCommandHandler :
         try
         {
             // Persist credit reservation
-            entity = await _repository.Update(customer);
+            entity = await _repository.UpdateAsync(customer);
             if (entity == null) return new CommandResult<Customer>(CommandOutcome.InvalidCommand);
             result = await PublishCreditReleasedResponse(entity, command.CreditReleased, true);
             
@@ -146,7 +146,7 @@ public class CustomerCommandHandler :
                 var creditReleasedEvent = customer.Process(
                     new ReleaseCredit(customer.Id, command.CreditReleased));
                 customer.Apply(creditReleasedEvent);
-                entity = await _repository.Update(customer);
+                entity = await _repository.UpdateAsync(customer);
                 if (entity == null) return new CommandResult<Customer>(CommandOutcome.InvalidCommand);
             }
         }

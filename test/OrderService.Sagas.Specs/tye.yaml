@@ -1,0 +1,32 @@
+# tye application configuration file
+# read all about it at https://github.com/dotnet/tye
+#
+# when you've given us a try, we'd love to know what you think:
+#    https://aka.ms/AA7q20u
+#
+
+# dapr
+extensions:
+  - name: dapr
+    log-level: debug
+    components-path: "../../reference-architecture/dapr/components"
+
+# services
+name: eventdriven.sagas
+services:
+  - name: customerservice
+    project: ../../reference-architecture/CustomerService/CustomerService.csproj
+    bindings:
+      - port: 5065
+    env:
+      - name: CustomerDatabaseSettings:DatabaseName
+        value: CustomerTestDb
+  - name: orderservice
+    project: ../../reference-architecture/OrderService/OrderService.csproj
+    bindings:
+      - port: 5215
+    env:
+      - name: SagaConfigDatabaseSettings:DatabaseName
+        value: SagaConfigTestDb
+      - name: OrderDatabaseSettings:DatabaseName
+        value: OrderTestDb
