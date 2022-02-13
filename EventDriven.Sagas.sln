@@ -50,7 +50,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", "{1C36C3B5-1DCE-45DA-AFAE-161338CB978C}"
 	ProjectSection(SolutionItems) = preProject
 		reference-architecture\dapr\components\pubsub.yaml = reference-architecture\dapr\components\pubsub.yaml
-		reference-architecture\dapr\components\pubsub-snssqs.yaml = reference-architecture\dapr\components\pubsub-snssqs.yaml
 		reference-architecture\dapr\components\statestore-mongodb.yaml = reference-architecture\dapr\components\statestore-mongodb.yaml
 		reference-architecture\dapr\components\statestore.yaml = reference-architecture\dapr\components\statestore.yaml
 	EndProjectSection
@@ -62,6 +61,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaConfigCli", "administration\SagaConfigCli\SagaConfigCli.csproj", "{3402CD2C-9521-4F3E-B6EB-E103C220551C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Sagas.Specs", "test\OrderService.Sagas.Specs\OrderService.Sagas.Specs.csproj", "{122AEC3F-5906-4FA5-BB8B-82F81A9B6A35}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "standby", "standby", "{45FE68C9-F077-4AF9-9E91-7383A10C4D05}"
+	ProjectSection(SolutionItems) = preProject
+		reference-architecture\dapr\standby\pubsub-snssqs.yaml = reference-architecture\dapr\standby\pubsub-snssqs.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -161,6 +165,7 @@ Global
 		{66A690E4-8F86-4CC9-BC38-40C85939EA1A} = {2F6C2678-B38D-4784-AEDA-1DF293E1296A}
 		{3402CD2C-9521-4F3E-B6EB-E103C220551C} = {8C5A2F59-0441-437A-AD5E-26F76E4F2DA8}
 		{122AEC3F-5906-4FA5-BB8B-82F81A9B6A35} = {7340565F-A10B-4B7D-B75E-9320CAE5BD05}
+		{45FE68C9-F077-4AF9-9E91-7383A10C4D05} = {F73C909F-1A16-4DDD-B4EE-6E2304A36477}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3BFC4ACA-7DDF-4583-A578-5CAB3893AE40}

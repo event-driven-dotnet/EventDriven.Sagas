@@ -19,15 +19,7 @@ SpecFlow tests for Order Service sagas.
 
 ## Usage
 
-#### Option 1: Run Tye with SpecFlow
-
-1. Run the SpecFlow tests using the IDE test runner.
-2. Alternatively, run tests from a terminal at the SpecFlow project root.
-    ```
-    dotnet test
-    ```
-
-#### Option 2: Run Tye Independently
+### Option 1: Run Tye Independently (Recommended)
 
 1. Open appsettings.json and set `StartTyeProcess` to `false`.
 2. Run Tye from a terminal at the SpecFlow project root.
@@ -42,3 +34,13 @@ SpecFlow tests for Order Service sagas.
     - Attach the IDE debugger to both OrderService.dll and CustomerService.dll.
 4. Run the SpecFlow tests using the IDE test runner.
    - You should hit breakpoints in OrderService and CustomerService.
+
+### Option 2: Run Tye with SpecFlow
+
+1. Open appsettings.json and set `StartTyeProcess` to `true`.
+2. Run the SpecFlow tests using the IDE test runner.
+3Alternatively, run tests from a terminal at the SpecFlow project root.
+    ```
+    dotnet test
+    ```
+

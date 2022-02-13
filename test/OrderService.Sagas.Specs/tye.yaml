@@ -26,7 +26,9 @@ services:
     bindings:
       - port: 5215
     env:
-      - name: SagaConfigDatabaseSettings:DatabaseName
-        value: SagaConfigTestDb
       - name: OrderDatabaseSettings:DatabaseName
         value: OrderTestDb
+      - name: SagaConfigDatabaseSettings:DatabaseName
+        value: SagaConfigTestDb
+      - name: SagaSnapshotDatabaseSettings:DatabaseName
+        value: SagaSnapshotTestDb

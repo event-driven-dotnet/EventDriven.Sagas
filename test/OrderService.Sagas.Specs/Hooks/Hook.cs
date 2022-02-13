@@ -58,7 +58,7 @@ namespace OrderService.Sagas.Specs.Hooks
             httpClient.BaseAddress = new Uri(settings.OrderBaseAddress!);
             
             if (settings.StartTyeProcess)
-                StartTyeProcess(settings.TyeProcessTimeout);
+                await StartTyeProcess(settings.TyeProcessTimeout);
 
             await ClearData(sagaConfigRepository, settings.SagaConfigId);
             await ClearData(customerRepository, settings.CustomerId);
@@ -96,7 +96,7 @@ namespace OrderService.Sagas.Specs.Hooks
                 await orderRepository.RemoveOrderAsync(entityId);
         }
 
-        private void StartTyeProcess(TimeSpan waitForTyeProcess)
+        private async Task StartTyeProcess(TimeSpan waitForTyeProcess)
         {
             var processInfo = new ProcessStartInfo("tye", TyeArguments)
             {
@@ -106,7 +106,7 @@ namespace OrderService.Sagas.Specs.Hooks
                 RedirectStandardOutput = true
             };
             _tyeProcess = Process.Start(processInfo);
-            _tyeProcess?.WaitForExit((int)waitForTyeProcess.TotalMilliseconds);
+            await Task.Delay(waitForTyeProcess);
         }
     }
 }
