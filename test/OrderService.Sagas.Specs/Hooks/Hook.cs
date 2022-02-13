@@ -15,6 +15,7 @@ using OrderService.Domain.OrderAggregate;
 using OrderService.Sagas.Specs.Configuration;
 using OrderService.Sagas.Specs.Repositories;
 using SagaConfigService.Repositories;
+using SagaSnapshotService.Repositories;
 
 namespace OrderService.Sagas.Specs.Hooks
 {
@@ -42,6 +43,7 @@ namespace OrderService.Sagas.Specs.Hooks
                     services.AddAppSettings<OrderServiceSpecsSettings>(config);
                     services.AddHttpClient();
                     services.AddSingleton<ISagaConfigDtoRepository, SagaConfigDtoRepository>();
+                    services.AddSingleton<ISagaSnapshotDtoRepository, SagaSnapshotDtoRepository>();
                     services.AddSingleton<ICustomerRepository, CustomerRepository>();
                     services.AddSingleton<IOrderRepository, OrderRepository>();
                     services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfigurationDto>(config);
@@ -52,6 +54,7 @@ namespace OrderService.Sagas.Specs.Hooks
 
             var settings = host.Services.GetRequiredService<OrderServiceSpecsSettings>();
             var sagaConfigRepository = host.Services.GetRequiredService<ISagaConfigDtoRepository>();
+            var sagaSnapshotRepository = host.Services.GetRequiredService<ISagaSnapshotDtoRepository>();
             var customerRepository = host.Services.GetRequiredService<ICustomerRepository>();
             var orderRepository = host.Services.GetRequiredService<IOrderRepository>();
             var httpClient = host.Services.GetRequiredService<HttpClient>();
@@ -61,6 +64,7 @@ namespace OrderService.Sagas.Specs.Hooks
                 await StartTyeProcess(settings.TyeProcessTimeout);
 
             await ClearData(sagaConfigRepository, settings.SagaConfigId);
+            await ClearData(sagaSnapshotRepository, settings.SagaConfigId);
             await ClearData(customerRepository, settings.CustomerId);
             await ClearData(orderRepository, settings.OrderId);
             
@@ -90,6 +94,8 @@ namespace OrderService.Sagas.Specs.Hooks
         {
             if (repository is ISagaConfigDtoRepository sagaConfigRepository)
                 await sagaConfigRepository.RemoveSagaConfigurationAsync(entityId);
+            if (repository is ISagaSnapshotDtoRepository sagaSnapshotRepository)
+                await sagaSnapshotRepository.RemoveSagaSnapshotsAsync(entityId);
             if (repository is ICustomerRepository customerRepository)
                 await customerRepository.RemoveAsync(entityId);
             if (repository is IOrderRepository orderRepository)

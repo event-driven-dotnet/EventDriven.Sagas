@@ -18,4 +18,7 @@ public class SagaSnapshotDtoRepository : ISagaSnapshotDtoRepository
 
     public async Task<IEnumerable<SagaSnapshotDto>> GetSagaSnapshotsAsync(Guid sagaId) => 
         await _documentRepository.FindManyAsync(e => e.SagaId == sagaId);
+
+    public async Task<int> RemoveSagaSnapshotsAsync(Guid sagaId) =>
+        await _documentRepository.DeleteManyAsync(e => e.SagaId == sagaId);
 }
