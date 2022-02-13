@@ -10,6 +10,7 @@ using OrderService.Repositories;
 using EventDriven.DependencyInjection;
 using EventDriven.DependencyInjection.URF.Mongo;
 using EventDriven.Sagas.Configuration.Abstractions.DTO;
+using EventDriven.Sagas.Persistence.Abstractions.DTO;
 using OrderService.Configuration;
 using OrderService.Domain.OrderAggregate;
 using OrderService.Sagas.Specs.Configuration;
@@ -47,6 +48,7 @@ namespace OrderService.Sagas.Specs.Hooks
                     services.AddSingleton<ICustomerRepository, CustomerRepository>();
                     services.AddSingleton<IOrderRepository, OrderRepository>();
                     services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfigurationDto>(config);
+                    services.AddMongoDbSettings<SagaSnapshotDatabaseSettings, SagaSnapshotDto>(config);
                     services.AddMongoDbSettings<CustomerDatabaseSettings, Customer>(config);
                     services.AddMongoDbSettings<OrderDatabaseSettings, Order>(config);
                 })

@@ -70,6 +70,16 @@ public class CreateOrderSagaStepDefinitions
             await CustomerRepository.AddAsync(Customer);
     }
 
+    [Given(@"the customer credit is (.*)")]
+    public async Task GivenTheCustomerCreditIs(decimal amount)
+    {
+        if (Customer != null)
+        {
+            Customer.CreditAvailable = 5.0M;
+            await CustomerRepository.UpdateAsync(Customer);
+        }
+    }
+
     [When(@"I make a POST request with '(.*)' to '(.*)'")]
     public async Task WhenIMakeApostRequestWithTo(string file, string endpoint)
     {
