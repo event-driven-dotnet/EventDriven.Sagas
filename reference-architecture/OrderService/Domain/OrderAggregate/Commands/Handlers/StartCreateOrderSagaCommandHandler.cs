@@ -1,8 +1,8 @@
 using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions;
-using OrderService.Sagas;
 using OrderService.Helpers;
 using OrderService.Repositories;
+using OrderService.Sagas.CreateOrder;
 
 namespace OrderService.Domain.OrderAggregate.Commands.Handlers;
 
@@ -26,7 +26,9 @@ public class StartCreateOrderSagaCommandHandler :
     public async Task<CommandResult<Order>> Handle(StartCreateOrderSaga command)
     {
         _logger.LogInformation("Handling command: {CommandName}", nameof(StartCreateOrderSaga));
-
+        var domainEvent = command.Entity.Process(command);
+        command.Entity.Apply(domainEvent);
+        
         try
         {
             // Start create order saga

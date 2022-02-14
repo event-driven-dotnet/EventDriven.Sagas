@@ -1,9 +1,9 @@
 ﻿using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Handlers;
-using OrderService.Sagas.Commands;
+using OrderService.Sagas.CreateOrder.Commands;
 
-namespace OrderService.Sagas.Dispatchers;
+namespace OrderService.Sagas.CreateOrder.Dispatchers;
 
 public class CreateOrderSagaCommandDispatcher : SagaCommandDispatcher
 {
@@ -16,8 +16,8 @@ public class CreateOrderSagaCommandDispatcher : SagaCommandDispatcher
     {
         switch (command.GetType().Name)
         {
-            case nameof(CreateOrder):
-                await DispatchSagaCommandHandlerAsync<CreateOrder>(command);
+            case nameof(Commands.CreateOrder):
+                await DispatchSagaCommandHandlerAsync<Commands.CreateOrder>(command);
                 break;
             case nameof(SetOrderStateInitial):
                 await DispatchSagaCommandHandlerAsync<SetOrderStateInitial>(command);

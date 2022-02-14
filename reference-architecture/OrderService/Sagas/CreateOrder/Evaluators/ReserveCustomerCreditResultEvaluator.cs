@@ -1,7 +1,7 @@
 ﻿using EventDriven.Sagas.Abstractions.Evaluators;
 using Integration.Models;
 
-namespace OrderService.Sagas.Evaluators;
+namespace OrderService.Sagas.CreateOrder.Evaluators;
 
 public class ReserveCustomerCreditResultEvaluator : SagaCommandResultEvaluator<CreateOrderSaga, CustomerCreditReserveResponse, CustomerCreditReserveResponse>
 {

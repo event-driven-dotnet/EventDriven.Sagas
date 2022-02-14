@@ -3,7 +3,7 @@ using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Handlers;
 using Integration.Events;
 using Integration.Models;
-using OrderService.Sagas;
+using OrderService.Sagas.CreateOrder;
 
 namespace OrderService.Integration.Handlers;
 

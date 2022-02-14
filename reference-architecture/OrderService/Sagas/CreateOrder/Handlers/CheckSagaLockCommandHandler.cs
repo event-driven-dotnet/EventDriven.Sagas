@@ -1,10 +1,9 @@
 ﻿using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Handlers;
 using OrderService.Domain.OrderAggregate;
-using OrderService.Sagas.Commands;
 using OrderService.Repositories;
 
-namespace OrderService.Sagas.Handlers;
+namespace OrderService.Sagas.CreateOrder.Handlers;
 
 public class CheckSagaLockCommandHandler : CheckSagaLockCommandHandler<CreateOrderSaga>
 {
@@ -21,7 +20,7 @@ public class CheckSagaLockCommandHandler : CheckSagaLockCommandHandler<CreateOrd
 
     public override async Task<bool> HandleCommandAsync(CheckSagaLockCommand command)
     {
-        _logger.LogInformation("Handling command: {CommandName}", nameof(CreateOrder));
+        _logger.LogInformation("Handling command: {CommandName}", nameof(Commands.CreateOrder));
     
         var orderState = await _repository.GetOrderStateAsync(command.EntityId.GetValueOrDefault());
         return orderState is OrderState.Pending;

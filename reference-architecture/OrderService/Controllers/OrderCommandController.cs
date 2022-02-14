@@ -14,7 +14,9 @@ namespace OrderService.Controllers
         private readonly StartCreateOrderSagaCommandHandler _commandHandler;
         private readonly IMapper _mapper;
 
-        public OrderCommandController(StartCreateOrderSagaCommandHandler commandHandler, IMapper mapper)
+        public OrderCommandController(
+            StartCreateOrderSagaCommandHandler commandHandler,
+            IMapper mapper)
         {
             _commandHandler = commandHandler;
             _mapper = mapper;

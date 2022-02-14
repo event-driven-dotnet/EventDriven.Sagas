@@ -3,9 +3,9 @@ using EventDriven.EventBus.Dapr;
 using EventDriven.Sagas.Abstractions.Handlers;
 using Integration.Events;
 using Integration.Models;
-using OrderService.Sagas.Commands;
+using OrderService.Sagas.CreateOrder.Commands;
 
-namespace OrderService.Sagas.Handlers;
+namespace OrderService.Sagas.CreateOrder.Handlers;
 
 public class ReleaseCustomerCreditCommandHandler :
     ResultDispatchingSagaCommandHandler<CreateOrderSaga, ReleaseCustomerCredit, CustomerCreditReleaseResponse>

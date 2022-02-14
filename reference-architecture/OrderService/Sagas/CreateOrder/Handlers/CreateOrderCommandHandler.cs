@@ -1,13 +1,12 @@
 ﻿using EventDriven.DDD.Abstractions.Repositories;
 using EventDriven.Sagas.Abstractions.Handlers;
 using OrderService.Domain.OrderAggregate;
-using OrderService.Sagas.Commands;
 using OrderService.Repositories;
 
-namespace OrderService.Sagas.Handlers;
+namespace OrderService.Sagas.CreateOrder.Handlers;
 
 public class CreateOrderCommandHandler :
-    ResultDispatchingSagaCommandHandler<CreateOrderSaga, CreateOrder, OrderState>
+    ResultDispatchingSagaCommandHandler<CreateOrderSaga, Commands.CreateOrder, OrderState>
 {
     private readonly IOrderRepository _repository;
     private readonly ILogger<CreateOrderCommandHandler> _logger;
@@ -20,12 +19,12 @@ public class CreateOrderCommandHandler :
         _logger = logger;
     }
     
-    public override async Task HandleCommandAsync(CreateOrder command)
+    public override async Task HandleCommandAsync(Commands.CreateOrder command)
     {
         try
         {
             // Add or update order
-            _logger.LogInformation("Handling command: {CommandName}", nameof(CreateOrder));
+            _logger.LogInformation("Handling command: {CommandName}", nameof(Commands.CreateOrder));
             if (command.Entity is not Order order) return;
             order.State = OrderState.Pending;
             var addedOrder = await _repository.AddUpdateOrderAsync(order);

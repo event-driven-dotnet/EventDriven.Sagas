@@ -3,7 +3,7 @@ using EventDriven.Sagas.Configuration.Abstractions;
 using EventDriven.Sagas.Configuration.Abstractions.DTO;
 using Integration.Models;
 using OrderService.Domain.OrderAggregate;
-using OrderService.Sagas.Commands;
+using OrderService.Sagas.CreateOrder.Commands;
 
 namespace SagaConfigDefinitions;
 

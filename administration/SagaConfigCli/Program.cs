@@ -81,6 +81,11 @@ rootCommand.SetHandler((string? sagaConfigDefPath, string? sagaConfigDefName, st
     // Save json
     if (sagaConfigJsonPath != null)
     {
+        if (!Directory.Exists(sagaConfigJsonPath))
+        {
+            Console.WriteLine($"Directory does not exist: '{sagaConfigJsonPath}'");
+            return;
+        }
         var sagaConfigJson = GetSagaConfigurationJson(sagaConfig);
         var sagaConfigJsonFullPath = Path.Join(sagaConfigJsonPath, $"{sagaConfigDefTypeName}.json");
         SaveSagaConfigurationJson(sagaConfigJson, sagaConfigJsonFullPath);
@@ -152,11 +157,6 @@ string? GetSagaConfigurationJson(SagaConfigurationDto? sagaConfig)
 void SaveSagaConfigurationJson(string? sagaConfigJson, string sagaConfigJsonPath)
 {
     if (sagaConfigJson == null) return;
-    if (!Directory.Exists(sagaConfigJsonPath))
-    {
-        Console.WriteLine($"Directory does not exist: '{sagaConfigJsonPath}'");
-        return;
-    }
     File.WriteAllText(sagaConfigJsonPath, sagaConfigJson);
 }
 

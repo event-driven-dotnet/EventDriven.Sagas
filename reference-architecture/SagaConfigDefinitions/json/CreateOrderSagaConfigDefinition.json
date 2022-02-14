@@ -4,49 +4,49 @@
   "Name": "CreateOrderSaga",
   "Steps": [
     {
-      "Id": "20987473-24d9-4171-b604-29d71e947ccc",
+      "Id": "47b4ebf0-f267-47af-8f40-d3176e4110f2",
       "Sequence": 1,
       "Action": {
-        "Id": "e2e326d2-d95f-4abf-b6d6-68905ea3e44e",
-        "Command": "{\"Name\":\"OrderService.Sagas.Commands.CreateOrder\",\"ExpectedResult\":1}",
+        "Id": "82492b6c-eb48-420b-9e8d-eb0f0c33dbd5",
+        "Command": "{\"Name\":\"OrderService.Sagas.CreateOrder.Commands.CreateOrder\",\"ExpectedResult\":1}",
         "Timeout": null,
         "ReverseOnFailure": true
       },
       "CompensatingAction": {
-        "Id": "3e6f82c7-f287-4700-b71e-7f3c536bf3a1",
-        "Command": "{\"Name\":\"OrderService.Sagas.Commands.SetOrderStateInitial\",\"ExpectedResult\":0}",
+        "Id": "206e3fdb-d7ac-4b2b-b1d3-41d040e35873",
+        "Command": "{\"Name\":\"OrderService.Sagas.CreateOrder.Commands.SetOrderStateInitial\",\"ExpectedResult\":0}",
         "Timeout": null,
         "ReverseOnFailure": false
       }
     },
     {
-      "Id": "43ff8167-42bc-4277-97ba-83855e872411",
+      "Id": "8fc72ed8-5c34-42be-86b3-aa93ca514397",
       "Sequence": 2,
       "Action": {
-        "Id": "69e62abd-3bba-46fe-9951-a1e9c9511e17",
-        "Command": "{\"Name\":\"OrderService.Sagas.Commands.ReserveCustomerCredit\",\"ExpectedResult\":null}",
+        "Id": "b1263499-cb75-4c19-abee-e4572f1acd5f",
+        "Command": "{\"Name\":\"OrderService.Sagas.CreateOrder.Commands.ReserveCustomerCredit\",\"ExpectedResult\":null}",
         "Timeout": null,
         "ReverseOnFailure": false
       },
       "CompensatingAction": {
-        "Id": "6887b41d-949b-4374-83ba-25acffcee587",
-        "Command": "{\"Name\":\"OrderService.Sagas.Commands.ReleaseCustomerCredit\",\"ExpectedResult\":null}",
+        "Id": "0a5c9ef3-14a9-40ff-bc8c-5259d9663d7e",
+        "Command": "{\"Name\":\"OrderService.Sagas.CreateOrder.Commands.ReleaseCustomerCredit\",\"ExpectedResult\":null}",
         "Timeout": null,
         "ReverseOnFailure": false
       }
     },
     {
-      "Id": "724297be-131b-4db5-8612-37b19bcbe782",
+      "Id": "ee77d9a1-08ea-43c3-80eb-7ab70ae06663",
       "Sequence": 3,
       "Action": {
-        "Id": "2dad1542-0af2-454d-b587-416063d615e4",
-        "Command": "{\"Name\":\"OrderService.Sagas.Commands.SetOrderStateCreated\",\"ExpectedResult\":2}",
+        "Id": "62c02c73-cf87-4998-9916-aa35a3d6aa59",
+        "Command": "{\"Name\":\"OrderService.Sagas.CreateOrder.Commands.SetOrderStateCreated\",\"ExpectedResult\":2}",
         "Timeout": null,
         "ReverseOnFailure": true
       },
       "CompensatingAction": {
-        "Id": "58bd9956-4084-4a45-8feb-aedb9e62aaa9",
-        "Command": "{\"Name\":\"OrderService.Sagas.Commands.SetOrderStateInitial\",\"ExpectedResult\":0}",
+        "Id": "a6c48ffc-3d2a-4c28-ab1a-74b06a5bcf51",
+        "Command": "{\"Name\":\"OrderService.Sagas.CreateOrder.Commands.SetOrderStateInitial\",\"ExpectedResult\":0}",
         "Timeout": null,
         "ReverseOnFailure": false
       }

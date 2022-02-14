@@ -9,9 +9,9 @@ using Integration.Events;
 using OrderService.Configuration;
 using OrderService.Domain.OrderAggregate;
 using OrderService.Integration.Handlers;
-using OrderService.Sagas;
-using OrderService.Sagas.Dispatchers;
 using OrderService.Repositories;
+using OrderService.Sagas.CreateOrder;
+using OrderService.Sagas.CreateOrder.Dispatchers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +21,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add automapper
+// Automapper
 builder.Services.AddAutoMapper(typeof(Program));
 
 // Add database settings
@@ -30,16 +30,18 @@ builder.Services.AddMongoDbSettings<OrderDatabaseSettings, Order>(builder.Config
 builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfigurationDto>(builder.Configuration);
 builder.Services.AddMongoDbSettings<SagaSnapshotDatabaseSettings, SagaSnapshotDto>(builder.Configuration);
 
-// Add command handlers
+// Command handlers
 builder.Services.AddCommandHandlers();
 
-// Add saga
+// App settings
 builder.Services.AddAppSettings<SagaConfigSettings>(builder.Configuration);
+
+// Sagas
 builder.Services.AddSaga<CreateOrderSaga, CreateOrderSagaCommandDispatcher,
     SagaConfigRepository, SagaSnapshotRepository, SagaConfigSettings>(
     builder.Configuration);
 
-// Add Dapr Event Bus and event handler
+// Event Bus and event handlers
 builder.Services.AddDaprEventBus(builder.Configuration, true);
 builder.Services.AddDaprMongoEventCache(builder.Configuration);
 builder.Services.AddSingleton<CustomerCreditReserveFulfilledEventHandler>();

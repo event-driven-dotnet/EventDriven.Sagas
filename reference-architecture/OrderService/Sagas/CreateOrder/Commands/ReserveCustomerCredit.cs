@@ -1,7 +1,7 @@
 ﻿using EventDriven.Sagas.Abstractions.Commands;
 using Integration.Models;
 
-namespace OrderService.Sagas.Commands;
+namespace OrderService.Sagas.CreateOrder.Commands;
 
 public record ReserveCustomerCredit(Guid CustomerId, decimal CreditRequested) :
     SagaCommand<CustomerCreditReserveResponse, CustomerCreditReserveResponse>

@@ -5,9 +5,9 @@ using EventDriven.Sagas.Abstractions.Handlers;
 using EventDriven.Sagas.Persistence.Abstractions;
 using Integration.Models;
 using OrderService.Domain.OrderAggregate;
-using OrderService.Sagas.Commands;
+using OrderService.Sagas.CreateOrder.Commands;
 
-namespace OrderService.Sagas;
+namespace OrderService.Sagas.CreateOrder;
 
 public class CreateOrderSaga :
     PersistableSaga,
@@ -36,7 +36,7 @@ public class CreateOrderSaga :
         {
             switch (action.Command)
             {
-                case CreateOrder:
+                case Commands.CreateOrder:
                     SetActionStateStarted(action);
                     SetActionCommand(action, order);
                     await SagaCommandDispatcher.DispatchCommandAsync(action.Command, false);
