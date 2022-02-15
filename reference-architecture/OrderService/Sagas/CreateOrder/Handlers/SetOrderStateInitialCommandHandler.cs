@@ -30,7 +30,7 @@ public class SetOrderStateInitialCommandHandler :
             var updatedOrder = await _repository.UpdateOrderStateAsync(
                 command.EntityId.GetValueOrDefault(), OrderState.Initial);
             if (updatedOrder != null)
-                await DispatchCommandResultAsync(updatedOrder.State, false);
+                await DispatchCommandResultAsync(updatedOrder.State, true);
             else
                 await DispatchCommandResultAsync(OrderState.Pending, true);
         }

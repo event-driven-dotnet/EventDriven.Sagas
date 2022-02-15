@@ -4,48 +4,64 @@
   "Name": "CreateOrderSaga",
   "Steps": [
     {
-      "Id": "47b4ebf0-f267-47af-8f40-d3176e4110f2",
+      "Id": "5273c8a9-ff4e-4101-ab70-d0cde8e13f17",
       "Sequence": 1,
       "Action": {
-        "Id": "82492b6c-eb48-420b-9e8d-eb0f0c33dbd5",
+        "Id": "3c40a8a9-87f5-42b1-876b-7cd6d2b38674",
         "Command": "{\"Name\":\"OrderService.Sagas.CreateOrder.Commands.CreateOrder\",\"ExpectedResult\":1}",
         "Timeout": null,
         "ReverseOnFailure": true
       },
       "CompensatingAction": {
-        "Id": "206e3fdb-d7ac-4b2b-b1d3-41d040e35873",
+        "Id": "d3037121-191c-422d-a6dd-ca14946473c0",
         "Command": "{\"Name\":\"OrderService.Sagas.CreateOrder.Commands.SetOrderStateInitial\",\"ExpectedResult\":0}",
         "Timeout": null,
         "ReverseOnFailure": false
       }
     },
     {
-      "Id": "8fc72ed8-5c34-42be-86b3-aa93ca514397",
+      "Id": "d566f513-104b-4b17-847f-f8b6bdf6433f",
       "Sequence": 2,
       "Action": {
-        "Id": "b1263499-cb75-4c19-abee-e4572f1acd5f",
+        "Id": "cbd9ac4a-d9bc-4e6d-bdac-9358dc04e108",
         "Command": "{\"Name\":\"OrderService.Sagas.CreateOrder.Commands.ReserveCustomerCredit\",\"ExpectedResult\":null}",
         "Timeout": null,
         "ReverseOnFailure": false
       },
       "CompensatingAction": {
-        "Id": "0a5c9ef3-14a9-40ff-bc8c-5259d9663d7e",
+        "Id": "5e59f00d-d9ec-4766-a989-cde14f276b58",
         "Command": "{\"Name\":\"OrderService.Sagas.CreateOrder.Commands.ReleaseCustomerCredit\",\"ExpectedResult\":null}",
         "Timeout": null,
         "ReverseOnFailure": false
       }
     },
     {
-      "Id": "ee77d9a1-08ea-43c3-80eb-7ab70ae06663",
+      "Id": "5bf1b539-6d6c-4d70-8f6e-a801e85d0b3c",
       "Sequence": 3,
       "Action": {
-        "Id": "62c02c73-cf87-4998-9916-aa35a3d6aa59",
+        "Id": "4bfb1583-782c-4526-95ea-dcb8fc6db0af",
+        "Command": "{\"Name\":\"OrderService.Sagas.CreateOrder.Commands.ReserveProductInventory\",\"ExpectedResult\":null}",
+        "Timeout": null,
+        "ReverseOnFailure": false
+      },
+      "CompensatingAction": {
+        "Id": "024ea48d-b833-4685-9a16-3f0e41517ddf",
+        "Command": "{\"Name\":\"OrderService.Sagas.CreateOrder.Commands.ReleaseProductInventory\",\"ExpectedResult\":null}",
+        "Timeout": null,
+        "ReverseOnFailure": false
+      }
+    },
+    {
+      "Id": "2acce4aa-c007-4be0-b517-2b91fde6c7a7",
+      "Sequence": 4,
+      "Action": {
+        "Id": "211ba6ef-ff10-4cc5-9c7a-a7bbf17afac7",
         "Command": "{\"Name\":\"OrderService.Sagas.CreateOrder.Commands.SetOrderStateCreated\",\"ExpectedResult\":2}",
         "Timeout": null,
         "ReverseOnFailure": true
       },
       "CompensatingAction": {
-        "Id": "a6c48ffc-3d2a-4c28-ab1a-74b06a5bcf51",
+        "Id": "392defd6-e18b-4046-9bc8-9a240177dbbd",
         "Command": "{\"Name\":\"OrderService.Sagas.CreateOrder.Commands.SetOrderStateInitial\",\"ExpectedResult\":0}",
         "Timeout": null,
         "ReverseOnFailure": false

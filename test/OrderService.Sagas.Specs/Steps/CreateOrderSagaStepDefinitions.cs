@@ -6,6 +6,8 @@ using System.Text.Json;
 using CustomerService.Domain.CustomerAggregate;
 using CustomerService.Repositories;
 using EventDriven.Sagas.Configuration.Abstractions.DTO;
+using InventoryService.Domain.InventoryAggregate;
+using InventoryService.Repositories;
 using OrderService.Domain.OrderAggregate;
 using OrderService.Repositories;
 using OrderService.Sagas.Specs.Configuration;
@@ -28,12 +30,14 @@ public class CreateOrderSagaStepDefinitions
 
     public ISagaConfigDtoRepository SagaConfigRepository { get; }
     public ICustomerRepository CustomerRepository { get; }
+    public IInventoryRepository InventoryRepository { get; }
     public IOrderRepository OrderRepository { get; }
     public OrderServiceSpecsSettings ServiceSpecsSettings { get; }
     public HttpClient Client { get; }
     public JsonFilesRepository JsonFilesRepo { get; }
     public SagaConfigurationDto? SagaConfiguration { get; set; }
     public Customer? Customer { get; set; }
+    public Inventory? Inventory { get; set; }
     public Order? Order { get; set; }
 
     public CreateOrderSagaStepDefinitions(
@@ -41,6 +45,7 @@ public class CreateOrderSagaStepDefinitions
         HttpClient httpClient,
         ISagaConfigDtoRepository sagaConfigRepository,
         ICustomerRepository customerRepository,
+        IInventoryRepository inventoryRepository,
         IOrderRepository orderRepository,
         JsonFilesRepository jsonFilesRepo)
     {
@@ -48,6 +53,7 @@ public class CreateOrderSagaStepDefinitions
         Client = httpClient;
         SagaConfigRepository = sagaConfigRepository;
         CustomerRepository = customerRepository;
+        InventoryRepository = inventoryRepository;
         OrderRepository = orderRepository;
         JsonFilesRepo = jsonFilesRepo;
     }
@@ -75,8 +81,29 @@ public class CreateOrderSagaStepDefinitions
     {
         if (Customer != null)
         {
-            Customer.CreditAvailable = 5.0M;
+            Customer.CreditAvailable = amount;
             await CustomerRepository.UpdateAsync(Customer);
+        }
+    }
+
+    [Given(@"inventory has been created with '(.*)'")]
+    public async Task GivenProductsHaveBeenCreatedWith(string file)
+    {
+        var inventoryJson = JsonFilesRepo.Files[file];
+        Inventory = JsonSerializer.Deserialize<Inventory>(inventoryJson, JsonSerializerOptions);
+        if (Inventory != null)
+        {
+            await InventoryRepository.AddAsync(Inventory);
+        }
+    }
+
+    [Given(@"the inventory quantity is (.*)")]
+    public async Task GivenTheInventoryQuantityIs(int quantity)
+    {
+        if (Inventory != null)
+        {
+            Inventory.AmountAvailable = quantity;
+            await InventoryRepository.UpdateAsync(Inventory);
         }
     }
 
@@ -118,6 +145,15 @@ public class CreateOrderSagaStepDefinitions
         await Task.Delay(ServiceSpecsSettings.SagaCompletionTimeout);
         var customer = await CustomerRepository.GetAsync(Customer.Id);
         Assert.Equal(creditAvailable, customer?.CreditAvailable);
+    }
+
+    [Then(@"the inventory quantity should equal (.*)")]
+    public async Task ThenTheInventoryLevelShouldBe(int amountAvailable)
+    {
+        if (Inventory == null) return;
+        await Task.Delay(ServiceSpecsSettings.SagaCompletionTimeout);
+        var inventory = await InventoryRepository.GetAsync(ServiceSpecsSettings.InventoryId);
+        Assert.Equal(amountAvailable, inventory?.AmountAvailable);
     }
 
     [Then(@"the order state should be '(.*)'")]

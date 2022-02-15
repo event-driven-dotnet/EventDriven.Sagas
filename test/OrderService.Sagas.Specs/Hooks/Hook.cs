@@ -11,6 +11,9 @@ using EventDriven.DependencyInjection;
 using EventDriven.DependencyInjection.URF.Mongo;
 using EventDriven.Sagas.Configuration.Abstractions.DTO;
 using EventDriven.Sagas.Persistence.Abstractions.DTO;
+using InventoryService.Configuration;
+using InventoryService.Domain.InventoryAggregate;
+using InventoryService.Repositories;
 using OrderService.Configuration;
 using OrderService.Domain.OrderAggregate;
 using OrderService.Sagas.Specs.Configuration;
@@ -46,10 +49,12 @@ namespace OrderService.Sagas.Specs.Hooks
                     services.AddSingleton<ISagaConfigDtoRepository, SagaConfigDtoRepository>();
                     services.AddSingleton<ISagaSnapshotDtoRepository, SagaSnapshotDtoRepository>();
                     services.AddSingleton<ICustomerRepository, CustomerRepository>();
+                    services.AddSingleton<IInventoryRepository, InventoryRepository>();
                     services.AddSingleton<IOrderRepository, OrderRepository>();
                     services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfigurationDto>(config);
                     services.AddMongoDbSettings<SagaSnapshotDatabaseSettings, SagaSnapshotDto>(config);
                     services.AddMongoDbSettings<CustomerDatabaseSettings, Customer>(config);
+                    services.AddMongoDbSettings<InventoryDatabaseSettings, Inventory>(config);
                     services.AddMongoDbSettings<OrderDatabaseSettings, Order>(config);
                 })
                 .Build();
@@ -58,6 +63,7 @@ namespace OrderService.Sagas.Specs.Hooks
             var sagaConfigRepository = host.Services.GetRequiredService<ISagaConfigDtoRepository>();
             var sagaSnapshotRepository = host.Services.GetRequiredService<ISagaSnapshotDtoRepository>();
             var customerRepository = host.Services.GetRequiredService<ICustomerRepository>();
+            var inventoryRepository = host.Services.GetRequiredService<IInventoryRepository>();
             var orderRepository = host.Services.GetRequiredService<IOrderRepository>();
             var httpClient = host.Services.GetRequiredService<HttpClient>();
             httpClient.BaseAddress = new Uri(settings.OrderBaseAddress!);
@@ -68,6 +74,7 @@ namespace OrderService.Sagas.Specs.Hooks
             await ClearData(sagaConfigRepository, settings.SagaConfigId);
             await ClearData(sagaSnapshotRepository, settings.SagaConfigId);
             await ClearData(customerRepository, settings.CustomerId);
+            await ClearData(inventoryRepository, settings.InventoryId);
             await ClearData(orderRepository, settings.OrderId);
             
             _objectContainer.RegisterInstanceAs(settings);
@@ -75,6 +82,7 @@ namespace OrderService.Sagas.Specs.Hooks
             _objectContainer.RegisterInstanceAs(new JsonFilesRepository());
             _objectContainer.RegisterInstanceAs(sagaConfigRepository);
             _objectContainer.RegisterInstanceAs(customerRepository);
+            _objectContainer.RegisterInstanceAs(inventoryRepository);
             _objectContainer.RegisterInstanceAs(orderRepository);
         }
 
@@ -100,6 +108,8 @@ namespace OrderService.Sagas.Specs.Hooks
                 await sagaSnapshotRepository.RemoveSagaSnapshotsAsync(entityId);
             if (repository is ICustomerRepository customerRepository)
                 await customerRepository.RemoveAsync(entityId);
+            if (repository is IInventoryRepository inventoryRepository)
+                await inventoryRepository.RemoveAsync(entityId);
             if (repository is IOrderRepository orderRepository)
                 await orderRepository.RemoveOrderAsync(entityId);
         }

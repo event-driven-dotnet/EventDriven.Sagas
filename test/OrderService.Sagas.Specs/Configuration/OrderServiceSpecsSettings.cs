@@ -4,6 +4,7 @@ public class OrderServiceSpecsSettings
 {
     public Guid SagaConfigId { get; set; }
     public Guid CustomerId { get; set; }
+    public Guid InventoryId { get; set; }
     public Guid OrderId { get; set; }
     public string? OrderBaseAddress { get; set; }
     public bool StartTyeProcess { get; set; }

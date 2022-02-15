@@ -180,7 +180,7 @@ public abstract class Saga
         var step = Steps.Single(s => s.Sequence == CurrentStep);
         var evaluator = GetCommandResultEvaluatorByResultType<TSaga, TResult, TExpectedResult>();
         var commandSuccessful = evaluator != null
-                                && await EvaluateStepResultAsync(step, compensating, evaluator, CancellationToken);
+            && await EvaluateStepResultAsync(step, compensating, evaluator, CancellationToken);
         await ExecuteAfterStep();
         await TransitionSagaStateAsync(commandSuccessful);
     }
@@ -223,11 +223,12 @@ public abstract class Saga
     /// Set current action command result.
     /// </summary>
     /// <param name="result">Result.</param>
+    /// <param name="compensating">True if compensating action.</param>
     /// <typeparam name="TResult">Result type.</typeparam>
-    protected virtual void SetCurrentActionCommandResult<TResult>(TResult result)
+    protected virtual void SetCurrentActionCommandResult<TResult>(TResult result, bool compensating)
     {
         var step = Steps.Single(s => s.Sequence == CurrentStep);
-        var action = step.Action;
+        var action = compensating ? step.CompensatingAction : step.Action;
         if (action.Command is SagaCommand<TResult, TResult> command)
             command.Result = result;
     }

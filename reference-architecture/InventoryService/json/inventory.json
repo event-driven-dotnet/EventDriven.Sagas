@@ -1,0 +1,20 @@
+[
+  {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "description": "Coffee",
+    "amountAvailable": 9,
+    "eTag": ""
+  },
+  {
+    "id": "1d5c6bb3-69ae-4935-9333-a5b364a5f45a",
+    "description": "Tea",
+    "amountAvailable": 6,
+    "eTag": ""
+  },
+  {
+    "id": "85244827-0c4f-4a21-b62c-c5855f681edb",
+    "description": "Wine",
+    "amountAvailable": 3,
+    "eTag": ""
+  }
+]

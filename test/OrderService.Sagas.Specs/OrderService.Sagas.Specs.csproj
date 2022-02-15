@@ -38,6 +38,7 @@
       <ProjectReference Include="..\..\administration\SagaConfigService\SagaConfigService.csproj" />
       <ProjectReference Include="..\..\administration\SagaSnapshotService\SagaSnapshotService.csproj" />
       <ProjectReference Include="..\..\reference-architecture\CustomerService\CustomerService.csproj" />
+      <ProjectReference Include="..\..\reference-architecture\InventoryService\InventoryService.csproj" />
       <ProjectReference Include="..\..\reference-architecture\OrderService\OrderService.csproj" />
     </ItemGroup>
 

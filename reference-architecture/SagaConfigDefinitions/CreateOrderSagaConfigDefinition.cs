@@ -59,6 +59,26 @@ public class CreateOrderSagaConfigDefinition : ISagaConfigDefinition
                 Sequence = 3,
                 Action = new SagaActionDto
                 {
+                    Command = JsonSerializer.Serialize(new SagaCommandDto<ProductInventoryReserveResponse>
+                    {
+                        Name = typeof(ReserveProductInventory).FullName,
+                        ExpectedResult = null
+                    })
+                },
+                CompensatingAction = new SagaActionDto
+                {
+                    Command = JsonSerializer.Serialize(new SagaCommandDto<ProductInventoryReleaseResponse>
+                    {
+                        Name = typeof(ReleaseProductInventory).FullName,
+                        ExpectedResult = null
+                    })
+                }
+            },
+            new SagaStepDto
+            {
+                Sequence = 4,
+                Action = new SagaActionDto
+                {
                     Command = JsonSerializer.Serialize(new SagaCommandDto<OrderState>
                     {
                         Name = typeof(SetOrderStateCreated).FullName,

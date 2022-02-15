@@ -45,6 +45,9 @@ builder.Services.AddSaga<CreateOrderSaga, CreateOrderSagaCommandDispatcher,
 builder.Services.AddDaprEventBus(builder.Configuration, true);
 builder.Services.AddDaprMongoEventCache(builder.Configuration);
 builder.Services.AddSingleton<CustomerCreditReserveFulfilledEventHandler>();
+builder.Services.AddSingleton<CustomerCreditReleaseFulfilledEventHandler>();
+builder.Services.AddSingleton<ProductInventoryReserveFulfilledEventHandler>();
+builder.Services.AddSingleton<ProductInventoryReleaseFulfilledEventHandler>();
 
 var app = builder.Build();
 
@@ -67,7 +70,13 @@ app.UseEndpoints(endpoints =>
     endpoints.MapDaprEventBus(eventBus =>
     {
         var customerCreditReservedEventHandler = app.Services.GetRequiredService<CustomerCreditReserveFulfilledEventHandler>();
+        var customerCreditReleasedEventHandler = app.Services.GetRequiredService<CustomerCreditReleaseFulfilledEventHandler>();
+        var productInventoryReservedEventHandler = app.Services.GetRequiredService<ProductInventoryReserveFulfilledEventHandler>();
+        var productInventoryReleasedEventHandler = app.Services.GetRequiredService<ProductInventoryReleaseFulfilledEventHandler>();
         eventBus.Subscribe(customerCreditReservedEventHandler, nameof(CustomerCreditReserveFulfilled), "v1");
+        eventBus.Subscribe(customerCreditReleasedEventHandler, nameof(CustomerCreditReleaseFulfilled), "v1");
+        eventBus.Subscribe(productInventoryReservedEventHandler, nameof(ProductInventoryReserveFulfilled), "v1");
+        eventBus.Subscribe(productInventoryReleasedEventHandler, nameof(ProductInventoryReleaseFulfilled), "v1");
     });
 });
 

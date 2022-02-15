@@ -13,7 +13,9 @@ public class CreateOrderSaga :
     PersistableSaga,
     ISagaCommandResultHandler<OrderState>,
     ISagaCommandResultHandler<CustomerCreditReserveResponse>,
-    ISagaCommandResultHandler<CustomerCreditReleaseResponse>
+    ISagaCommandResultHandler<CustomerCreditReleaseResponse>,
+    ISagaCommandResultHandler<ProductInventoryReserveResponse>,
+    ISagaCommandResultHandler<ProductInventoryReleaseResponse>
 {
     public CreateOrderSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
@@ -43,7 +45,14 @@ public class CreateOrderSaga :
                     break;
                 case ReserveCustomerCredit command:
                     command.CustomerId = order.CustomerId;
-                    command.CreditRequested = order.OrderItems.Sum(e => e.ProductPrice);
+                    command.CreditRequested = order.Quantity * order.OrderItems.Sum(e => e.ProductPrice);
+                    SetActionStateStarted(action);
+                    SetActionCommand(action);
+                    await SagaCommandDispatcher.DispatchCommandAsync(action.Command, false);
+                    break;
+                case ReserveProductInventory command:
+                    command.InventoryId = order.InventoryId;
+                    command.AmountRequested = order.Quantity;
                     SetActionStateStarted(action);
                     SetActionCommand(action);
                     await SagaCommandDispatcher.DispatchCommandAsync(action.Command, false);
@@ -59,25 +68,71 @@ public class CreateOrderSaga :
         await base.ExecuteCurrentActionAsync();
     }
 
+    protected override async Task ExecuteCurrentCompensatingActionAsync()
+    {
+        var action = GetCurrentCompensatingAction();
+        if (Entity is Order order)
+        {
+            switch (action.Command)
+            {
+                case ReleaseProductInventory command:
+                    command.InventoryId = order.InventoryId;
+                    command.AmountRequested = order.Quantity;
+                    SetActionStateStarted(action);
+                    SetActionCommand(action);
+                    await SagaCommandDispatcher.DispatchCommandAsync(action.Command, true);
+                    break;
+                case ReleaseCustomerCredit command:
+                    command.CustomerId = order.CustomerId;
+                    command.CreditReleased = order.Quantity * order.OrderItems.Sum(e => e.ProductPrice);
+                    SetActionStateStarted(action);
+                    SetActionCommand(action);
+                    await SagaCommandDispatcher.DispatchCommandAsync(action.Command, true);
+                    break;
+                case SetOrderStateInitial:
+                    SetActionStateStarted(action);
+                    SetActionCommand(action);
+                    await SagaCommandDispatcher.DispatchCommandAsync(action.Command, true);
+                    break;
+            }
+            return;
+        }
+        await base.ExecuteCurrentCompensatingActionAsync();
+    }
+
     protected override async Task ExecuteAfterStep() => await PersistAsync();
 
     public async Task HandleCommandResultAsync(OrderState result, bool compensating)
     {
-        SetCurrentActionCommandResult(result);
+        SetCurrentActionCommandResult(result, compensating);
         await HandleCommandResultForStepAsync<CreateOrderSaga, OrderState, OrderState>(compensating);
     }
 
     public async Task HandleCommandResultAsync(CustomerCreditReserveResponse result, bool compensating)
     {
-        SetCurrentActionCommandResult(result);
+        SetCurrentActionCommandResult(result, compensating);
         await HandleCommandResultForStepAsync<CreateOrderSaga, CustomerCreditReserveResponse,
             CustomerCreditReserveResponse>(compensating);
     }
 
     public async Task HandleCommandResultAsync(CustomerCreditReleaseResponse result, bool compensating)
     {
-        SetCurrentActionCommandResult(result);
+        SetCurrentActionCommandResult(result, compensating);
         await HandleCommandResultForStepAsync<CreateOrderSaga, CustomerCreditReleaseResponse,
             CustomerCreditReleaseResponse>(compensating);
+    }
+    
+    public async Task HandleCommandResultAsync(ProductInventoryReserveResponse result, bool compensating)
+    {
+        SetCurrentActionCommandResult(result, compensating);
+        await HandleCommandResultForStepAsync<CreateOrderSaga, ProductInventoryReserveResponse,
+            ProductInventoryReserveResponse>(compensating);
+    }
+    
+    public async Task HandleCommandResultAsync(ProductInventoryReleaseResponse result, bool compensating)
+    {
+        SetCurrentActionCommandResult(result, compensating);
+        await HandleCommandResultForStepAsync<CreateOrderSaga, ProductInventoryReleaseResponse,
+            ProductInventoryReleaseResponse>(compensating);
     }
 }

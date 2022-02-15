@@ -1,6 +1,8 @@
 {
   "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
   "customerId": "22eea083-6f0d-48f2-8c82-65ac850e5aad",
+  "inventoryId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "quantity": 3,
   "orderDate": "2021-04-15T22:54:44.485Z",
   "orderItems": [
     {
@@ -20,5 +22,5 @@
     }
   ],
   "orderState": 0,
-  "eTag": "00000000-0000-0000-0000-000000000000"
+  "eTag": ""
 }

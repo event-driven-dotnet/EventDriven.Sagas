@@ -18,6 +18,10 @@ services:
   project: CustomerService/CustomerService.csproj
   bindings:
     - port: 5064
+- name: inventoryservice
+  project: InventoryService/InventoryService.csproj
+  bindings:
+    - port: 5074
 - name: orderservice
   project: OrderService/OrderService.csproj
   bindings:

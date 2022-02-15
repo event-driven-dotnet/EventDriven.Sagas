@@ -35,6 +35,6 @@ public class CustomerCreditReserveFulfilledEventHandler :
             @event.CustomerCreditReserveResponse.CreditRequested,
             @event.CustomerCreditReserveResponse.CreditAvailable,
             @event.CustomerCreditReserveResponse.Success
-        ), !@event.CustomerCreditReserveResponse.Success);
+        ), false);
     }
 }

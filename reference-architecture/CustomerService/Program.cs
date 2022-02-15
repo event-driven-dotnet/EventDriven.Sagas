@@ -29,6 +29,7 @@ builder.Services.AddCommandHandlers();
 builder.Services.AddDaprEventBus(builder.Configuration, true);
 builder.Services.AddDaprMongoEventCache(builder.Configuration);
 builder.Services.AddSingleton<CustomerCreditReserveRequestedEventHandler>();
+builder.Services.AddSingleton<CustomerCreditReserveReleaseEventHandler>();
 
 var app = builder.Build();
 
@@ -51,7 +52,9 @@ app.UseEndpoints(endpoints =>
     endpoints.MapDaprEventBus(eventBus =>
     {
         var customerCreditRequestedEventHandler = app.Services.GetRequiredService<CustomerCreditReserveRequestedEventHandler>();
+        var customerCreditReleasedEventHandler = app.Services.GetRequiredService<CustomerCreditReserveReleaseEventHandler>();
         eventBus.Subscribe(customerCreditRequestedEventHandler, nameof(CustomerCreditReserveRequested), "v1");
+        eventBus.Subscribe(customerCreditReleasedEventHandler, nameof(CustomerCreditReleaseRequested), "v1");
     });
 });
 

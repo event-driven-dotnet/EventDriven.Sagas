@@ -420,9 +420,13 @@ The job of a saga orchestrator, such as `CreateOrderSaga`, is to manage a state 
     builder.Services.AddDaprMongoEventCache(builder.Configuration);
     builder.Services.AddSingleton<CustomerCreditReserveFulfilledEventHandler>();
     ```
-    - Map Dapr Event Bus subscribers
+    - Routing
+      - Place prior to `app.UseAuthorization();`
     ```csharp
     app.UseRouting();
+    ```
+    - Map Dapr Event Bus subscribers
+    ```csharp
     app.UseCloudEvents();
     app.UseEndpoints(endpoints =>
     {
@@ -435,15 +439,82 @@ The job of a saga orchestrator, such as `CreateOrderSaga`, is to manage a state 
         });
     });
     ```
+15. Add entries to **appsettings.json**.
+    ```json
+    {
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft.AspNetCore": "Warning"
+        }
+      },
+      "AllowedHosts": "*",
+      "SagaConfigSettings" : {
+        "SagaConfigId": "d89ffb1e-7481-4111-a4dd-ac5123217293",
+        "OverrideLockCheck": false
+      },
+      "OrderDatabaseSettings": {
+        "ConnectionString": "mongodb://localhost:27017",
+        "DatabaseName": "OrderDb",
+        "CollectionName": "Orders"
+      },
+      "SagaConfigDatabaseSettings": {
+        "ConnectionString": "mongodb://localhost:27017",
+        "DatabaseName": "SagaConfigDb",
+        "CollectionName": "SagaConfigurations"
+      },
+      "SagaSnapshotDatabaseSettings": {
+        "ConnectionString": "mongodb://localhost:27017",
+        "DatabaseName": "SagaSnapshotDb",
+        "CollectionName": "SagaSnapshots"
+      },
+      "DaprEventBusOptions": {
+        "PubSubName": "pubsub"
+      },
+      "DaprEventCacheOptions": {
+        "DaprStateStoreOptions": {
+          "StateStoreName": "statestore-mongodb"
+        },
+        "EventCacheTimeout": "00:01:00",
+        "EventCacheCleanupInterval": "00:05:00"
+      },
+      "DaprStoreDatabaseSettings": {
+        "ConnectionString": "mongodb://localhost:27017",
+        "DatabaseName": "daprStore",
+        "CollectionName": "daprCollection"
+      },
+      "DaprEventBusSchemaOptions": {
+        "UseSchemaRegistry": true,
+        "SchemaValidatorType": "Json",
+        "SchemaRegistryType": "Mongo",
+        "AddSchemaOnPublish": true,
+        "MongoStateStoreOptions": {
+          "ConnectionString": "mongodb://localhost:27017",
+          "DatabaseName": "schema-registry",
+          "SchemasCollectionName": "schemas"
+        }
+      }
+    }
+    ```
 
-### Customer Service: Handle credit reservation requested event
+### Customer, Inventory Services: Handle integration events
 
 1. Create a new Web API project for a customer service.
    - Remove WeatherForecast class and controller.
    ```
-   dotnet new webapi --name CustomerService
+   dotnet new webapi --name ServiceName
    ```
-2. Add a `Customer` entity to a **Domain/CustomerAggregate** folder.
+2. Add NuGet packages.
+   - MongoDB.Driver
+   - URF.Core.Mongo
+   - EventDriven.EventBus.Dapr
+   - EventDriven.DDD.Abstractions
+   - EventDriven.Sagas.DependencyInjection
+   - EventDriven.DependencyInjection.URF.Mongo
+   - EventDriven.EventBus.Dapr.EventCache.Mongo
+   - Microsoft.VisualStudio.Web.CodeGeneration.Design
+   - AutoMapper.Extensions.Microsoft.DependencyInjection
+3. Add a `Customer` entity to a **Domain/CustomerAggregate** folder.
    - Add the following commands to a **Commands** folder.
      - ReserveCredit
      - ReleaseCredit
@@ -466,7 +537,7 @@ The job of a saga orchestrator, such as `CreateOrderSaga`, is to manage a state 
         return new CreditReserveFailed(command.EntityId, command.CreditRequested) { EntityETag = ETag };
     }
     ```
-3. Add a `CustomerCreditReserveRequestedEventHandler` class to an **Integration/Handlers** folder.
+4. Add a `CustomerCreditReserveRequestedEventHandler` class to an **Integration/Handlers** folder.
    - Inject `ICommandHandler<Customer, ReserveCredit>` into the constructor.
    - Extend `IntegrationEventHandler<CustomerCreditReserveRequested>`.
    - Override `HandleAsync` to pass a `ReserveCredit` command to the command handler.
@@ -482,7 +553,8 @@ The job of a saga orchestrator, such as `CreateOrderSaga`, is to manage a state 
     }
     ```
     - Repeat with a `CustomerCreditReserveReleaseEventHandler` class.
-4. Create a `CustomerCommandHandler` class in a **Domain/CustomerAggregate/Handlers** folder.
+5. Add `ICustomerRepository` and `CustomerRepository` classes to a **Repositories** folder at the project root.
+6. Create a `CustomerCommandHandler` class in a **Domain/CustomerAggregate/Handlers** folder.
    - Inject an `IEventBus` into the constructor.
    - Create a private `PublishCreditReservedResponse` helper method to publish a `CustomerCreditReserveFulfilled` integration event to the event bus.
     ```csharp
@@ -548,3 +620,132 @@ The job of a saga orchestrator, such as `CreateOrderSaga`, is to manage a state 
         return result;
     }
     ```
+7. Add a `CommandResultExtensions` class to a **Helpers** folder.
+    ```csharp
+    public static class CommandResultExtensions
+    {
+        public static ActionResult ToActionResult(this CommandResult result, object? entity = null)
+        {
+            switch (result.Outcome)
+            {
+                case CommandOutcome.Accepted:
+                    return entity != null
+                        ? new OkObjectResult(entity)
+                        : new OkResult();
+                case CommandOutcome.Conflict:
+                    return result.Errors != null
+                        ? new ConflictObjectResult(result.Errors)
+                        : new ConflictResult();
+                case CommandOutcome.NotFound:
+                    return result.Errors != null
+                        ? new NotFoundObjectResult(result.Errors)
+                        : new NotFoundResult();
+                default:
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+    }
+    ```
+8. Add **DTO** and **Mapping** folders.
+   - Copy properties from `Customer`.
+   - Add `Id` and `ETag` properties.
+   - Add an `AutoMapperProfile` class to **Mapping** that extends `Profile`.
+9.  Add a `CustomerQueryController` class to the **Controllers** folder.
+    - Inject `ICustomerRepository` and `IMapper` into the constructor.
+    - Flesh out `Get` methods.
+    - Map results to DTO's.
+10. Add a `CustomerCommandController` class to the **Controllers** folder.
+    - Inject `CustomerCommandHandler` and `IMapper` into the constructor.
+    - Call `Handler` on the command handler to process commands.
+    - Map parameters and results to DTO's.
+11. Add a `CustomerDatabaseSettings` class to a **Configuration** folder.
+    - Implement `IMongoDbSettings`.
+12. Configure services and endpoints in `Program`.
+    - Automapper
+    ```csharp
+    builder.Services.AddAutoMapper(typeof(Program));
+    ```
+    - Repositories and database settings
+    ```csharp
+    builder.Services.AddSingleton<ICustomerRepository, CustomerRepository>();
+    builder.Services.AddMongoDbSettings<CustomerDatabaseSettings, Customer>(builder.Configuration);
+    ```
+    - Command handlers
+    ```csharp
+    builder.Services.AddCommandHandlers();
+    ```
+    - Event Bus and event handlers
+    ```csharp
+    builder.Services.AddDaprEventBus(builder.Configuration, true);
+    builder.Services.AddDaprMongoEventCache(builder.Configuration);
+    builder.Services.AddSingleton<CustomerCreditReserveRequestedEventHandler>();
+    ```
+    - Routing
+      - Place prior to `app.UseAuthorization();`
+    ```csharp
+    app.UseRouting();
+    ```
+    - Map Dapr Event Bus subscribers
+    ```csharp
+    app.UseCloudEvents();
+    app.UseEndpoints(endpoints =>
+    {
+        endpoints.MapControllers();
+        endpoints.MapSubscribeHandler();
+        endpoints.MapDaprEventBus(eventBus =>
+        {
+            var customerCreditRequestedEventHandler = app.Services.GetRequiredService<CustomerCreditReserveRequestedEventHandler>();
+            eventBus.Subscribe(customerCreditRequestedEventHandler, nameof(CustomerCreditReserveRequested), "v1");
+        });
+    });
+    ```
+13. Add entries to **appsettings.json**.
+   ```json
+   {
+     "Logging": {
+       "LogLevel": {
+         "Default": "Information",
+         "Microsoft.AspNetCore": "Warning"
+       }
+     },
+     "AllowedHosts": "*",
+     "CustomerDatabaseSettings": {
+       "ConnectionString": "mongodb://localhost:27017",
+       "DatabaseName": "CustomerDb",
+       "CollectionName": "Customers"
+     },
+     "DaprEventBusOptions": {
+       "PubSubName": "pubsub"
+     },
+     "DaprEventCacheOptions": {
+       "DaprStateStoreOptions": {
+         "StateStoreName": "statestore-mongodb"
+       },
+       "EventCacheTimeout": "00:01:00",
+       "EventCacheCleanupInterval": "00:05:00"
+     },
+     "DaprStoreDatabaseSettings": {
+       "ConnectionString": "mongodb://localhost:27017",
+       "DatabaseName": "daprStore",
+       "CollectionName": "daprCollection"
+     },
+     "DaprEventBusSchemaOptions": {
+       "UseSchemaRegistry": true,
+       "SchemaValidatorType": "Json",
+       "SchemaRegistryType": "Mongo",
+       "AddSchemaOnPublish": true,
+       "MongoStateStoreOptions": {
+         "ConnectionString": "mongodb://localhost:27017",
+         "DatabaseName": "schema-registry",
+         "SchemasCollectionName": "schemas"
+       }
+     }
+   }
+   ```
+14. Update **tye.yaml** at **reference-architecture** to specify participating services.
+    - Specify the same port number as in **Properties/launchSettings.json**.
+    - Also update **tye.yaml** in **test/OrderService.Sagas.Specs**.
+15. Update `CreateOrderSagaConfigDefinition.CreateSagaConfig` to include steps from all participating services.
+    - Run the `sagaconfig` global tool to re-create **CreateOrderSagaConfigDefinition.json** in the **json** folder of the **SagaConfigDefinitions** project and post it to the **SagaConfigService**.
+16. Refactor the feature, hook and step definition files in **OrderService.Sagas.Specs** to include participating services.
+    - Copy the contents of **CreateOrderSagaConfigDefinition.json** from **SagaConfigDefinitions** to the **sagaconfig.json** file in the **json** folder.

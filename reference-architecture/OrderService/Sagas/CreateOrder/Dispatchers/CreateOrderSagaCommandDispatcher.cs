@@ -28,6 +28,12 @@ public class CreateOrderSagaCommandDispatcher : SagaCommandDispatcher
             case nameof(ReleaseCustomerCredit):
                 await DispatchSagaCommandHandlerAsync<ReleaseCustomerCredit>(command);
                 break;
+            case nameof(ReserveProductInventory):
+                await DispatchSagaCommandHandlerAsync<ReserveProductInventory>(command);
+                break;
+            case nameof(ReleaseProductInventory):
+                await DispatchSagaCommandHandlerAsync<ReleaseProductInventory>(command);
+                break;
             case nameof(SetOrderStateCreated):
                 await DispatchSagaCommandHandlerAsync<SetOrderStateCreated>(command);
                 break;

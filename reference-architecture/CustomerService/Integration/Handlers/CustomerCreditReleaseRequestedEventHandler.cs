@@ -1,4 +1,3 @@
-using CustomerService.Domain.CustomerAggregate;
 using CustomerService.Domain.CustomerAggregate.Commands;
 using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.EventBus.Abstractions;
@@ -9,11 +8,11 @@ namespace CustomerService.Integration.Handlers;
 public class CustomerCreditReserveReleaseEventHandler :
     IntegrationEventHandler<CustomerCreditReleaseRequested>
 {
-    private readonly ICommandHandler<Customer, ReleaseCredit> _commandHandler;
+    private readonly ICommandHandler<ReleaseCredit> _commandHandler;
     private readonly ILogger<CustomerCreditReserveReleaseEventHandler> _logger;
 
     public CustomerCreditReserveReleaseEventHandler(
-        ICommandHandler<Customer, ReleaseCredit> commandHandler,
+        ICommandHandler<ReleaseCredit> commandHandler,
         ILogger<CustomerCreditReserveReleaseEventHandler> logger)
     {
         _commandHandler = commandHandler;

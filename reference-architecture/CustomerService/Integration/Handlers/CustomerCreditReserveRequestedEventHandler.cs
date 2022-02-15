@@ -1,4 +1,3 @@
-using CustomerService.Domain.CustomerAggregate;
 using CustomerService.Domain.CustomerAggregate.Commands;
 using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.EventBus.Abstractions;
@@ -9,13 +8,13 @@ namespace CustomerService.Integration.Handlers;
 public class CustomerCreditReserveRequestedEventHandler :
     IntegrationEventHandler<CustomerCreditReserveRequested>
 {
-    private readonly ICommandHandler<Customer, ReserveCredit> _commandHandler;
+    private readonly ICommandHandler<ReserveCredit> _commandHandler;
     private readonly ILogger<CustomerCreditReserveRequestedEventHandler> _logger;
 
     public Guid Id { get; set; } = Guid.NewGuid();
 
     public CustomerCreditReserveRequestedEventHandler(
-        ICommandHandler<Customer, ReserveCredit> commandHandler,
+        ICommandHandler<ReserveCredit> commandHandler,
         ILogger<CustomerCreditReserveRequestedEventHandler> logger)
     {
         _commandHandler = commandHandler;

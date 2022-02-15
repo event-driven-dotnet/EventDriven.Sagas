@@ -21,6 +21,13 @@ services:
     env:
       - name: CustomerDatabaseSettings:DatabaseName
         value: CustomerTestDb
+  - name: inventoryservice
+    project: ../../reference-architecture/InventoryService/InventoryService.csproj
+    bindings:
+      - port: 5074
+    env:
+      - name: InventoryDatabaseSettings:DatabaseName
+        value: InventoryTestDb
   - name: orderservice
     project: ../../reference-architecture/OrderService/OrderService.csproj
     bindings:

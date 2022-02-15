@@ -4,7 +4,7 @@
     "eTag": "",
     "firstName": "Elon",
     "lastName": "Musk",
-    "creditAvailable": "20.00",
+    "creditAvailable": "100.00",
     "shippingAddress": {
       "street": "123 This Street",
       "city": "Freemont",
@@ -18,7 +18,7 @@
     "eTag": "",
     "firstName": "Jeff",
     "lastName": "Bezos",
-    "creditAvailable": "30.00",
+    "creditAvailable": "150.00",
     "shippingAddress": {
       "street": "123 That Street",
       "city": "Seattle",
@@ -32,7 +32,7 @@
     "eTag": "",
     "firstName": "Mark",
     "lastName": "Zuckerberg",
-    "creditAvailable": "40.00",
+    "creditAvailable": "200.00",
     "shippingAddress": {
       "street": "123 Other Street",
       "city": "Palo Alto",

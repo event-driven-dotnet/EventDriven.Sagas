@@ -3,7 +3,7 @@
   "eTag": "",
   "firstName": "Elon",
   "lastName": "Musk",
-  "creditAvailable": 20.00,
+  "creditAvailable": 100.00,
   "shippingAddress": {
     "street": "123 This Street",
     "city": "Freemont",
