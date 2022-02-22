@@ -64,7 +64,7 @@ public class CreateOrderSagaStepDefinitions
         var sagaConfigJson = JsonFilesRepo.Files[file];
         SagaConfiguration = JsonSerializer.Deserialize<SagaConfigurationDto>(sagaConfigJson, JsonSerializerOptions);
         if (SagaConfiguration != null)
-            await SagaConfigRepository.AddSagaConfigurationAsync(SagaConfiguration);
+            await SagaConfigRepository.AddAsync(SagaConfiguration);
     }
 
     [Given(@"a customer has been created with '(.*)'")]

@@ -1,31 +1,30 @@
 using EventDriven.DDD.Abstractions.Repositories;
 using InventoryService.Domain.InventoryAggregate;
-using URF.Core.Abstractions;
+using MongoDB.Driver;
+using URF.Core.Mongo;
 
 namespace InventoryService.Repositories;
 
-public class InventoryRepository : IInventoryRepository
+public class InventoryRepository : DocumentRepository<Inventory>, IInventoryRepository
 {
-    private readonly IDocumentRepository<Inventory> _documentRepository;
-
-    public InventoryRepository(IDocumentRepository<Inventory> documentRepository)
+    public InventoryRepository(
+        IMongoCollection<Inventory> collection) : base(collection)
     {
-        _documentRepository = documentRepository;
     }
     
     public async Task<IEnumerable<Inventory>> GetAsync() =>
-        await _documentRepository.FindManyAsync();
+        await FindManyAsync();
 
     public async Task<Inventory?> GetAsync(Guid id) =>
-        await _documentRepository.FindOneAsync(e => e.Id == id);
+        await FindOneAsync(e => e.Id == id);
 
     public async Task<Inventory?> AddAsync(Inventory entity)
     {
-        var existing = await _documentRepository.FindOneAsync(e => e.Id == entity.Id);
+        var existing = await FindOneAsync(e => e.Id == entity.Id);
         if (existing != null) return null;
         entity.SequenceNumber = 1;
         entity.ETag = Guid.NewGuid().ToString();
-        return await _documentRepository.InsertOneAsync(entity);
+        return await InsertOneAsync(entity);
     }
 
     public async Task<Inventory?> UpdateAsync(Inventory entity)
@@ -36,9 +35,9 @@ public class InventoryRepository : IInventoryRepository
             throw new ConcurrencyException();
         entity.SequenceNumber = existing.SequenceNumber + 1;
         entity.ETag = Guid.NewGuid().ToString();
-        return await _documentRepository.FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+        return await FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
     }
 
     public async Task<int> RemoveAsync(Guid id) => 
-        await _documentRepository.DeleteOneAsync(e => e.Id == id);
+        await DeleteOneAsync(e => e.Id == id);
 }

@@ -1,40 +1,38 @@
 ﻿using EventDriven.DDD.Abstractions.Repositories;
 using EventDriven.Sagas.Configuration.Abstractions.DTO;
-using URF.Core.Abstractions;
+using MongoDB.Driver;
+using URF.Core.Mongo;
 
 namespace SagaConfigService.Repositories;
 
-public class SagaConfigDtoRepository : ISagaConfigDtoRepository
+public class SagaConfigDtoRepository : DocumentRepository<SagaConfigurationDto>, ISagaConfigDtoRepository
 {
-    private readonly IDocumentRepository<SagaConfigurationDto> _documentRepository;
-
     public SagaConfigDtoRepository(
-        IDocumentRepository<SagaConfigurationDto> documentRepository)
+        IMongoCollection<SagaConfigurationDto> collection) : base(collection)
     {
-        _documentRepository = documentRepository;
     }
 
-    public async Task<SagaConfigurationDto?> GetSagaConfigurationAsync(Guid id)
-        => await _documentRepository.FindOneAsync(e => e.Id == id);
+    public async Task<SagaConfigurationDto?> GetAsync(Guid id)
+        => await FindOneAsync(e => e.Id == id);
 
-    public async Task<SagaConfigurationDto?> AddSagaConfigurationAsync(SagaConfigurationDto entity)
+    public async Task<SagaConfigurationDto?> AddAsync(SagaConfigurationDto entity)
     {
-        var existing = await GetSagaConfigurationAsync(entity.Id);
+        var existing = await GetAsync(entity.Id);
         if (existing != null) throw new ConcurrencyException(entity.Id);
         entity.ETag = Guid.NewGuid().ToString();
-        return await _documentRepository.InsertOneAsync(entity);
+        return await InsertOneAsync(entity);
     }
 
-    public async Task<SagaConfigurationDto?> UpdateSagaConfigurationAsync(SagaConfigurationDto entity)
+    public async Task<SagaConfigurationDto?> UpdateAsync(SagaConfigurationDto entity)
     {
-        var existing = await GetSagaConfigurationAsync(entity.Id);
+        var existing = await GetAsync(entity.Id);
         if (existing == null) return null;
         if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
             throw new ConcurrencyException(entity.Id);
         entity.ETag = Guid.NewGuid().ToString();
-        return await _documentRepository.FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+        return await FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
     }
 
-    public async Task<int> RemoveSagaConfigurationAsync(Guid id) =>
-        await _documentRepository.DeleteOneAsync(e => e.Id == id);
+    public async Task<int> RemoveAsync(Guid id) =>
+        await DeleteOneAsync(e => e.Id == id);
 }

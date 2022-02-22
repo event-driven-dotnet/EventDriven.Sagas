@@ -13,7 +13,7 @@ public interface ISagaSnapshotRepository
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    Task RetrieveSagaSnapshotAsync(Guid id, PersistableSaga entity);
+    Task RetrieveAsync(Guid id, PersistableSaga entity);
 
     /// <summary>
     /// Add a persistable saga.
@@ -22,5 +22,5 @@ public interface ISagaSnapshotRepository
     /// <returns>
     /// A task that represents the asynchronous operation.
     /// </returns>
-    Task PersistSagaSnapshotAsync(PersistableSaga entity);
+    Task PersistAsync(PersistableSaga entity);
 }

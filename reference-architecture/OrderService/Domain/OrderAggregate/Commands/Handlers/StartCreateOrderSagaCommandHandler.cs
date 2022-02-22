@@ -35,7 +35,7 @@ public class StartCreateOrderSagaCommandHandler :
             await _saga.StartSagaAsync(command.Entity);
             
             // Return created order
-            var order = await _repository.GetOrderAsync(command.EntityId);
+            var order = await _repository.GetAsync(command.EntityId);
             return order == null
                 ? new CommandResult<Order>(CommandOutcome.NotFound)
                 : new CommandResult<Order>(CommandOutcome.Accepted, order);

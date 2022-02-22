@@ -23,7 +23,7 @@ namespace OrderService.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(Guid id)
         {
-            var result = await _repository.GetOrderAsync(id);
+            var result = await _repository.GetAsync(id);
             if (result == null) return NotFound();
             var orderOut = _mapper.Map<DTO.Order>(result);
             return Ok(orderOut);

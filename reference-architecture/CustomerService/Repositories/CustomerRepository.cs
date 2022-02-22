@@ -1,32 +1,30 @@
 using CustomerService.Domain.CustomerAggregate;
 using EventDriven.DDD.Abstractions.Repositories;
-using URF.Core.Abstractions;
+using MongoDB.Driver;
+using URF.Core.Mongo;
 
 namespace CustomerService.Repositories;
 
-public class CustomerRepository : ICustomerRepository
+public class CustomerRepository : DocumentRepository<Customer>, ICustomerRepository
 {
-    private readonly IDocumentRepository<Customer> _documentRepository;
-
     public CustomerRepository(
-        IDocumentRepository<Customer> documentRepository)
+        IMongoCollection<Customer> collection) : base(collection)
     {
-        _documentRepository = documentRepository;
     }
 
     public async Task<IEnumerable<Customer>> GetAsync() =>
-        await _documentRepository.FindManyAsync();
+        await FindManyAsync();
 
     public async Task<Customer?> GetAsync(Guid id) =>
-        await _documentRepository.FindOneAsync(e => e.Id == id);
+        await FindOneAsync(e => e.Id == id);
 
     public async Task<Customer?> AddAsync(Customer entity)
     {
-        var existing = await _documentRepository.FindOneAsync(e => e.Id == entity.Id);
+        var existing = await FindOneAsync(e => e.Id == entity.Id);
         if (existing != null) return null;
         entity.SequenceNumber = 1;
         entity.ETag = Guid.NewGuid().ToString();
-        return await _documentRepository.InsertOneAsync(entity);
+        return await InsertOneAsync(entity);
     }
 
     public async Task<Customer?> UpdateAsync(Customer entity)
@@ -37,9 +35,9 @@ public class CustomerRepository : ICustomerRepository
             throw new ConcurrencyException();
         entity.SequenceNumber = existing.SequenceNumber + 1;
         entity.ETag = Guid.NewGuid().ToString();
-        return await _documentRepository.FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+        return await FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
     }
 
     public async Task<int> RemoveAsync(Guid id) =>
-        await _documentRepository.DeleteOneAsync(e => e.Id == id);
+        await DeleteOneAsync(e => e.Id == id);
 }

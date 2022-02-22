@@ -4,7 +4,7 @@ namespace SagaSnapshotService.Repositories;
 
 public interface ISagaSnapshotDtoRepository
 {
-    Task<SagaSnapshotDto?> GetSagaSnapshotAsync(Guid id);
-    Task<IEnumerable<SagaSnapshotDto>> GetSagaSnapshotsAsync(Guid sagaId);
-    Task<int> RemoveSagaSnapshotsAsync(Guid sagaId);
+    Task<SagaSnapshotDto?> GetAsync(Guid id);
+    Task<IEnumerable<SagaSnapshotDto>> GetSagaAsync(Guid sagaId);
+    Task<int> RemoveSagaAsync(Guid sagaId);
 }

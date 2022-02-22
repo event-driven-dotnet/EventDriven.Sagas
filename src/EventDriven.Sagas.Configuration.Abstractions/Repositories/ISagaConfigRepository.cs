@@ -13,7 +13,7 @@ public interface ISagaConfigRepository
     /// A task that represents the asynchronous operation.
     /// The task result contains the saga configuration.
     /// </returns>
-    Task<SagaConfiguration?> GetSagaConfigurationAsync(Guid id);
+    Task<SagaConfiguration?> GetAsync(Guid id);
 
     /// <summary>
     /// Add a new saga configuration.
@@ -23,7 +23,7 @@ public interface ISagaConfigRepository
     /// A task that represents the asynchronous operation.
     /// The task result contains the added saga configuration.
     /// </returns>
-    Task<SagaConfiguration?> AddSagaConfigurationAsync(SagaConfiguration entity);
+    Task<SagaConfiguration?> AddAsync(SagaConfiguration entity);
 
     /// <summary>
     /// Update an existing saga configuration.
@@ -33,7 +33,7 @@ public interface ISagaConfigRepository
     /// A task that represents the asynchronous operation.
     /// The task result contains the updated saga configuration.
     /// </returns>
-    Task<SagaConfiguration?> UpdateSagaConfigurationAsync(SagaConfiguration entity);
+    Task<SagaConfiguration?> UpdateAsync(SagaConfiguration entity);
 
     /// <summary>
     /// Remove an existing saga configuration.
@@ -43,5 +43,5 @@ public interface ISagaConfigRepository
     /// A task that represents the asynchronous operation.
     /// The task result contains the number of items deleted.
     /// </returns>
-    Task<int> RemoveSagaConfigurationAsync(Guid id);
+    Task<int> RemoveAsync(Guid id);
 }

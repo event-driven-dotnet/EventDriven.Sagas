@@ -19,7 +19,7 @@ namespace SagaSnapshotService.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetSnapshot(Guid id)
         {
-            var result = await _snapshotRepository.GetSagaSnapshotAsync(id);
+            var result = await _snapshotRepository.GetAsync(id);
             if (result == null) return NotFound();
             return Ok(result);
         }
@@ -28,7 +28,7 @@ namespace SagaSnapshotService.Controllers
         [HttpGet("sagas/{sagaId:guid}")]
         public async Task<IActionResult> GetSagaSnapshots(Guid sagaId)
         {
-            var result = await _snapshotRepository.GetSagaSnapshotsAsync(sagaId);
+            var result = await _snapshotRepository.GetSagaAsync(sagaId);
             return Ok(result);
         }
     }

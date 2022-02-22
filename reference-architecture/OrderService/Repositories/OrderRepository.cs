@@ -1,73 +1,71 @@
 ﻿using EventDriven.DDD.Abstractions.Repositories;
+using MongoDB.Driver;
 using OrderService.Domain.OrderAggregate;
-using URF.Core.Abstractions;
+using URF.Core.Mongo;
 
 namespace OrderService.Repositories;
 
-public class OrderRepository : IOrderRepository
+public class OrderRepository : DocumentRepository<Order>, IOrderRepository
 {
-    private readonly IDocumentRepository<Order> _documentRepository;
-
     public OrderRepository(
-        IDocumentRepository<Order> documentRepository)
+        IMongoCollection<Order> collection) : base(collection)
     {
-        _documentRepository = documentRepository;
     }
 
     public async Task<IEnumerable<Order>> GetOrders() =>
-        await _documentRepository.FindManyAsync();
+        await FindManyAsync();
 
     public async Task<IEnumerable<Order>> GetCustomerOrders(Guid customerId) =>
-        await _documentRepository.FindManyAsync(e => e.CustomerId == customerId);
+        await FindManyAsync(e => e.CustomerId == customerId);
 
-    public async Task<Order?> GetOrderAsync(Guid id) =>
-        await _documentRepository.FindOneAsync(e => e.Id == id);
+    public async Task<Order?> GetAsync(Guid id) =>
+        await FindOneAsync(e => e.Id == id);
 
-    public async Task<Order?> AddOrderAsync(Order entity)
+    public async Task<Order?> AddOAsync(Order entity)
     {
-        var existing = await GetOrderAsync(entity.Id);
+        var existing = await GetAsync(entity.Id);
         if (existing != null) throw new ConcurrencyException(entity.Id);
         entity.ETag = Guid.NewGuid().ToString();
-        return await _documentRepository.InsertOneAsync(entity);
+        return await InsertOneAsync(entity);
     }
 
-    public async Task<Order?> UpdateOrderAsync(Order entity)
+    public async Task<Order?> UpdateAsync(Order entity)
     {
-        var existing = await GetOrderAsync(entity.Id);
+        var existing = await GetAsync(entity.Id);
         if (existing == null) return null;
         if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
             throw new ConcurrencyException(entity.Id);
         entity.ETag = Guid.NewGuid().ToString();
-        return await _documentRepository.FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+        return await FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
     }
 
-    public async Task<Order?> AddUpdateOrderAsync(Order entity)
+    public async Task<Order?> AddUpdateAsync(Order entity)
     {
         Order? result;
-        var existing = await GetOrderAsync(entity.Id);
-        if (existing == null) result = await AddOrderAsync(entity);
+        var existing = await GetAsync(entity.Id);
+        if (existing == null) result = await AddOAsync(entity);
         else
         {
             entity.ETag = existing.ETag;
-            result = await UpdateOrderAsync(entity);
+            result = await UpdateAsync(entity);
         }
         return result;
     }
 
-    public async Task<int> RemoveOrderAsync(Guid id) =>
-        await _documentRepository.DeleteOneAsync(e => e.Id == id);
+    public async Task<int> RemoveAsync(Guid id) =>
+        await DeleteOneAsync(e => e.Id == id);
 
     public async Task<OrderState?> GetOrderStateAsync(Guid id)
     {
-        var existing = await GetOrderAsync(id);
+        var existing = await GetAsync(id);
         return existing?.State;
     }
 
     public async Task<Order?> UpdateOrderStateAsync(Guid id, OrderState orderState)
     {
-        var existing = await GetOrderAsync(id);
+        var existing = await GetAsync(id);
         if (existing == null) return null;
         existing.State = orderState;
-        return await UpdateOrderAsync(existing);
+        return await UpdateAsync(existing);
     }
 }

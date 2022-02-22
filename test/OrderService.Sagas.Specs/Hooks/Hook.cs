@@ -103,15 +103,15 @@ namespace OrderService.Sagas.Specs.Hooks
         private async Task ClearData<TRepository>(TRepository repository, Guid entityId)
         {
             if (repository is ISagaConfigDtoRepository sagaConfigRepository)
-                await sagaConfigRepository.RemoveSagaConfigurationAsync(entityId);
+                await sagaConfigRepository.RemoveAsync(entityId);
             if (repository is ISagaSnapshotDtoRepository sagaSnapshotRepository)
-                await sagaSnapshotRepository.RemoveSagaSnapshotsAsync(entityId);
+                await sagaSnapshotRepository.RemoveSagaAsync(entityId);
             if (repository is ICustomerRepository customerRepository)
                 await customerRepository.RemoveAsync(entityId);
             if (repository is IInventoryRepository inventoryRepository)
                 await inventoryRepository.RemoveAsync(entityId);
             if (repository is IOrderRepository orderRepository)
-                await orderRepository.RemoveOrderAsync(entityId);
+                await orderRepository.RemoveAsync(entityId);
         }
 
         private async Task StartTyeProcess(TimeSpan waitForTyeProcess)

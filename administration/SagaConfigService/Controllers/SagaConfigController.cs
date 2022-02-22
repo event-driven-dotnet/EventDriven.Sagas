@@ -24,7 +24,7 @@ namespace SagaConfigService.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(Guid id)
         {
-            var result = await _configRepository.GetSagaConfigurationAsync(id);
+            var result = await _configRepository.GetAsync(id);
             if (result == null) return NotFound();
             return Ok(result);
         }
@@ -35,7 +35,7 @@ namespace SagaConfigService.Controllers
         {
             try
             {
-                var result = await _configRepository.AddSagaConfigurationAsync(value);
+                var result = await _configRepository.AddAsync(value);
                 return CreatedAtAction(nameof(Get), new { id = value.Id }, result);
             }
             catch (ConcurrencyException e)
@@ -51,7 +51,7 @@ namespace SagaConfigService.Controllers
         {
             try
             {
-                var result = await _configRepository.UpdateSagaConfigurationAsync(value);
+                var result = await _configRepository.UpdateAsync(value);
                 if (result == null) return NotFound();
                 return Ok(result);
             }
@@ -66,7 +66,7 @@ namespace SagaConfigService.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var result =await _configRepository.RemoveSagaConfigurationAsync(id);
+            var result =await _configRepository.RemoveAsync(id);
             return Ok(result);
         }
     }

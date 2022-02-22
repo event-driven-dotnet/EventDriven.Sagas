@@ -8,7 +8,7 @@ namespace EventDriven.Sagas.Abstractions.Tests.Saga.Fakes;
 
 public class FakeSagaConfigRepository : ISagaConfigRepository
 {
-    public Task<SagaConfiguration?> GetSagaConfigurationAsync(Guid id)
+    public Task<SagaConfiguration?> GetAsync(Guid id)
     {
         var steps = new List<SagaStep>
             {
@@ -109,17 +109,17 @@ public class FakeSagaConfigRepository : ISagaConfigRepository
         return Task.FromResult<SagaConfiguration?>(config);
     }
 
-    public Task<SagaConfiguration?> AddSagaConfigurationAsync(SagaConfiguration entity)
+    public Task<SagaConfiguration?> AddAsync(SagaConfiguration entity)
     {
         throw new NotImplementedException();
     }
 
-    public Task<SagaConfiguration?> UpdateSagaConfigurationAsync(SagaConfiguration entity)
+    public Task<SagaConfiguration?> UpdateAsync(SagaConfiguration entity)
     {
         throw new NotImplementedException();
     }
 
-    public Task<int> RemoveSagaConfigurationAsync(Guid id)
+    public Task<int> RemoveAsync(Guid id)
     {
         throw new NotImplementedException();
     }

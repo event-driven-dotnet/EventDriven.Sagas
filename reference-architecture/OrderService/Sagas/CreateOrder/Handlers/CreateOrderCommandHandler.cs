@@ -27,7 +27,7 @@ public class CreateOrderCommandHandler :
             _logger.LogInformation("Handling command: {CommandName}", nameof(Commands.CreateOrder));
             if (command.Entity is not Order order) return;
             order.State = OrderState.Pending;
-            var addedOrder = await _repository.AddUpdateOrderAsync(order);
+            var addedOrder = await _repository.AddUpdateAsync(order);
             if (addedOrder != null)
                 await DispatchCommandResultAsync(addedOrder.State, false);
             else

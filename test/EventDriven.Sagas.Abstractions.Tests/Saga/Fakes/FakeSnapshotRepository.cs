@@ -11,13 +11,13 @@ public class FakeSnapshotRepository : ISagaSnapshotRepository
 {
     public List<PersistableSaga> Sagas { get; } = new();
 
-    public Task RetrieveSagaSnapshotAsync(Guid id, PersistableSaga entity)
+    public Task RetrieveAsync(Guid id, PersistableSaga entity)
     {
         var result = Sagas.LastOrDefault(e => e.Id == id);
         return Task.FromResult(result);
     }
 
-    public Task PersistSagaSnapshotAsync(PersistableSaga entity)
+    public Task PersistAsync(PersistableSaga entity)
     {
         Sagas.Add(entity);
         return Task.FromResult(entity);

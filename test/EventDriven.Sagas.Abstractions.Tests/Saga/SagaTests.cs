@@ -22,7 +22,7 @@ public class SagaTests
         var configRepo = new FakeSagaConfigRepository();
         var snapshotRepo = new FakeSnapshotRepository();
         var resultEvaluators = new List<FakeCommandResultEvaluator>{ new() };
-        var config = await configRepo.GetSagaConfigurationAsync(Guid.Empty);
+        var config = await configRepo.GetAsync(Guid.Empty);
         var steps = new List<SagaStep>(config?.Steps.Where(s => s.Sequence <= step)
                                        ?? Array.Empty<SagaStep>());
         var saga = new FakeSaga(steps, dispatcher, resultEvaluators, snapshotRepo);
@@ -97,7 +97,7 @@ public class SagaTests
         var configRepo = new FakeSagaConfigRepository();
         var snapshotRepo = new FakeSnapshotRepository();
         var resultEvaluators = new List<FakeCommandResultEvaluator>{ new() };
-        var config = await configRepo.GetSagaConfigurationAsync(Guid.Empty);
+        var config = await configRepo.GetAsync(Guid.Empty);
         var steps = new List<SagaStep>(config?.Steps.Where(s => s.Sequence <= step)
             ?? Array.Empty<SagaStep>());
         var cancelOnStep = cancel ? step : 0;

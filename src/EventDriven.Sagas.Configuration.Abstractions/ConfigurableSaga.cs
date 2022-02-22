@@ -47,7 +47,7 @@ public abstract class ConfigurableSaga : Saga
         if (SagaConfigOptions?.SagaConfigId != null && SagaConfigRepository != null)
         {
             var sagaConfig = await SagaConfigRepository
-                .GetSagaConfigurationAsync(SagaConfigOptions.SagaConfigId.GetValueOrDefault());
+                .GetAsync(SagaConfigOptions.SagaConfigId.GetValueOrDefault());
             if (sagaConfig == null)
                 throw new Exception($"Saga configuration with id '{SagaConfigOptions.SagaConfigId}' not present in Saga Configuration Repository.");
             SagaConfigId = sagaConfig.Id;
