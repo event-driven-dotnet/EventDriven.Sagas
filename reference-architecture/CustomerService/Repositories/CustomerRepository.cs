@@ -22,7 +22,6 @@ public class CustomerRepository : DocumentRepository<Customer>, ICustomerReposit
     {
         var existing = await FindOneAsync(e => e.Id == entity.Id);
         if (existing != null) return null;
-        entity.SequenceNumber = 1;
         entity.ETag = Guid.NewGuid().ToString();
         return await InsertOneAsync(entity);
     }
@@ -33,7 +32,6 @@ public class CustomerRepository : DocumentRepository<Customer>, ICustomerReposit
         if (existing == null) return null;
         if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0 )
             throw new ConcurrencyException();
-        entity.SequenceNumber = existing.SequenceNumber + 1;
         entity.ETag = Guid.NewGuid().ToString();
         return await FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
     }
