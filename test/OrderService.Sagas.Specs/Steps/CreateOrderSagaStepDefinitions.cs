@@ -22,7 +22,7 @@ namespace OrderService.Sagas.Specs.Steps;
 public class CreateOrderSagaStepDefinitions
 {
     private HttpResponseMessage Response { get; set; } = null!;
-    private JsonSerializerOptions JsonSerializerOptions { get; } = new JsonSerializerOptions
+    private JsonSerializerOptions JsonSerializerOptions { get; } = new()
     {
         AllowTrailingCommas = true,
         PropertyNameCaseInsensitive = true
