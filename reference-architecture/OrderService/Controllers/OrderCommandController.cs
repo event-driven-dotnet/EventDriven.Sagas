@@ -1,9 +1,8 @@
 using AutoMapper;
-using EventDriven.DDD.Abstractions.Commands;
+using EventDriven.CQRS.Abstractions.Commands;
+using EventDriven.CQRS.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using OrderService.Domain.OrderAggregate.Commands;
-using OrderService.Domain.OrderAggregate.Commands.Handlers;
-using OrderService.Helpers;
 
 namespace OrderService.Controllers
 {
@@ -11,14 +10,14 @@ namespace OrderService.Controllers
     [Route("api/order")]
     public class OrderCommandController : ControllerBase
     {
-        private readonly StartCreateOrderSagaCommandHandler _commandHandler;
+        private readonly ICommandBroker _commandBroker;
         private readonly IMapper _mapper;
 
         public OrderCommandController(
-            StartCreateOrderSagaCommandHandler commandHandler,
+            ICommandBroker commandBroker,
             IMapper mapper)
         {
-            _commandHandler = commandHandler;
+            _commandBroker = commandBroker;
             _mapper = mapper;
         }
 
@@ -27,12 +26,12 @@ namespace OrderService.Controllers
         public async Task<IActionResult> Create([FromBody] DTO.Order orderDto)
         {
             var orderIn = _mapper.Map<Domain.OrderAggregate.Order>(orderDto);
-            var result = await _commandHandler.Handle(new StartCreateOrderSaga(orderIn));
+            var result = await _commandBroker.SendAsync(new StartCreateOrderSaga(orderIn));
 
             if (result.Outcome != CommandOutcome.Accepted)
                 return result.ToActionResult();
             var orderOut = _mapper.Map<DTO.Order>(result.Entity);
-            return new CreatedResult($"api/order/{orderOut.Id}", orderOut);
+            return Ok(orderOut);
         }
     }
 }

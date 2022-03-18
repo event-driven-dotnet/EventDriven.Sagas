@@ -1,6 +1,6 @@
 using CustomerService.Domain.CustomerAggregate.Commands;
 using CustomerService.Domain.CustomerAggregate.Events;
-using EventDriven.DDD.Abstractions.Commands;
+using EventDriven.CQRS.Abstractions.Commands;
 using EventDriven.DDD.Abstractions.Entities;
 using EventDriven.DDD.Abstractions.Events;
 
@@ -8,15 +8,16 @@ namespace CustomerService.Domain.CustomerAggregate;
 
 public class Customer :
     Entity,
-    ICommandProcessor<CreateCustomer, CustomerCreated>,
+    ICommandProcessor<CreateCustomer, Customer, CustomerCreated>,
     IEventApplier<CustomerCreated>,
-    ICommandProcessor<UpdateCustomer, CustomerUpdated>,
+    ICommandProcessor<UpdateCustomer, Customer, CustomerUpdated>,
     IEventApplier<CustomerUpdated>,
     ICommandProcessor<RemoveCustomer, CustomerRemoved>,
     IEventApplier<CustomerRemoved>,
-    ICommandProcessor<ReserveCredit>,
+    ICommandProcessor<ReserveCredit, Customer, CreditReserved>,
     IEventApplier<CreditReserveSucceeded>,
-    ICommandProcessor<ReleaseCredit, CreditReleased>,
+    IEventApplier<CreditReserveFailed>,
+    ICommandProcessor<ReleaseCredit, Customer, CreditReleased>,
     IEventApplier<CreditReleased>
 {
     public string FirstName { get; set; } = null!;
@@ -51,13 +52,13 @@ public class Customer :
         // Could mutate state here to implement a soft delete
     }
 
-    public IDomainEvent Process(ReserveCredit command)
+    public CreditReserved Process(ReserveCredit command)
     {
         // If customer has sufficient credit, return CreditReserveSucceeded event
-        if (CreditAvailable >= command.CreditRequested)
-            return new CreditReserveSucceeded(command.EntityId, command.CreditRequested) { EntityETag = ETag };
+        if (CreditAvailable >= command.AmountRequested)
+            return new CreditReserveSucceeded(command.EntityId, command.AmountRequested) { EntityETag = ETag };
         // Otherwise, return CreditReserveFailed event
-        return new CreditReserveFailed(command.EntityId, command.CreditRequested) { EntityETag = ETag };
+        return new CreditReserveFailed(command.EntityId, command.AmountRequested) { EntityETag = ETag };
     }
 
     public void Apply(CreditReserveSucceeded domainEvent)
@@ -66,9 +67,15 @@ public class Customer :
         if (domainEvent.EntityETag != null) ETag = domainEvent.EntityETag;
     }
     
+    public void Apply(CreditReserveFailed domainEvent)
+    {
+        CreditAvailable += domainEvent.AmountRequested;
+        if (domainEvent.EntityETag != null) ETag = domainEvent.EntityETag;
+    }
+    
     public CreditReleased Process(ReleaseCredit command) =>
         // To process command, return a domain event
-        new(command.EntityId, command.CreditReleased) { EntityETag = ETag };
+        new(command.EntityId, command.AmountReleased) { EntityETag = ETag };
 
     public void Apply(CreditReleased domainEvent)
     {

@@ -1,4 +1,4 @@
-﻿using EventDriven.DDD.Abstractions.Commands;
+﻿using EventDriven.CQRS.Abstractions.Commands;
 using EventDriven.DDD.Abstractions.Entities;
 using EventDriven.DDD.Abstractions.Events;
 using OrderService.Domain.OrderAggregate.Commands;
@@ -8,7 +8,7 @@ namespace OrderService.Domain.OrderAggregate;
 
 public class Order :
     Entity,
-    ICommandProcessor<StartCreateOrderSaga, CreateOrderSagaStarted>,
+    ICommandProcessor<StartCreateOrderSaga, Order, CreateOrderSagaStarted>,
     IEventApplier<CreateOrderSagaStarted>
 {
     public Guid CustomerId { get; set; }

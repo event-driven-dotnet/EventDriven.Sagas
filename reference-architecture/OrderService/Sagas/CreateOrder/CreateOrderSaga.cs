@@ -1,9 +1,9 @@
-﻿using EventDriven.Sagas.Abstractions.Commands;
+﻿using Common.Integration.Models;
+using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Handlers;
 using EventDriven.Sagas.Persistence.Abstractions;
-using Integration.Models;
 using OrderService.Domain.OrderAggregate;
 using OrderService.Sagas.CreateOrder.Commands;
 

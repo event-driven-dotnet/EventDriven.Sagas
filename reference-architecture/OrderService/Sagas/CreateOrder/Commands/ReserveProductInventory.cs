@@ -1,5 +1,5 @@
-﻿using EventDriven.Sagas.Abstractions.Commands;
-using Integration.Models;
+﻿using Common.Integration.Models;
+using EventDriven.Sagas.Abstractions.Commands;
 
 namespace OrderService.Sagas.CreateOrder.Commands;
 

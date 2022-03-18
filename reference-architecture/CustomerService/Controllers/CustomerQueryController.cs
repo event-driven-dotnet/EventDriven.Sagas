@@ -1,6 +1,7 @@
 using AutoMapper;
+using CustomerService.Domain.CustomerAggregate.Queries;
 using CustomerService.DTO.Read;
-using CustomerService.Repositories;
+using EventDriven.CQRS.Abstractions.Queries;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CustomerService.Controllers
@@ -9,14 +10,14 @@ namespace CustomerService.Controllers
     [ApiController]
     public class CustomerQueryController : ControllerBase
     {
-        private readonly ICustomerRepository _repository;
+        private readonly IQueryBroker _queryBroker;
         private readonly IMapper _mapper;
 
         public CustomerQueryController(
-            ICustomerRepository repository,
+            IQueryBroker queryBroker,
             IMapper mapper)
         {
-            _repository = repository;
+            _queryBroker = queryBroker;
             _mapper = mapper;
         }
         
@@ -24,7 +25,7 @@ namespace CustomerService.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var customers = await _repository.GetAsync();
+            var customers = await _queryBroker.SendAsync(new GetCustomers());
             var result = _mapper.Map<IEnumerable<CustomerView>>(customers);
             return Ok(result);
         }
@@ -33,7 +34,7 @@ namespace CustomerService.Controllers
         [HttpGet("{id:guid}", Name = nameof(Get))]
         public async Task<IActionResult> Get([FromRoute] Guid id)
         {
-            var customer = await _repository.GetAsync(id);
+            var customer = await _queryBroker.SendAsync(new GetCustomer(id));
             if (customer == null) return NotFound();
             var result = _mapper.Map<CustomerView>(customer);
             return Ok(result);

@@ -1,10 +1,12 @@
+using Common.Behaviors;
+using Common.Integration.Events;
+using EventDriven.CQRS.Abstractions.DependencyInjection;
 using EventDriven.DependencyInjection.URF.Mongo;
-using EventDriven.Sagas.DependencyInjection;
-using Integration.Events;
 using InventoryService.Configuration;
 using InventoryService.Domain.InventoryAggregate;
 using InventoryService.Integration.Handlers;
 using InventoryService.Repositories;
+using MediatR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,8 +23,11 @@ builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddSingleton<IInventoryRepository, InventoryRepository>();
 builder.Services.AddMongoDbSettings<InventoryDatabaseSettings, Inventory>(builder.Configuration);
 
-// Add command handlers
-builder.Services.AddCommandHandlers();
+// Add command and query handlers
+builder.Services.AddHandlers(typeof(Program));
+
+// Add behaviors
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
 // Add Dapr Event Bus and event handler
 builder.Services.AddDaprEventBus(builder.Configuration, true);

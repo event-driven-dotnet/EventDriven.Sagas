@@ -1,6 +1,7 @@
 using AutoMapper;
+using EventDriven.CQRS.Abstractions.Queries;
 using Microsoft.AspNetCore.Mvc;
-using OrderService.Repositories;
+using OrderService.Domain.OrderAggregate.Queries;
 
 namespace OrderService.Controllers
 {
@@ -8,14 +9,14 @@ namespace OrderService.Controllers
     [Route("api/order")]
     public class OrderQueryController : ControllerBase
     {
-        private readonly IOrderRepository _repository;
+        private readonly IQueryBroker _queryBroker;
         private readonly IMapper _mapper;
 
         public OrderQueryController(
-            IOrderRepository repository,
+            IQueryBroker queryBroker,
             IMapper mapper)
         {
-            _repository = repository;
+            _queryBroker = queryBroker;
             _mapper = mapper;
         }
 
@@ -23,18 +24,18 @@ namespace OrderService.Controllers
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> Get(Guid id)
         {
-            var result = await _repository.GetAsync(id);
-            if (result == null) return NotFound();
-            var orderOut = _mapper.Map<DTO.Order>(result);
+            var order = await _queryBroker.SendAsync(new GetOrder(id));
+            if (order == null) return NotFound();
+            var orderOut = _mapper.Map<DTO.Order>(order);
             return Ok(orderOut);
         }
 
-        // Get api/order/status/d89ffb1e-7481-4111-a4dd-ac5123217293
+        // Get api/order/state/d89ffb1e-7481-4111-a4dd-ac5123217293
         [HttpGet]
         [Route("state/{id:guid}")]
         public async Task<IActionResult> GetOrderState(Guid id)
         {
-            var orderState = await _repository.GetOrderStateAsync(id);
+            var orderState = await _queryBroker.SendAsync(new GetOrderState(id));
             if (orderState == null) return NotFound();
             return Ok(orderState);
         }

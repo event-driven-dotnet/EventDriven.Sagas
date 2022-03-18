@@ -1,6 +1,6 @@
 # Saga Development Guide
 
-A development guide for building a saga orchestrator based on **EventDriven.Sagas** abstractions and reference architecture.
+A development guide for building a saga orchestrator based on **EventDriven.Sagas** abstractions, libraries and reference architecture.
 
 ## Introduction
 
@@ -26,11 +26,12 @@ The following diagram illustrates how various classes are used in the execution 
 
 ## Steps
 
-### A. Integration: Models and Events
+### A. Common Project: Integration Models and Events
 
-1. Create a new class library project called **Integration**.
+1. Create a new class library project called **Common**.
    - This will contain classes that are shared between a sagas in the Order Service and other services which participate in the saga.
-2. Create the following request and response models in a **Models** folder.
+   - Create an **Integration** folder.
+2. Create the following request and response models in an **Integration/Models** folder.
    - For example:
     ```csharp
     public record CustomerCreditReserveResponse(Guid CustomerId, decimal CreditRequested, decimal CreditAvailable, bool Success);
@@ -43,7 +44,7 @@ The following diagram illustrates how various classes are used in the execution 
    - ProductInventoryReserveResponse
    - ProductInventoryReleaseRequest
    - ProductInventoryReleaseResponse
-3. Create the following integration events in an **Events** folder.
+3. Create the following integration events in an **Integration/Events** folder.
    - For example:
     ```csharp
     public record CustomerCreditReserveFulfilled(CustomerCreditReserveResponse CustomerCreditReserveResponse) : IntegrationEvent;
@@ -89,6 +90,84 @@ The following diagram illustrates how various classes are used in the execution 
     ```
 5. Add a **Repositories** folder at the projet root with an `IOrderRepository` interface and a `OrderRepository` class.
    - `OrderRepository` accepts an `IDocumentRepository<Order>` constructor parameter, which is uses to retrieve and persist `Order` entities to MongoDB.
+    ```csharp
+    public interface IOrderRepository
+    {
+        Task<Order?> GetAsync(Guid id);
+        Task<Order?> AddOAsync(Order entity);
+        Task<Order?> UpdateAsync(Order entity);
+        Task<Order?> AddUpdateAsync(Order entity);
+        Task<int> RemoveAsync(Guid id);
+        Task<OrderState?> GetOrderStateAsync(Guid id);
+        Task<Order?> UpdateOrderStateAsync(Guid id, OrderState orderState);
+    }
+    ```
+    ```csharp
+    public class OrderRepository : DocumentRepository<Order>, IOrderRepository
+    {
+        public OrderRepository(
+            IMongoCollection<Order> collection) : base(collection)
+        {
+        }
+
+        public async Task<IEnumerable<Order>> GetOrders() =>
+            await FindManyAsync();
+
+        public async Task<IEnumerable<Order>> GetCustomerOrders(Guid customerId) =>
+            await FindManyAsync(e => e.CustomerId == customerId);
+
+        public async Task<Order?> GetAsync(Guid id) =>
+            await FindOneAsync(e => e.Id == id);
+
+        public async Task<Order?> AddOAsync(Order entity)
+        {
+            var existing = await GetAsync(entity.Id);
+            if (existing != null) throw new ConcurrencyException(entity.Id);
+            entity.ETag = Guid.NewGuid().ToString();
+            return await InsertOneAsync(entity);
+        }
+
+        public async Task<Order?> UpdateAsync(Order entity)
+        {
+            var existing = await GetAsync(entity.Id);
+            if (existing == null) return null;
+            if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
+                throw new ConcurrencyException(entity.Id);
+            entity.ETag = Guid.NewGuid().ToString();
+            return await FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+        }
+
+        public async Task<Order?> AddUpdateAsync(Order entity)
+        {
+            Order? result;
+            var existing = await GetAsync(entity.Id);
+            if (existing == null) result = await AddOAsync(entity);
+            else
+            {
+                entity.ETag = existing.ETag;
+                result = await UpdateAsync(entity);
+            }
+            return result;
+        }
+
+        public async Task<int> RemoveAsync(Guid id) =>
+            await DeleteOneAsync(e => e.Id == id);
+
+        public async Task<OrderState?> GetOrderStateAsync(Guid id)
+        {
+            var existing = await GetAsync(id);
+            return existing?.State;
+        }
+
+        public async Task<Order?> UpdateOrderStateAsync(Guid id, OrderState orderState)
+        {
+            var existing = await GetAsync(id);
+            if (existing == null) return null;
+            existing.State = orderState;
+            return await UpdateAsync(existing);
+        }
+    }
+    ```
 6. Add a **Sagas** folder to the project root. Place a **CreateOrder** folder within it.
    - Add a `CreateOrderSaga` class to the **CreateOrder** folder.
    - Derive the class from the `PersistableSaga` abstract class.
@@ -339,8 +418,8 @@ The following diagram illustrates how various classes are used in the execution 
     }
     ```
 14. Add controllers to the **Controllers** folder.
-    - Add a `OrderQueryController` class that uses an `IOrderRepository` to retrieve orders, mapping the result to DTO's using an `IMapper`.
-    - Add a `OrderCommandController` class that accepts a constructor parameter of `StartCreateOrderSagaCommandHandler` to handle a `StartCreateOrderSaga` command.
+    - Add a `OrderQueryController` class that uses an `IQueryBroker` to execute queries and retrieve orders, mapping the result to DTO's using an `IMapper`.
+    - Add a `OrderCommandController` class that accepts a constructor parameter of `ICommandBroker` to execute a `StartCreateOrderSaga` command.
 15. Configure services and endpoints in `Program`.
     - Automapper
     ```csharp
@@ -353,9 +432,13 @@ The following diagram illustrates how various classes are used in the execution 
     builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfigurationDto>(builder.Configuration);
     builder.Services.AddMongoDbSettings<SagaSnapshotDatabaseSettings, SagaSnapshotDto>(builder.Configuration);
     ```
-    - Command handlers
+    - Command and query handlers
     ```csharp
-    builder.Services.AddCommandHandlers();
+    builder.Services.AddHandlers(typeof(Program));
+    ```
+    - Behaviors
+    ```csharp
+    builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
     ```
     - App settings
     ```csharp
@@ -372,6 +455,9 @@ The following diagram illustrates how various classes are used in the execution 
     builder.Services.AddDaprEventBus(builder.Configuration, true);
     builder.Services.AddDaprMongoEventCache(builder.Configuration);
     builder.Services.AddSingleton<CustomerCreditReserveFulfilledEventHandler>();
+    builder.Services.AddSingleton<CustomerCreditReleaseFulfilledEventHandler>();
+    builder.Services.AddSingleton<ProductInventoryReserveFulfilledEventHandler>();
+    builder.Services.AddSingleton<ProductInventoryReleaseFulfilledEventHandler>();
     ```
     - Routing
       - Place prior to `app.UseAuthorization();`
@@ -388,7 +474,13 @@ The following diagram illustrates how various classes are used in the execution 
         endpoints.MapDaprEventBus(eventBus =>
         {
             var customerCreditReservedEventHandler = app.Services.GetRequiredService<CustomerCreditReserveFulfilledEventHandler>();
+            var customerCreditReleasedEventHandler = app.Services.GetRequiredService<CustomerCreditReleaseFulfilledEventHandler>();
+            var productInventoryReservedEventHandler = app.Services.GetRequiredService<ProductInventoryReserveFulfilledEventHandler>();
+            var productInventoryReleasedEventHandler = app.Services.GetRequiredService<ProductInventoryReleaseFulfilledEventHandler>();
             eventBus.Subscribe(customerCreditReservedEventHandler, nameof(CustomerCreditReserveFulfilled), "v1");
+            eventBus.Subscribe(customerCreditReleasedEventHandler, nameof(CustomerCreditReleaseFulfilled), "v1");
+            eventBus.Subscribe(productInventoryReservedEventHandler, nameof(ProductInventoryReserveFulfilled), "v1");
+            eventBus.Subscribe(productInventoryReleasedEventHandler, nameof(ProductInventoryReleaseFulfilled), "v1");
         });
     });
     ```
@@ -450,12 +542,12 @@ The following diagram illustrates how various classes are used in the execution 
     }
     ```
 
-### C. Customer and Inventory Services: Handle integration events
+### C. Customer Service: Handle integration events
 
 1. Create a new Web API project for a customer service.
    - Remove WeatherForecast class and controller.
    ```
-   dotnet new webapi --name ServiceName
+   dotnet new webapi --name CustomerService
    ```
 2. Add NuGet packages.
    - MongoDB.Driver
@@ -476,9 +568,10 @@ The following diagram illustrates how various classes are used in the execution 
      - CreditReserveFailed
      - CreditReleased
    - Update `Customer` to implement:
-     - `ICommandProcessor<ReserveCredit>`
+     - `ICommandProcessor<ReserveCredit, Customer, CreditReserved>`
      - `IEventApplier<CreditReserveSucceeded>`
-     - `ICommandProcessor<ReleaseCredit, CreditReleased>`
+     - `IEventApplier<CreditReserveFailed>`
+     - `ICommandProcessor<ReleaseCredit, Customer, CreditReleased>`
      - `IEventApplier<CreditReleased>`
     ```csharp
     public IDomainEvent Process(ReserveCredit command)
@@ -497,8 +590,6 @@ The following diagram illustrates how various classes are used in the execution 
     ```csharp
     public override async Task HandleAsync(CustomerCreditReserveRequested @event)
     {
-        _logger.LogInformation("Handling event: {EventName}", $"v1.{nameof(CustomerCreditReserveRequested)}");
-
         var command = new ReserveCredit(
             @event.CustomerCreditReserveRequest.CustomerId,
             @event.CustomerCreditReserveRequest.CreditReserved);
@@ -507,6 +598,52 @@ The following diagram illustrates how various classes are used in the execution 
     ```
     - Repeat with a `CustomerCreditReserveReleaseEventHandler` class.
 5. Add `ICustomerRepository` and `CustomerRepository` classes to a **Repositories** folder at the project root.
+    ```csharp
+    public interface ICustomerRepository
+    {
+        Task<IEnumerable<Customer>> GetAsync();
+        Task<Customer?> GetAsync(Guid id);
+        Task<Customer?> AddAsync(Customer entity);
+        Task<Customer?> UpdateAsync(Customer entity);
+        Task<int> RemoveAsync(Guid id);
+    }
+    ```
+    ```csharp
+    public class CustomerRepository : DocumentRepository<Customer>, ICustomerRepository
+    {
+        public CustomerRepository(
+            IMongoCollection<Customer> collection) : base(collection)
+        {
+        }
+
+        public async Task<IEnumerable<Customer>> GetAsync() =>
+            await FindManyAsync();
+
+        public async Task<Customer?> GetAsync(Guid id) =>
+            await FindOneAsync(e => e.Id == id);
+
+        public async Task<Customer?> AddAsync(Customer entity)
+        {
+            var existing = await FindOneAsync(e => e.Id == entity.Id);
+            if (existing != null) return null;
+            entity.ETag = Guid.NewGuid().ToString();
+            return await InsertOneAsync(entity);
+        }
+
+        public async Task<Customer?> UpdateAsync(Customer entity)
+        {
+            var existing = await GetAsync(entity.Id);
+            if (existing == null) return null;
+            if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0 )
+                throw new ConcurrencyException();
+            entity.ETag = Guid.NewGuid().ToString();
+            return await FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+        }
+
+        public async Task<int> RemoveAsync(Guid id) =>
+            await DeleteOneAsync(e => e.Id == id);
+    }
+    ```
 6. Create a `CustomerCommandHandler` class in a **Domain/CustomerAggregate/Handlers** folder.
    - Inject an `IEventBus` into the constructor.
    - Create a private `PublishCreditReservedResponse` helper method to publish a `CustomerCreditReserveFulfilled` integration event to the event bus.
@@ -573,47 +710,21 @@ The following diagram illustrates how various classes are used in the execution 
         return result;
     }
     ```
-7. Add a `CommandResultExtensions` class to a **Helpers** folder.
-    ```csharp
-    public static class CommandResultExtensions
-    {
-        public static ActionResult ToActionResult(this CommandResult result, object? entity = null)
-        {
-            switch (result.Outcome)
-            {
-                case CommandOutcome.Accepted:
-                    return entity != null
-                        ? new OkObjectResult(entity)
-                        : new OkResult();
-                case CommandOutcome.Conflict:
-                    return result.Errors != null
-                        ? new ConflictObjectResult(result.Errors)
-                        : new ConflictResult();
-                case CommandOutcome.NotFound:
-                    return result.Errors != null
-                        ? new NotFoundObjectResult(result.Errors)
-                        : new NotFoundResult();
-                default:
-                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
-        }
-    }
-    ```
-8. Add **DTO** and **Mapping** folders.
+7. Add **DTO** and **Mapping** folders.
    - Copy properties from `Customer`.
    - Add `Id` and `ETag` properties.
    - Add an `AutoMapperProfile` class to **Mapping** that extends `Profile`.
-9.  Add a `CustomerQueryController` class to the **Controllers** folder.
-    - Inject `ICustomerRepository` and `IMapper` into the constructor.
+8.  Add a `CustomerQueryController` class to the **Controllers** folder.
+    - Inject `IQueryBroker` and `IMapper` into the constructor.
     - Flesh out `Get` methods.
     - Map results to DTO's.
-10. Add a `CustomerCommandController` class to the **Controllers** folder.
-    - Inject `CustomerCommandHandler` and `IMapper` into the constructor.
+9.  Add a `CustomerCommandController` class to the **Controllers** folder.
+    - Inject `ICommandBroker` and `IMapper` into the constructor.
     - Call `Handler` on the command handler to process commands.
     - Map parameters and results to DTO's.
-11. Add a `CustomerDatabaseSettings` class to a **Configuration** folder.
+10. Add a `CustomerDatabaseSettings` class to a **Configuration** folder.
     - Implement `IMongoDbSettings`.
-12. Configure services and endpoints in `Program`.
+11. Configure services and endpoints in `Program`.
     - Automapper
     ```csharp
     builder.Services.AddAutoMapper(typeof(Program));
@@ -623,15 +734,16 @@ The following diagram illustrates how various classes are used in the execution 
     builder.Services.AddSingleton<ICustomerRepository, CustomerRepository>();
     builder.Services.AddMongoDbSettings<CustomerDatabaseSettings, Customer>(builder.Configuration);
     ```
-    - Command handlers
+    - Command and query handlers
     ```csharp
-    builder.Services.AddCommandHandlers();
+    builder.Services.AddHandlers(typeof(Program));
     ```
     - Event Bus and event handlers
     ```csharp
     builder.Services.AddDaprEventBus(builder.Configuration, true);
     builder.Services.AddDaprMongoEventCache(builder.Configuration);
     builder.Services.AddSingleton<CustomerCreditReserveRequestedEventHandler>();
+    builder.Services.AddSingleton<CustomerCreditReleaseRequestedEventHandler>();
     ```
     - Routing
       - Place prior to `app.UseAuthorization();`
@@ -648,11 +760,13 @@ The following diagram illustrates how various classes are used in the execution 
         endpoints.MapDaprEventBus(eventBus =>
         {
             var customerCreditRequestedEventHandler = app.Services.GetRequiredService<CustomerCreditReserveRequestedEventHandler>();
+            var customerCreditReleasedEventHandler = app.Services.GetRequiredService<CustomerCreditReleaseRequestedEventHandler>();
             eventBus.Subscribe(customerCreditRequestedEventHandler, nameof(CustomerCreditReserveRequested), "v1");
+            eventBus.Subscribe(customerCreditReleasedEventHandler, nameof(CustomerCreditReleaseRequested), "v1");
         });
     });
     ```
-13. Add entries to **appsettings.json**.
+12. Add entries to **appsettings.json**.
    ```json
    {
      "Logging": {

@@ -1,6 +1,7 @@
-using EventDriven.DDD.Abstractions.Commands;
+using Common.Integration.Events;
+using EventDriven.CQRS.Abstractions.Commands;
 using EventDriven.EventBus.Abstractions;
-using Integration.Events;
+using InventoryService.Domain.InventoryAggregate;
 using InventoryService.Domain.InventoryAggregate.Commands;
 
 namespace InventoryService.Integration.Handlers;
@@ -8,11 +9,11 @@ namespace InventoryService.Integration.Handlers;
 public class ProductInventoryReleaseRequestedEventHandler :
     IntegrationEventHandler<ProductInventoryReleaseRequested>
 {
-    private readonly ICommandHandler<ReleaseInventory> _commandHandler;
+    private readonly ICommandHandler<Inventory, ReleaseInventory> _commandHandler;
     private readonly ILogger<ProductInventoryReleaseRequestedEventHandler> _logger;
 
     public ProductInventoryReleaseRequestedEventHandler(
-        ICommandHandler<ReleaseInventory> commandHandler,
+        ICommandHandler<Inventory, ReleaseInventory> commandHandler,
         ILogger<ProductInventoryReleaseRequestedEventHandler> logger)
     {
         _commandHandler = commandHandler;
@@ -26,6 +27,6 @@ public class ProductInventoryReleaseRequestedEventHandler :
         var command = new ReleaseInventory(
             @event.ProductInventoryReleaseRequests.InventoryId,
             @event.ProductInventoryReleaseRequests.AmountReleased);
-        await _commandHandler.Handle(command);
+        await _commandHandler.Handle(command, CancellationToken.None);
     }
 }

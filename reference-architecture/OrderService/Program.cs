@@ -1,3 +1,6 @@
+using Common.Behaviors;
+using Common.Integration.Events;
+using EventDriven.CQRS.Abstractions.DependencyInjection;
 using EventDriven.DependencyInjection;
 using EventDriven.DependencyInjection.URF.Mongo;
 using EventDriven.Sagas.Configuration.Abstractions.DTO;
@@ -5,7 +8,7 @@ using EventDriven.Sagas.Configuration.Mongo.Repositories;
 using EventDriven.Sagas.DependencyInjection;
 using EventDriven.Sagas.Persistence.Abstractions.DTO;
 using EventDriven.Sagas.Persistence.Mongo.Repositories;
-using Integration.Events;
+using MediatR;
 using OrderService.Configuration;
 using OrderService.Domain.OrderAggregate;
 using OrderService.Integration.Handlers;
@@ -30,8 +33,11 @@ builder.Services.AddMongoDbSettings<OrderDatabaseSettings, Order>(builder.Config
 builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfigurationDto>(builder.Configuration);
 builder.Services.AddMongoDbSettings<SagaSnapshotDatabaseSettings, SagaSnapshotDto>(builder.Configuration);
 
-// Command handlers
-builder.Services.AddCommandHandlers();
+// Add command and query handlers
+builder.Services.AddHandlers(typeof(Program));
+
+// Add behaviors
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
 // App settings
 builder.Services.AddAppSettings<SagaConfigSettings>(builder.Configuration);

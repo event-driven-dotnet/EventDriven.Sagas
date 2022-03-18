@@ -46,7 +46,7 @@ Abstractions and reference architecture for implementing the Saga pattern to orc
 ## Reference Architecture
 - **SagaConfigDefinition**: Saga Configuration Definition
   - Provides method that returns a `SagaConfigurationDto` containing Create Order Saga steps, actions and commands.
-- **Integration**: Models and events that are exchanged between services taking part in the saga.
+- **Common**: Contains models and events that are exchanged between services taking part in the saga. Also contains behaviors for cross-cutting concerns such as validation or logging.
 - **OrderService**: Contains `CreateOrderSaga` with dispatchers, commands, handlers and evaluators for orchestrating a saga with updates that span multiple services.
 - **CustomerService**: Contains handlers for processing integration events that update the customer data store when credit is reserved or released.
 
@@ -58,9 +58,7 @@ The Saga pattern consists of a series of steps with actions and corresponding co
 
 The Saga orchestrator coordinates the entire process by telling each participant what to do and invoking the next participant in either moving the saga forward or rolling it backwards. The orchestrator can run in the same process as the initiating microservice, and it can also communicate with other microservices asynchronously through an event bus abstraction.
 
-<p align="center">
-  <img width="900" src="images/saga-orchestration.png">
-</p>
+![Saga Orchestration](images/saga-orchestration.png)
 
 ## Running the Sample
 
@@ -169,4 +167,4 @@ In the case of `CreateOrderSaga`, it is configured to perform the following step
 
 ### Steps
 
-For step-by-step instuctions on how to build a saga orchestration that executes updates across multiple services, please see the [Saga Development Guide](DevelopmentGuide.md).
+For step-by-step instructions on how to build a saga orchestration that executes updates across multiple services, please see the [Development Guide](DevelopmentGuide.md).

@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using EventDriven.DDD.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Factories;
@@ -137,20 +136,6 @@ public static class ServiceCollectionExtensions
             });
         return services;
     }
-
-    /// <summary>
-    /// Register command handlers implementing <see cref="ICommandHandler{TEntity,TCommand}"/>.
-    /// </summary>
-    /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
-    /// <returns>A reference to this instance after the operation has completed.</returns>
-    public static IServiceCollection AddCommandHandlers(this IServiceCollection services) =>
-        services.Scan(scan =>
-        {
-            scan.FromEntryAssembly()
-                .AddClasses(classes => classes.AssignableTo(typeof(ICommandHandler<,>)))
-                    .AsSelfWithInterfaces()
-                    .WithTransientLifetime();
-        });
 
     private static IServiceCollection RegisterSagaTypes(this IServiceCollection services) =>
         services.Scan(scan =>

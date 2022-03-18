@@ -53,8 +53,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", 
 		reference-architecture\dapr\components\statestore.yaml = reference-architecture\dapr\components\statestore.yaml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Integration", "reference-architecture\Integration\Integration.csproj", "{D839C66B-8DCA-4BD8-96D2-B228569CC26E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaConfigDefinitions", "reference-architecture\SagaConfigDefinitions\SagaConfigDefinitions.csproj", "{66A690E4-8F86-4CC9-BC38-40C85939EA1A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SagaConfigCli", "administration\SagaConfigCli\SagaConfigCli.csproj", "{3402CD2C-9521-4F3E-B6EB-E103C220551C}"
@@ -67,6 +65,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "standby", "standby", "{45FE
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService", "reference-architecture\InventoryService\InventoryService.csproj", "{E64FBA81-81E0-429E-B83D-213BDD880284}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "reference-architecture\Common\Common.csproj", "{C67BF2F3-1B5E-44EB-93A5-634FEC0E073F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -122,10 +122,6 @@ Global
 		{F4BE08B6-5627-41A1-A584-B727BF700542}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4BE08B6-5627-41A1-A584-B727BF700542}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4BE08B6-5627-41A1-A584-B727BF700542}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D839C66B-8DCA-4BD8-96D2-B228569CC26E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D839C66B-8DCA-4BD8-96D2-B228569CC26E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D839C66B-8DCA-4BD8-96D2-B228569CC26E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D839C66B-8DCA-4BD8-96D2-B228569CC26E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{66A690E4-8F86-4CC9-BC38-40C85939EA1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{66A690E4-8F86-4CC9-BC38-40C85939EA1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66A690E4-8F86-4CC9-BC38-40C85939EA1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -142,6 +138,10 @@ Global
 		{E64FBA81-81E0-429E-B83D-213BDD880284}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E64FBA81-81E0-429E-B83D-213BDD880284}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E64FBA81-81E0-429E-B83D-213BDD880284}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C67BF2F3-1B5E-44EB-93A5-634FEC0E073F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C67BF2F3-1B5E-44EB-93A5-634FEC0E073F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C67BF2F3-1B5E-44EB-93A5-634FEC0E073F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C67BF2F3-1B5E-44EB-93A5-634FEC0E073F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -161,12 +161,12 @@ Global
 		{F4BE08B6-5627-41A1-A584-B727BF700542} = {2F6C2678-B38D-4784-AEDA-1DF293E1296A}
 		{F73C909F-1A16-4DDD-B4EE-6E2304A36477} = {2F6C2678-B38D-4784-AEDA-1DF293E1296A}
 		{1C36C3B5-1DCE-45DA-AFAE-161338CB978C} = {F73C909F-1A16-4DDD-B4EE-6E2304A36477}
-		{D839C66B-8DCA-4BD8-96D2-B228569CC26E} = {2F6C2678-B38D-4784-AEDA-1DF293E1296A}
 		{66A690E4-8F86-4CC9-BC38-40C85939EA1A} = {2F6C2678-B38D-4784-AEDA-1DF293E1296A}
 		{3402CD2C-9521-4F3E-B6EB-E103C220551C} = {8C5A2F59-0441-437A-AD5E-26F76E4F2DA8}
 		{122AEC3F-5906-4FA5-BB8B-82F81A9B6A35} = {7340565F-A10B-4B7D-B75E-9320CAE5BD05}
 		{45FE68C9-F077-4AF9-9E91-7383A10C4D05} = {F73C909F-1A16-4DDD-B4EE-6E2304A36477}
 		{E64FBA81-81E0-429E-B83D-213BDD880284} = {2F6C2678-B38D-4784-AEDA-1DF293E1296A}
+		{C67BF2F3-1B5E-44EB-93A5-634FEC0E073F} = {2F6C2678-B38D-4784-AEDA-1DF293E1296A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3BFC4ACA-7DDF-4583-A578-5CAB3893AE40}

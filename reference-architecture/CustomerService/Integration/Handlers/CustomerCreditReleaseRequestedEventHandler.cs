@@ -1,19 +1,20 @@
+using Common.Integration.Events;
+using CustomerService.Domain.CustomerAggregate;
 using CustomerService.Domain.CustomerAggregate.Commands;
-using EventDriven.DDD.Abstractions.Commands;
+using EventDriven.CQRS.Abstractions.Commands;
 using EventDriven.EventBus.Abstractions;
-using Integration.Events;
 
 namespace CustomerService.Integration.Handlers;
 
-public class CustomerCreditReserveReleaseEventHandler :
+public class CustomerCreditReleaseRequestedEventHandler :
     IntegrationEventHandler<CustomerCreditReleaseRequested>
 {
-    private readonly ICommandHandler<ReleaseCredit> _commandHandler;
-    private readonly ILogger<CustomerCreditReserveReleaseEventHandler> _logger;
+    private readonly ICommandHandler<Customer, ReleaseCredit> _commandHandler;
+    private readonly ILogger<CustomerCreditReleaseRequestedEventHandler> _logger;
 
-    public CustomerCreditReserveReleaseEventHandler(
-        ICommandHandler<ReleaseCredit> commandHandler,
-        ILogger<CustomerCreditReserveReleaseEventHandler> logger)
+    public CustomerCreditReleaseRequestedEventHandler(
+        ICommandHandler<Customer, ReleaseCredit> commandHandler,
+        ILogger<CustomerCreditReleaseRequestedEventHandler> logger)
     {
         _commandHandler = commandHandler;
         _logger = logger;
@@ -26,6 +27,6 @@ public class CustomerCreditReserveReleaseEventHandler :
         var command = new ReleaseCredit(
             @event.CustomerCreditReleaseRequest.CustomerId,
             @event.CustomerCreditReleaseRequest.CreditReleased);
-        await _commandHandler.Handle(command);
+        await _commandHandler.Handle(command, CancellationToken.None);
     }
 }

@@ -1,10 +1,12 @@
+using Common.Behaviors;
+using Common.Integration.Events;
 using CustomerService.Configuration;
 using CustomerService.Domain.CustomerAggregate;
 using CustomerService.Integration.Handlers;
 using CustomerService.Repositories;
+using EventDriven.CQRS.Abstractions.DependencyInjection;
 using EventDriven.DependencyInjection.URF.Mongo;
-using EventDriven.Sagas.DependencyInjection;
-using Integration.Events;
+using MediatR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,14 +22,17 @@ builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddSingleton<ICustomerRepository, CustomerRepository>();
 builder.Services.AddMongoDbSettings<CustomerDatabaseSettings, Customer>(builder.Configuration);
 
-// Add command handlers
-builder.Services.AddCommandHandlers();
+// Add command and query handlers
+builder.Services.AddHandlers(typeof(Program));
 
-// Add Dapr Event Bus and event handler
+// Add behaviors
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+
+// Add Dapr Event Bus and event handlers
 builder.Services.AddDaprEventBus(builder.Configuration, true);
 builder.Services.AddDaprMongoEventCache(builder.Configuration);
 builder.Services.AddSingleton<CustomerCreditReserveRequestedEventHandler>();
-builder.Services.AddSingleton<CustomerCreditReserveReleaseEventHandler>();
+builder.Services.AddSingleton<CustomerCreditReleaseRequestedEventHandler>();
 
 var app = builder.Build();
 
@@ -50,7 +55,7 @@ app.UseEndpoints(endpoints =>
     endpoints.MapDaprEventBus(eventBus =>
     {
         var customerCreditRequestedEventHandler = app.Services.GetRequiredService<CustomerCreditReserveRequestedEventHandler>();
-        var customerCreditReleasedEventHandler = app.Services.GetRequiredService<CustomerCreditReserveReleaseEventHandler>();
+        var customerCreditReleasedEventHandler = app.Services.GetRequiredService<CustomerCreditReleaseRequestedEventHandler>();
         eventBus.Subscribe(customerCreditRequestedEventHandler, nameof(CustomerCreditReserveRequested), "v1");
         eventBus.Subscribe(customerCreditReleasedEventHandler, nameof(CustomerCreditReleaseRequested), "v1");
     });

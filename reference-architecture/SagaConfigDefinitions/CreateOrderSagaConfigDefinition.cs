@@ -1,7 +1,7 @@
 using System.Text.Json;
+using Common.Integration.Models;
 using EventDriven.Sagas.Configuration.Abstractions;
 using EventDriven.Sagas.Configuration.Abstractions.DTO;
-using Integration.Models;
 using OrderService.Domain.OrderAggregate;
 using OrderService.Sagas.CreateOrder.Commands;
 

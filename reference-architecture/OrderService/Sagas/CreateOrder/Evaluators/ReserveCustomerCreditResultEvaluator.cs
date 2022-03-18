@@ -1,5 +1,5 @@
-﻿using EventDriven.Sagas.Abstractions.Evaluators;
-using Integration.Models;
+﻿using Common.Integration.Models;
+using EventDriven.Sagas.Abstractions.Evaluators;
 
 namespace OrderService.Sagas.CreateOrder.Evaluators;
 

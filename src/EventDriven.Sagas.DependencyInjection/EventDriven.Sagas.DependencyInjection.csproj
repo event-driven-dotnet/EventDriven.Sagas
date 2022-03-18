@@ -7,7 +7,7 @@
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <Authors>Tony Sneed</Authors>
         <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
-        <PackageVersion>1.0.0-beta1</PackageVersion>
+        <PackageVersion>1.0.0-beta2</PackageVersion>
         <Description>A set of abstractions for implementing the Saga pattern.</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/event-driven-dotnet/EventDriven.Sagas</PackageProjectUrl>
@@ -15,7 +15,7 @@
         <RepositoryUrl>https://github.com/event-driven-dotnet/EventDriven.Sagas.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>sagas event-driven event-driven-architecture</PackageTags>
-        <PackageReleaseNotes>https://github.com/event-driven-dotnet/EventDriven.Sagas/releases/tag/v1.0.0-beta1</PackageReleaseNotes>
+        <PackageReleaseNotes>https://github.com/event-driven-dotnet/EventDriven.Sagas/releases/tag/v1.0.0-beta2</PackageReleaseNotes>
         <PackageId>EventDriven.Sagas.DependencyInjection</PackageId>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
     </PropertyGroup>
@@ -35,10 +35,6 @@
       <ProjectReference Include="..\EventDriven.Sagas.Abstractions\EventDriven.Sagas.Abstractions.csproj" />
       <ProjectReference Include="..\EventDriven.Sagas.Configuration.Abstractions\EventDriven.Sagas.Configuration.Abstractions.csproj" />
       <ProjectReference Include="..\EventDriven.Sagas.Persistence.Abstractions\EventDriven.Sagas.Persistence.Abstractions.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Include="EventDriven.DDD.Abstractions" Version="1.1.0" />
     </ItemGroup>
 
 </Project>

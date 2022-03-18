@@ -1,8 +1,8 @@
+using Common.Integration.Events;
+using Common.Integration.Models;
 using EventDriven.EventBus.Abstractions;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Handlers;
-using Integration.Events;
-using Integration.Models;
 using OrderService.Sagas.CreateOrder;
 
 namespace OrderService.Integration.Handlers;

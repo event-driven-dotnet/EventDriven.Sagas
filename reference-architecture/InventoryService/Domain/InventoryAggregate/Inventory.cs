@@ -1,4 +1,4 @@
-using EventDriven.DDD.Abstractions.Commands;
+using EventDriven.CQRS.Abstractions.Commands;
 using EventDriven.DDD.Abstractions.Entities;
 using EventDriven.DDD.Abstractions.Events;
 using InventoryService.Domain.InventoryAggregate.Commands;
@@ -8,15 +8,16 @@ namespace InventoryService.Domain.InventoryAggregate;
 
 public class Inventory :
     Entity,
-    ICommandProcessor<CreateInventory, InventoryCreated>,
+    ICommandProcessor<CreateInventory, Inventory, InventoryCreated>,
     IEventApplier<InventoryCreated>,
-    ICommandProcessor<UpdateInventory, InventoryUpdated>,
+    ICommandProcessor<UpdateInventory, Inventory, InventoryUpdated>,
     IEventApplier<InventoryUpdated>,
     ICommandProcessor<RemoveInventory, InventoryRemoved>,
     IEventApplier<InventoryRemoved>,
-    ICommandProcessor<ReserveInventory>,
+    ICommandProcessor<ReserveInventory, Inventory, InventoryReserved>,
     IEventApplier<InventoryReserveSucceeded>,
-    ICommandProcessor<ReleaseInventory, InventoryReleased>,
+    IEventApplier<InventoryReserveFailed>,
+    ICommandProcessor<ReleaseInventory, Inventory, InventoryReleased>,
     IEventApplier<InventoryReleased>
 {
     public string Description { get; set; } = null!;
@@ -40,7 +41,7 @@ public class Inventory :
     {
     }
 
-    public IDomainEvent Process(ReserveInventory command)
+    public InventoryReserved Process(ReserveInventory command)
     {
         // If product has sufficient inventory, return InventoryReserveSucceeded event
         if (AmountAvailable >= command.AmountRequested)
@@ -52,6 +53,12 @@ public class Inventory :
     public void Apply(InventoryReserveSucceeded domainEvent)
     {
         AmountAvailable -= domainEvent.AmountRequested;
+        if (domainEvent.EntityETag != null) ETag = domainEvent.EntityETag;
+    }
+
+    public void Apply(InventoryReserveFailed domainEvent)
+    {
+        AmountAvailable += domainEvent.AmountRequested;
         if (domainEvent.EntityETag != null) ETag = domainEvent.EntityETag;
     }
 

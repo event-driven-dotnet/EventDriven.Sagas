@@ -9,8 +9,7 @@ Scenario: Create an order with a saga
 	And inventory has been created with 'inventory.json'
 	And the inventory quantity is 9
 	When I make a POST request with 'order.json' to 'api/order'
-	Then the response status code is '201'
-	And the location header is 'api/order/id'
+	Then the response status code is '200'
 	And the response entity should be 'order.json'
 	And the customer credit should equal 77.5
 	And the inventory quantity should equal 6
@@ -24,8 +23,7 @@ Scenario: Create an order with a saga that rolls back due to insufficient custom
 	And inventory has been created with 'inventory.json'
 	And the inventory quantity is 9
 	When I make a POST request with 'order.json' to 'api/order'
-	Then the response status code is '201'
-	And the location header is 'api/order/id'
+	Then the response status code is '200'
 	And the response entity should be 'order.json'
 	And the customer credit should equal 20.0
 	And the inventory quantity should equal 9
@@ -39,8 +37,7 @@ Scenario: Create an order with a saga that rolls back due to insufficient produc
 	And inventory has been created with 'inventory.json'
 	And the inventory quantity is 2
 	When I make a POST request with 'order.json' to 'api/order'
-	Then the response status code is '201'
-	And the location header is 'api/order/id'
+	Then the response status code is '200'
 	And the response entity should be 'order.json'
 	And the customer credit should equal 100.0
 	And the inventory quantity should equal 2

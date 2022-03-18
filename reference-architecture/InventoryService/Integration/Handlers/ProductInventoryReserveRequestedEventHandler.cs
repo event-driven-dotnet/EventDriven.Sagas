@@ -1,6 +1,7 @@
-using EventDriven.DDD.Abstractions.Commands;
+using Common.Integration.Events;
+using EventDriven.CQRS.Abstractions.Commands;
 using EventDriven.EventBus.Abstractions;
-using Integration.Events;
+using InventoryService.Domain.InventoryAggregate;
 using InventoryService.Domain.InventoryAggregate.Commands;
 
 namespace InventoryService.Integration.Handlers;
@@ -8,11 +9,11 @@ namespace InventoryService.Integration.Handlers;
 public class ProductInventoryReserveRequestedEventHandler :
     IntegrationEventHandler<ProductInventoryReserveRequested>
 {
-    private readonly ICommandHandler<ReserveInventory> _commandHandler;
+    private readonly ICommandHandler<Inventory, ReserveInventory> _commandHandler;
     private readonly ILogger<ProductInventoryReserveRequestedEventHandler> _logger;
 
     public ProductInventoryReserveRequestedEventHandler(
-        ICommandHandler<ReserveInventory> commandHandler,
+        ICommandHandler<Inventory, ReserveInventory> commandHandler,
         ILogger<ProductInventoryReserveRequestedEventHandler> logger)
     {
         _commandHandler = commandHandler;
@@ -26,6 +27,6 @@ public class ProductInventoryReserveRequestedEventHandler :
         var command = new ReserveInventory(
             @event.ProductInventoryReserveRequest.InventoryId,
             @event.ProductInventoryReserveRequest.AmountReserved);
-        await _commandHandler.Handle(command);
+        await _commandHandler.Handle(command, CancellationToken.None);
     }
 }

@@ -1,5 +1,3 @@
-using EventDriven.DDD.Abstractions.Events;
-
 namespace InventoryService.Domain.InventoryAggregate.Events;
 
-public record InventoryReserveSucceeded(Guid EntityId, int AmountRequested) : DomainEvent(EntityId);
+public record InventoryReserveSucceeded(Guid EntityId, int AmountRequested) : InventoryReserved(EntityId, AmountRequested);
