@@ -32,7 +32,7 @@ public class StartCreateOrderSagaHandler : ICommandHandler<Order, StartCreateOrd
         try
         {
             // Start create order saga
-            await _createOrderSaga.StartSagaAsync(command.Entity, cancellationToken);
+            await _createOrderSaga.StartSagaAsync(command.Entity, command.OrderMetadata, cancellationToken);
             
             // Return created order
             var order = await _repository.GetAsync(command.EntityId);

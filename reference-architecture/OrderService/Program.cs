@@ -79,10 +79,10 @@ app.UseEndpoints(endpoints =>
         var customerCreditReleasedEventHandler = app.Services.GetRequiredService<CustomerCreditReleaseFulfilledEventHandler>();
         var productInventoryReservedEventHandler = app.Services.GetRequiredService<ProductInventoryReserveFulfilledEventHandler>();
         var productInventoryReleasedEventHandler = app.Services.GetRequiredService<ProductInventoryReleaseFulfilledEventHandler>();
-        eventBus.Subscribe(customerCreditReservedEventHandler, nameof(CustomerCreditReserveFulfilled), "v1");
-        eventBus.Subscribe(customerCreditReleasedEventHandler, nameof(CustomerCreditReleaseFulfilled), "v1");
-        eventBus.Subscribe(productInventoryReservedEventHandler, nameof(ProductInventoryReserveFulfilled), "v1");
-        eventBus.Subscribe(productInventoryReleasedEventHandler, nameof(ProductInventoryReleaseFulfilled), "v1");
+        eventBus?.Subscribe(customerCreditReservedEventHandler, nameof(CustomerCreditReserveFulfilled), "v1");
+        eventBus?.Subscribe(customerCreditReleasedEventHandler, nameof(CustomerCreditReleaseFulfilled), "v1");
+        eventBus?.Subscribe(productInventoryReservedEventHandler, nameof(ProductInventoryReserveFulfilled), "v1");
+        eventBus?.Subscribe(productInventoryReleasedEventHandler, nameof(ProductInventoryReleaseFulfilled), "v1");
     });
 });
 

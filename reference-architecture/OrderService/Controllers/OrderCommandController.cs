@@ -2,6 +2,7 @@ using AutoMapper;
 using EventDriven.CQRS.Abstractions.Commands;
 using EventDriven.CQRS.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using OrderService.Domain.OrderAggregate;
 using OrderService.Domain.OrderAggregate.Commands;
 
 namespace OrderService.Controllers
@@ -25,8 +26,18 @@ namespace OrderService.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] DTO.Order orderDto)
         {
-            var orderIn = _mapper.Map<Domain.OrderAggregate.Order>(orderDto);
-            var result = await _commandBroker.SendAsync(new StartCreateOrderSaga(orderIn));
+            var orderIn = _mapper.Map<Order>(orderDto);
+            var orderMetadata = new OrderMetadata
+            {
+                VendorInfo = new VendorInfo
+                {
+                    Name = "Amazon",
+                    City = "Seattle",
+                    State = "Washington",
+                    Country = "USA"
+                }
+            };
+            var result = await _commandBroker.SendAsync(new StartCreateOrderSaga(orderIn, orderMetadata));
 
             if (result.Outcome != CommandOutcome.Accepted)
                 return result.ToActionResult();

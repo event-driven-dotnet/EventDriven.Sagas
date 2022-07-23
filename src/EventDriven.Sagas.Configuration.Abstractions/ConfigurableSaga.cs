@@ -1,4 +1,5 @@
-﻿using EventDriven.Sagas.Abstractions;
+﻿using EventDriven.DDD.Abstractions.Entities;
+using EventDriven.Sagas.Abstractions;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Configuration.Abstractions.Repositories;
@@ -64,5 +65,37 @@ public abstract class ConfigurableSaga : Saga
         
         // Start saga
         await base.StartSagaAsync(entityId, cancellationToken);
+    }
+}
+        
+/// <inheritdoc />
+public abstract class ConfigurableSaga<TMetadata> : ConfigurableSaga
+    where TMetadata : class
+{
+    /// <summary>
+    /// Saga metadata.
+    /// </summary>
+    public TMetadata? Metadata { get; set; }
+
+    /// <inheritdoc />
+    protected ConfigurableSaga(ISagaCommandDispatcher sagaCommandDispatcher,
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) :
+        base(sagaCommandDispatcher, commandResultEvaluators)
+    {
+    }
+    
+    /// <summary>
+    /// Start the saga.
+    /// </summary>
+    /// <param name="entity">Entity.</param>
+    /// <param name="metadata">Saga metadata.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public virtual async Task StartSagaAsync(IEntity entity, TMetadata metadata,
+        CancellationToken cancellationToken = default)
+    {
+        Metadata = metadata;
+        Entity = entity;
+        await StartSagaAsync(entity.Id, cancellationToken);
     }
 }

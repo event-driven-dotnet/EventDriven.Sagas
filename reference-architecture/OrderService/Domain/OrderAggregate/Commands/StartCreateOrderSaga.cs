@@ -2,4 +2,4 @@
 
 namespace OrderService.Domain.OrderAggregate.Commands;
 
-public record StartCreateOrderSaga(Order? Entity) : Command<Order>(Entity);
+public record StartCreateOrderSaga(Order? Entity, OrderMetadata OrderMetadata) : Command<Order>(Entity);

@@ -58,8 +58,8 @@ app.UseEndpoints(endpoints =>
     {
         var productInventoryRequestedEventHandler = app.Services.GetRequiredService<ProductInventoryReserveRequestedEventHandler>();
         var productInventoryReleasedEventHandler = app.Services.GetRequiredService<ProductInventoryReleaseRequestedEventHandler>();
-        eventBus.Subscribe(productInventoryRequestedEventHandler, nameof(ProductInventoryReserveRequested), "v1");
-        eventBus.Subscribe(productInventoryReleasedEventHandler, nameof(ProductInventoryReleaseRequested), "v1");
+        eventBus?.Subscribe(productInventoryRequestedEventHandler, nameof(ProductInventoryReserveRequested), "v1");
+        eventBus?.Subscribe(productInventoryReleasedEventHandler, nameof(ProductInventoryReleaseRequested), "v1");
     });
 });
 

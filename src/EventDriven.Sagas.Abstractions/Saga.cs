@@ -414,3 +414,35 @@ public abstract class Saga
         await StartSagaAsync(entity.Id, cancellationToken);
     }
 }
+
+/// <inheritdoc />
+public abstract class Saga<TMetadata> : Saga
+    where TMetadata : class
+{
+    /// <summary>
+    /// Saga metadata.
+    /// </summary>
+    public TMetadata? Metadata { get; set; }
+
+    /// <inheritdoc />
+    protected Saga(ISagaCommandDispatcher sagaCommandDispatcher,
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) :
+        base(sagaCommandDispatcher, commandResultEvaluators)
+    {
+    }
+    
+    /// <summary>
+    /// Start the saga.
+    /// </summary>
+    /// <param name="entity">Entity.</param>
+    /// <param name="metadata">Saga metadata.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public virtual async Task StartSagaAsync(IEntity entity, TMetadata metadata,
+        CancellationToken cancellationToken = default)
+    {
+        Metadata = metadata;
+        Entity = entity;
+        await StartSagaAsync(entity.Id, cancellationToken);
+    }
+}

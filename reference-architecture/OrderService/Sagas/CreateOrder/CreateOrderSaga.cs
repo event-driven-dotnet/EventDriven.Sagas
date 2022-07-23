@@ -1,4 +1,5 @@
-﻿using Common.Integration.Models;
+﻿using System.Diagnostics;
+using Common.Integration.Models;
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
@@ -10,7 +11,7 @@ using OrderService.Sagas.CreateOrder.Commands;
 namespace OrderService.Sagas.CreateOrder;
 
 public class CreateOrderSaga :
-    PersistableSaga,
+    PersistableSaga<OrderMetadata>,
     ISagaCommandResultHandler<OrderState>,
     ISagaCommandResultHandler<CustomerCreditReserveResponse>,
     ISagaCommandResultHandler<CustomerCreditReleaseResponse>,
@@ -33,6 +34,10 @@ public class CreateOrderSaga :
 
     protected override async Task ExecuteCurrentActionAsync()
     {
+        // Retrieve order metadata
+        Debug.Print("Order metadata: {0}: {1}, {2}, {3}",
+            Metadata?.VendorInfo.Name, Metadata?.VendorInfo.City, Metadata?.VendorInfo.State, Metadata?.VendorInfo.Country);
+        
         var action = GetCurrentAction();
         if (Entity is Order order)
         {
