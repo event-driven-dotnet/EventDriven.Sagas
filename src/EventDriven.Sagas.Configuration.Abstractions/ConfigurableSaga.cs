@@ -32,7 +32,7 @@ public abstract class ConfigurableSaga : Saga
     /// <summary>
     /// Saga configuration options.
     /// </summary>
-    public SagaConfigurationOptions? SagaConfigOptions { get; set; }
+    public ISagaConfigSettings? SagaConfigOptions { get; set; }
 
     /// <summary>
     /// Saga configuration repository.

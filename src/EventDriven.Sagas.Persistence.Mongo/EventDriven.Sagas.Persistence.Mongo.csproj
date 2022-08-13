@@ -7,7 +7,7 @@
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <Authors>Tony Sneed</Authors>
         <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
-        <PackageVersion>1.0.0-beta4</PackageVersion>
+        <PackageVersion>1.1.0</PackageVersion>
         <Description>A set of abstractions for implementing the Saga pattern.</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/event-driven-dotnet/EventDriven.Sagas</PackageProjectUrl>
@@ -15,7 +15,7 @@
         <RepositoryUrl>https://github.com/event-driven-dotnet/EventDriven.Sagas.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>sagas event-driven event-driven-architecture</PackageTags>
-        <PackageReleaseNotes>https://github.com/event-driven-dotnet/EventDriven.Sagas/releases/tag/v1.0.0-beta4</PackageReleaseNotes>
+        <PackageReleaseNotes>https://github.com/event-driven-dotnet/EventDriven.Sagas/releases/tag/v1.1.0</PackageReleaseNotes>
         <PackageId>EventDriven.Sagas.Persistence.Mongo</PackageId>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
     </PropertyGroup>
@@ -36,7 +36,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="EventDriven.DependencyInjection.URF.Mongo" Version="1.2.0" />
+        <PackageReference Include="EventDriven.DependencyInjection.URF.Mongo" Version="1.2.1" />
     </ItemGroup>
 
 </Project>

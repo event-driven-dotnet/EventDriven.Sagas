@@ -5,7 +5,6 @@ using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Factories;
 using EventDriven.Sagas.Abstractions.Handlers;
 using EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
-using EventDriven.Sagas.Configuration.Abstractions;
 using EventDriven.Sagas.Configuration.Abstractions.Factories;
 using EventDriven.Sagas.Persistence.Abstractions.Factories;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +31,7 @@ public class SagaFactoryTests
             sp.GetRequiredService<FakeSagaCommandHandler>());
         services.AddSingleton(sp =>
         {
-            var sagaConfigOptions = new SagaConfigurationOptions();
+            var sagaConfigOptions = new FakeSagaConfigSettings();
             var dispatcher = sp.GetRequiredService<FakeSagaCommandDispatcher>();
             var evaluators = sp.GetServices<ISagaCommandResultEvaluator>();
             var resultDispatchers = sp.GetServices<ISagaCommandResultDispatcher>();

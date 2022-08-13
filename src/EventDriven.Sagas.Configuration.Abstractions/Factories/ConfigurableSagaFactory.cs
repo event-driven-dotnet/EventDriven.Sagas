@@ -11,7 +11,7 @@ public class ConfigurableSagaFactory<TSaga>
     : SagaFactory<TSaga>
     where TSaga : ConfigurableSaga, ISagaCommandResultHandler
 {
-    private readonly SagaConfigurationOptions _sagaConfigOptions;
+    private readonly SagaConfigSettings _sagaConfigOptions;
     private readonly ISagaConfigRepository _sagaConfigRepository;
 
     /// <inheritdoc />
@@ -20,7 +20,7 @@ public class ConfigurableSagaFactory<TSaga>
         IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
         IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers,
         IEnumerable<ICheckSagaLockCommandHandler> checkLockCommandHandlers,
-        SagaConfigurationOptions sagaConfigOptions,
+        SagaConfigSettings sagaConfigOptions,
         ISagaConfigRepository sagaConfigRepository) : 
         base(sagaCommandDispatcher, commandResultEvaluators,
             commandResultDispatchers, checkLockCommandHandlers)

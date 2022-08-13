@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Factories;
@@ -25,21 +26,24 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
     /// <param name="configuration">The application's <see cref="IConfiguration"/>.</param>
+    /// <param name="assemblyMarkerTypes">Assembly marker types.</param>
     /// <typeparam name="TPersistableSaga">Concrete saga type that extends PersistableSaga.</typeparam>
+    /// <typeparam name="TSagaConfigSettings">Saga configuration settings type.</typeparam>
     /// <typeparam name="TSagaCommandDispatcher">Saga command dispatcher type.</typeparam>
     /// <typeparam name="TSagaConfigRepository">Saga config repository type.</typeparam>
     /// <typeparam name="TSagaSnapshotRepository">Saga snapshot repository type.</typeparam>
-    /// <typeparam name="TSagaConfigSettings">Concrete implementation of <see cref="ISagaConfigSettings"/></typeparam>
     /// <returns>A reference to this instance after the operation has completed.</returns>
-    public static IServiceCollection AddSaga<TPersistableSaga, TSagaCommandDispatcher,
-        TSagaConfigRepository, TSagaSnapshotRepository, TSagaConfigSettings>(
+    public static IServiceCollection AddSaga<TPersistableSaga,
+        TSagaConfigSettings, TSagaCommandDispatcher,
+        TSagaConfigRepository, TSagaSnapshotRepository>(
         this IServiceCollection services, 
-        IConfiguration configuration)
+        IConfiguration configuration,
+        params Type[] assemblyMarkerTypes)
         where TPersistableSaga : PersistableSaga, ISagaCommandResultHandler
+        where TSagaConfigSettings : class, ISagaConfigSettings, new()
         where TSagaCommandDispatcher : ISagaCommandDispatcher
         where TSagaConfigRepository : class, ISagaConfigRepository
         where TSagaSnapshotRepository : class, ISagaSnapshotRepository
-        where TSagaConfigSettings : ISagaConfigSettings, new()
     {
         var settings = new TSagaConfigSettings();
         var configTypeName = typeof(TSagaConfigSettings).Name;
@@ -47,9 +51,9 @@ public static class ServiceCollectionExtensions
         configSection.Bind(settings);
         if (settings.SagaConfigId == Guid.Empty)
             throw new Exception($"'SagaConfigId' property not present in configuration section {configTypeName}");
-        return services.AddSaga<TPersistableSaga, TSagaCommandDispatcher,
+        return services.AddSaga<TPersistableSaga, TSagaConfigSettings, TSagaCommandDispatcher,
             TSagaConfigRepository, TSagaSnapshotRepository>(
-            settings.SagaConfigId, settings.OverrideLockCheck);
+            settings.SagaConfigId, settings.OverrideLockCheck, assemblyMarkerTypes);
     }
 
     /// <summary>
@@ -58,50 +62,61 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
     /// <param name="sagaConfigId">Optional saga configuration identifier.</param>
     /// <param name="overrideLockCheck">True to override lock check.</param>
+    /// <param name="assemblyMarkerTypes">Assembly marker types.</param>
     /// <typeparam name="TPersistableSaga">Concrete saga type that extends PersistableSaga.</typeparam>
+    /// <typeparam name="TSagaConfigSettings">Saga configuration settings type.</typeparam>
     /// <typeparam name="TSagaCommandDispatcher">Saga command dispatcher type.</typeparam>
     /// <typeparam name="TSagaConfigRepository">Saga config repository type.</typeparam>
     /// <typeparam name="TSagaSnapshotRepository">Saga snapshot repository type.</typeparam>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddSaga<TPersistableSaga,
-        TSagaCommandDispatcher, TSagaConfigRepository, TSagaSnapshotRepository>(
+        TSagaConfigSettings, TSagaCommandDispatcher,
+        TSagaConfigRepository, TSagaSnapshotRepository>(
         this IServiceCollection services, 
         Guid? sagaConfigId = null,
-        bool overrideLockCheck = false)
+        bool overrideLockCheck = false,
+        params Type[] assemblyMarkerTypes)
         where TPersistableSaga : PersistableSaga, ISagaCommandResultHandler
+        where TSagaConfigSettings : class, ISagaConfigSettings, new()
         where TSagaCommandDispatcher : ISagaCommandDispatcher
         where TSagaConfigRepository : class, ISagaConfigRepository
         where TSagaSnapshotRepository : class, ISagaSnapshotRepository
-        => services.AddSaga<TPersistableSaga, TSagaCommandDispatcher,
+        => services.AddSaga<TPersistableSaga, TSagaConfigSettings, TSagaCommandDispatcher,
             TSagaConfigRepository, TSagaSnapshotRepository>(options =>
         {
             options.SagaConfigId = sagaConfigId;
             options.OverrideLockCheck = overrideLockCheck;
-        });
+        }, assemblyMarkerTypes);
 
     /// <summary>
     /// Register a concrete saga using a configure method.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
     /// <param name="configure">Method for configuring saga options.</param>
+    /// <param name="assemblyMarkerTypes">Assembly marker types.</param>
     /// <typeparam name="TPersistableSaga">Concrete saga type that extends PersistableSaga.</typeparam>
+    /// <typeparam name="TSagaConfigSettings">Saga configuration settings type.</typeparam>
     /// <typeparam name="TSagaCommandDispatcher">Saga command dispatcher type.</typeparam>
     /// <typeparam name="TSagaConfigRepository">Saga config repository type.</typeparam>
     /// <typeparam name="TSagaSnapshotRepository">Saga snapshot repository type.</typeparam>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddSaga<
-        TPersistableSaga, TSagaCommandDispatcher, TSagaConfigRepository, TSagaSnapshotRepository>(
+        TPersistableSaga, TSagaConfigSettings, TSagaCommandDispatcher,
+        TSagaConfigRepository, TSagaSnapshotRepository>(
         this IServiceCollection services, 
-        Action<SagaConfigurationOptions> configure)
+        Action<TSagaConfigSettings> configure,
+        params Type[] assemblyMarkerTypes)
         where TPersistableSaga : PersistableSaga, ISagaCommandResultHandler
+        where TSagaConfigSettings : class, ISagaConfigSettings, new()
         where TSagaCommandDispatcher : ISagaCommandDispatcher
         where TSagaConfigRepository : class, ISagaConfigRepository
         where TSagaSnapshotRepository : class, ISagaSnapshotRepository
     {
-        var sagaConfigOptions = new SagaConfigurationOptions();
+        var sagaConfigOptions = new TSagaConfigSettings();
         configure(sagaConfigOptions);
-        var resolver = new SagaCommandTypeResolver(Assembly.GetEntryAssembly()?.FullName);
-        services.RegisterSagaTypes()
+        var assemblyName = GetSagaCommandsAssemblyName(assemblyMarkerTypes);
+        var resolver = new SagaCommandTypeResolver(assemblyName);
+        services.RegisterSagaTypes(assemblyMarkerTypes)
             .AddSingleton(sagaConfigOptions)
             .AddSingleton<ISagaConfigRepository, TSagaConfigRepository>()
             .AddSingleton<ISagaSnapshotRepository, TSagaSnapshotRepository>()
@@ -120,7 +135,7 @@ public static class ServiceCollectionExtensions
                 var checkLockHandlers = sp.GetServices<ICheckSagaLockCommandHandler>();
                 var resultDispatchers = 
                     sp.GetServices<ISagaCommandResultDispatcher>().DistinctBy(e => e.GetType()).ToList();
-                var configOptions = sp.GetRequiredService<SagaConfigurationOptions>();
+                var configOptions = sp.GetRequiredService<TSagaConfigSettings>();
                 var configRepo = sp.GetRequiredService<ISagaConfigRepository>();
                 var snapshotRepo = sp.GetRequiredService<ISagaSnapshotRepository>();
                 return new PersistableSagaFactory<TPersistableSaga>(
@@ -130,19 +145,23 @@ public static class ServiceCollectionExtensions
             .AddSingleton(sp =>
             {
                 var factory = sp.GetRequiredService<ISagaFactory<TPersistableSaga>>();
-                var configOptions = sp.GetRequiredService<SagaConfigurationOptions>();
+                var configOptions = sp.GetRequiredService<TSagaConfigSettings>();
                 var saga = factory.CreateSaga(configOptions.OverrideLockCheck);
                 return saga;
             });
         return services;
     }
 
-    private static IServiceCollection RegisterSagaTypes(this IServiceCollection services) =>
+    private static IServiceCollection RegisterSagaTypes(this IServiceCollection services,
+        params Type[] assemblyMarkerTypes) =>
         services.Scan(scan =>
         {
-            scan.FromEntryAssembly()
+            var typeSelector = assemblyMarkerTypes.Length > 0
+                ? scan.FromAssembliesOf(assemblyMarkerTypes)
+                : scan.FromEntryAssembly();
+            typeSelector
                 .AddClasses(classes => classes.AssignableTo<ISagaCommandDispatcher>())
-                    .AsSelf()
+                    .AsSelfWithInterfaces()
                     .WithSingletonLifetime()
                 .AddClasses(classes => classes.AssignableTo<ISagaCommandResultEvaluator>())
                     .AsSelfWithInterfaces()
@@ -157,4 +176,10 @@ public static class ServiceCollectionExtensions
                     .AsSelfWithInterfaces()
                     .WithSingletonLifetime();
         });
+
+    private static string? GetSagaCommandsAssemblyName(params Type[] assemblyMarkerTypes) =>
+        assemblyMarkerTypes.SelectMany(t => t.Assembly.GetTypes())
+            .Where(t => t.IsAssignableTo(typeof(ISagaCommand)))
+            .Select(t => t.Assembly.FullName)
+            .FirstOrDefault() ?? Assembly.GetEntryAssembly()?.FullName;
 }

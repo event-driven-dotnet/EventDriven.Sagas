@@ -13,7 +13,7 @@ public class PersistableSagaFactory<TSaga>
     : SagaFactory<TSaga>
     where TSaga : PersistableSaga, ISagaCommandResultHandler
 {
-    private readonly SagaConfigurationOptions _sagaConfigOptions;
+    private readonly ISagaConfigSettings _sagaConfigOptions;
     private readonly ISagaConfigRepository _sagaConfigRepository;
     private readonly ISagaSnapshotRepository _sagaSnapshotRepository;
 
@@ -23,7 +23,7 @@ public class PersistableSagaFactory<TSaga>
         IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
         IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers,
         IEnumerable<ICheckSagaLockCommandHandler> checkLockCommandHandlers,
-        SagaConfigurationOptions sagaConfigOptions,
+        ISagaConfigSettings sagaConfigOptions,
         ISagaConfigRepository sagaConfigRepository,
         ISagaSnapshotRepository sagaSnapshotRepository) : 
         base(sagaCommandDispatcher, commandResultEvaluators,

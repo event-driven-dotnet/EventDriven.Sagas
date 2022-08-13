@@ -40,12 +40,11 @@ builder.Services.AddHandlers(typeof(Program));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
 // App settings
-builder.Services.AddAppSettings<SagaConfigSettings>(builder.Configuration);
+builder.Services.AddAppSettings<CreateOrderSagaConfigSettings>(builder.Configuration);
 
 // Sagas
-builder.Services.AddSaga<CreateOrderSaga, CreateOrderSagaCommandDispatcher,
-    SagaConfigRepository, SagaSnapshotRepository, SagaConfigSettings>(
-    builder.Configuration);
+builder.Services.AddSaga<CreateOrderSaga, CreateOrderSagaConfigSettings, CreateOrderSagaCommandDispatcher,
+    SagaConfigRepository, SagaSnapshotRepository>(builder.Configuration);
 
 // Event Bus and event handlers
 builder.Services.AddDaprEventBus(builder.Configuration, true);
