@@ -39,7 +39,7 @@ public class PersistableSagaFactory<TSaga>
     public override TSaga CreateSaga(bool overrideLock)
     {
         var saga = base.CreateSaga(overrideLock);
-        saga.SagaConfigOptions = _sagaConfigOptions;
+        saga.SagaConfigSettings = _sagaConfigOptions;
         saga.SagaConfigRepository = _sagaConfigRepository;
         saga.SagaSnapshotRepository = _sagaSnapshotRepository;
         return saga;

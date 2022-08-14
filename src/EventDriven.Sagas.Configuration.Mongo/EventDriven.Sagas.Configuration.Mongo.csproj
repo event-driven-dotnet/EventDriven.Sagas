@@ -7,7 +7,7 @@
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <Authors>Tony Sneed</Authors>
         <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
-        <PackageVersion>1.1.0</PackageVersion>
+        <PackageVersion>1.1.1</PackageVersion>
         <Description>A set of abstractions for implementing the Saga pattern.</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/event-driven-dotnet/EventDriven.Sagas</PackageProjectUrl>
@@ -15,7 +15,7 @@
         <RepositoryUrl>https://github.com/event-driven-dotnet/EventDriven.Sagas.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>sagas configuration event-driven event-driven-architecture</PackageTags>
-        <PackageReleaseNotes>https://github.com/event-driven-dotnet/EventDriven.Sagas/releases/tag/v1.1.0</PackageReleaseNotes>
+        <PackageReleaseNotes>https://github.com/event-driven-dotnet/EventDriven.Sagas/releases/tag/v1.1.1</PackageReleaseNotes>
         <PackageId>EventDriven.Sagas.Configuration.Mongo</PackageId>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
     </PropertyGroup>

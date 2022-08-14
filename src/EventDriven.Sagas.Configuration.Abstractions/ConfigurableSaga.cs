@@ -20,19 +20,14 @@ public abstract class ConfigurableSaga : Saga
     }
     
     /// <summary>
-    /// Saga configuration identifier.
-    /// </summary>
-    public Guid? SagaConfigId { get; set; } = Guid.NewGuid();
-
-    /// <summary>
     /// Saga configuration name.
     /// </summary>
     public string? SagaConfigName { get; set; }
 
     /// <summary>
-    /// Saga configuration options.
+    /// Saga configuration settings.
     /// </summary>
-    public ISagaConfigSettings? SagaConfigOptions { get; set; }
+    public ISagaConfigSettings? SagaConfigSettings { get; set; }
 
     /// <summary>
     /// Saga configuration repository.
@@ -45,13 +40,12 @@ public abstract class ConfigurableSaga : Saga
     /// <returns>A task that represents the asynchronous operation.</returns>
     protected virtual async Task ConfigureAsync()
     {
-        if (SagaConfigOptions?.SagaConfigId != null && SagaConfigRepository != null)
+        if (SagaConfigSettings?.SagaConfigId != null && SagaConfigRepository != null)
         {
             var sagaConfig = await SagaConfigRepository
-                .GetAsync(SagaConfigOptions.SagaConfigId.GetValueOrDefault());
+                .GetAsync(SagaConfigSettings.SagaConfigId.GetValueOrDefault());
             if (sagaConfig == null)
-                throw new Exception($"Saga configuration with id '{SagaConfigOptions.SagaConfigId}' not present in Saga Configuration Repository.");
-            SagaConfigId = sagaConfig.Id;
+                throw new Exception($"Saga configuration with id '{SagaConfigSettings.SagaConfigId}' not present in Saga Configuration Repository.");
             SagaConfigName = sagaConfig.Name;
             Steps = sagaConfig.Steps;
         }
