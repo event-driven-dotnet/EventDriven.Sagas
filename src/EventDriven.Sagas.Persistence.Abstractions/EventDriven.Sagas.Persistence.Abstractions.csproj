@@ -7,7 +7,7 @@
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <Authors>Tony Sneed</Authors>
         <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
-        <PackageVersion>1.1.1</PackageVersion>
+        <PackageVersion>1.1.2</PackageVersion>
         <Description>A set of abstractions for implementing the Saga pattern.</Description>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/event-driven-dotnet/EventDriven.Sagas</PackageProjectUrl>

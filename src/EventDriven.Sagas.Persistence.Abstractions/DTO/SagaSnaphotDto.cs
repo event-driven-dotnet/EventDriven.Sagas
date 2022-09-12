@@ -72,4 +72,9 @@ public class SagaSnapshotDto
     /// Steps performed by the saga.
     /// </summary>
     public List<SagaStepDto?> Steps { get; set; } = null!;
+    
+    /// <summary>
+    /// Application data used to persist data info across steps
+    /// </summary>
+    public string? ApplicationData { get; set; } = null!;
 }

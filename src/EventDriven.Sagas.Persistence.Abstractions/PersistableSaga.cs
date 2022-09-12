@@ -23,6 +23,11 @@ public abstract class PersistableSaga : ConfigurableSaga
     /// Saga snapshot repository.
     /// </summary>
     public ISagaSnapshotRepository? SagaSnapshotRepository { get; set; }
+    
+    /// <summary>
+    /// Application specific transition data
+    /// </summary>
+    public string? ApplicationData { get; set; } = null!;
 
     /// <summary>
     /// Persist saga.

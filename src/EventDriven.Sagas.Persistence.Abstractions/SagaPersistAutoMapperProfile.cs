@@ -35,13 +35,18 @@ public class SagaPersistAutoMapperProfile: Profile
             .ForMember(dest => dest.SagaId, opt =>
                 opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.SagaStarted, opt =>
-                opt.MapFrom(src => src.Started));
+                opt.MapFrom(src => src.Started))
+            .ForMember(dest => dest.ApplicationData, opt =>
+                opt.MapFrom(src => src.ApplicationData));
         CreateMap<SagaSnapshotDto, PersistableSaga>()
             .ForMember(dest => dest.Id, opt =>
                 opt.MapFrom(src => Guid.Empty))
             .ForMember(dest => dest.Id, opt =>
                 opt.MapFrom(src => src.SagaId))
             .ForMember(dest => dest.Started, opt =>
-                opt.MapFrom(src => src.SagaStarted));
+                opt.MapFrom(src => src.SagaStarted))
+            .ForMember(dest => dest.ApplicationData, opt =>
+                opt.MapFrom(src => src.ApplicationData));
+
     }
 }
