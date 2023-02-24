@@ -28,7 +28,8 @@ public class CustomerCreditReserveRequestedEventHandler :
 
         var command = new ReserveCredit(
             @event.CustomerCreditReserveRequest.CustomerId,
-            @event.CustomerCreditReserveRequest.CreditReserved);
+            @event.CustomerCreditReserveRequest.CreditReserved,
+            @event.CustomerCreditReserveRequest.CorrelationId);
         await _commandHandler.Handle(command, CancellationToken.None);
     }
 }

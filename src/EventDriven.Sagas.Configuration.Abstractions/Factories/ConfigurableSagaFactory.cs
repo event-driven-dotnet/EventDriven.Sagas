@@ -18,12 +18,10 @@ public class ConfigurableSagaFactory<TSaga>
     public ConfigurableSagaFactory(
         ISagaCommandDispatcher sagaCommandDispatcher, 
         IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
-        IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers,
         IEnumerable<ICheckSagaLockCommandHandler> checkLockCommandHandlers,
         SagaConfigSettings sagaConfigOptions,
         ISagaConfigRepository sagaConfigRepository) : 
-        base(sagaCommandDispatcher, commandResultEvaluators,
-            commandResultDispatchers, checkLockCommandHandlers)
+        base(sagaCommandDispatcher, commandResultEvaluators, checkLockCommandHandlers)
     {
         _sagaConfigOptions = sagaConfigOptions;
         _sagaConfigRepository = sagaConfigRepository;

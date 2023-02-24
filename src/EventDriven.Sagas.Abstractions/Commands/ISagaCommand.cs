@@ -21,6 +21,11 @@ public interface ISagaCommand
     /// The entity the command is in reference to.
     /// </summary>
     public IEntity? Entity { get; }
+    
+    /// <summary>
+    /// Saga identifier.
+    /// </summary>
+    public Guid SagaId { get; set; }
 }
 
 /// <summary>

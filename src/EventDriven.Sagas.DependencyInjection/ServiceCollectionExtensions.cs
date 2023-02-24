@@ -5,6 +5,7 @@ using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Factories;
 using EventDriven.Sagas.Abstractions.Handlers;
 using EventDriven.Sagas.Abstractions.Mapping;
+using EventDriven.Sagas.Abstractions.Pools;
 using EventDriven.Sagas.Configuration.Abstractions;
 using EventDriven.Sagas.Configuration.Abstractions.Repositories;
 using EventDriven.Sagas.Persistence.Abstractions;
@@ -133,21 +134,21 @@ public static class ServiceCollectionExtensions
                 var dispatcher = sp.GetRequiredService<TSagaCommandDispatcher>();
                 var evaluators = sp.GetServices<ISagaCommandResultEvaluator>();
                 var checkLockHandlers = sp.GetServices<ICheckSagaLockCommandHandler>();
-                var resultDispatchers = 
-                    sp.GetServices<ISagaCommandResultDispatcher>().DistinctBy(e => e.GetType()).ToList();
                 var configOptions = sp.GetRequiredService<TSagaConfigSettings>();
                 var configRepo = sp.GetRequiredService<ISagaConfigRepository>();
                 var snapshotRepo = sp.GetRequiredService<ISagaSnapshotRepository>();
                 return new PersistableSagaFactory<TPersistableSaga>(
-                    dispatcher, evaluators, resultDispatchers, checkLockHandlers,
+                    dispatcher, evaluators, checkLockHandlers,
                     configOptions, configRepo, snapshotRepo);
             })
-            .AddSingleton(sp =>
+            .AddSingleton<ISagaPool<TPersistableSaga>>(sp =>
             {
                 var factory = sp.GetRequiredService<ISagaFactory<TPersistableSaga>>();
                 var configOptions = sp.GetRequiredService<TSagaConfigSettings>();
-                var saga = factory.CreateSaga(configOptions.OverrideLockCheck);
-                return saga;
+                var resultDispatchers = 
+                    sp.GetServices<ISagaCommandResultDispatcher>().DistinctBy(e => e.GetType()).ToList();
+                var sagaPool = new SagaPool<TPersistableSaga>(factory, resultDispatchers, configOptions.OverrideLockCheck);
+                return sagaPool;
             });
         return services;
     }

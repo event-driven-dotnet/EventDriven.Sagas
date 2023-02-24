@@ -19,10 +19,10 @@
     <ItemGroup>
         <PackageReference Include="EventDriven.DependencyInjection" Version="1.1.0" />
         <PackageReference Include="EventDriven.DependencyInjection.URF.Mongo" Version="1.2.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.8" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.14" />
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.0" />
-        <PackageReference Include="MongoDB.Driver" Version="2.17.1" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+        <PackageReference Include="MongoDB.Driver" Version="2.19.0" />
         <PackageReference Include="SpecFlow.Plus.LivingDocPlugin" Version="3.9.57" />
         <PackageReference Include="SpecFlow.xUnit" Version="3.9.74" />
         <PackageReference Include="URF.Core.Mongo" Version="6.1.1" />
@@ -31,7 +31,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="FluentAssertions" Version="6.7.0" />
+        <PackageReference Include="FluentAssertions" Version="6.10.0" />
     </ItemGroup>
 
     <ItemGroup>

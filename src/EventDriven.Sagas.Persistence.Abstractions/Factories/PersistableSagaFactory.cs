@@ -21,13 +21,11 @@ public class PersistableSagaFactory<TSaga>
     public PersistableSagaFactory(
         ISagaCommandDispatcher sagaCommandDispatcher, 
         IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
-        IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers,
         IEnumerable<ICheckSagaLockCommandHandler> checkLockCommandHandlers,
         ISagaConfigSettings sagaConfigOptions,
         ISagaConfigRepository sagaConfigRepository,
         ISagaSnapshotRepository sagaSnapshotRepository) : 
-        base(sagaCommandDispatcher, commandResultEvaluators,
-            commandResultDispatchers, checkLockCommandHandlers)
+        base(sagaCommandDispatcher, commandResultEvaluators, checkLockCommandHandlers)
     {
         _sagaConfigOptions = sagaConfigOptions;
         _sagaConfigRepository = sagaConfigRepository;

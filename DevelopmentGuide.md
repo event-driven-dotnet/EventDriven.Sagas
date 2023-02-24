@@ -105,6 +105,8 @@ The following diagram illustrates how various classes are used in the execution 
     ```csharp
     public class OrderRepository : DocumentRepository<Order>, IOrderRepository
     {
+        private readonly AsyncLock _syncRoot = new();
+
         public OrderRepository(
             IMongoCollection<Order> collection) : base(collection)
         {
@@ -121,33 +123,43 @@ The following diagram illustrates how various classes are used in the execution 
 
         public async Task<Order?> AddOAsync(Order entity)
         {
-            var existing = await GetAsync(entity.Id);
-            if (existing != null) throw new ConcurrencyException(entity.Id);
-            entity.ETag = Guid.NewGuid().ToString();
-            return await InsertOneAsync(entity);
+            using (await _syncRoot.LockAsync())
+            {
+                var existing = await GetAsync(entity.Id);
+                if (existing != null) throw new ConcurrencyException(entity.Id);
+                entity.ETag = Guid.NewGuid().ToString();
+                return await InsertOneAsync(entity);
+            }
         }
 
         public async Task<Order?> UpdateAsync(Order entity)
         {
-            var existing = await GetAsync(entity.Id);
-            if (existing == null) return null;
-            if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
-                throw new ConcurrencyException(entity.Id);
-            entity.ETag = Guid.NewGuid().ToString();
-            return await FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+            using (await _syncRoot.LockAsync())
+            {
+                var existing = await GetAsync(entity.Id);
+                if (existing == null) return null;
+                if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
+                    throw new ConcurrencyException(entity.Id);
+                entity.ETag = Guid.NewGuid().ToString();
+                return await FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+            }
         }
 
         public async Task<Order?> AddUpdateAsync(Order entity)
         {
-            Order? result;
-            var existing = await GetAsync(entity.Id);
-            if (existing == null) result = await AddOAsync(entity);
-            else
+            using (await _syncRoot.LockAsync())
             {
-                entity.ETag = existing.ETag;
-                result = await UpdateAsync(entity);
+                Order? result;
+                var existing = await GetAsync(entity.Id);
+                if (existing == null) result = await AddOAsync(entity);
+                else
+                {
+                    entity.ETag = existing.ETag;
+                    result = await UpdateAsync(entity);
+                }
+
+                return result;
             }
-            return result;
         }
 
         public async Task<int> RemoveAsync(Guid id) =>
@@ -155,16 +167,22 @@ The following diagram illustrates how various classes are used in the execution 
 
         public async Task<OrderState?> GetOrderStateAsync(Guid id)
         {
-            var existing = await GetAsync(id);
-            return existing?.State;
+            using (await _syncRoot.LockAsync())
+            {
+                var existing = await GetAsync(id);
+                return existing?.State;
+            }
         }
 
         public async Task<Order?> UpdateOrderStateAsync(Guid id, OrderState orderState)
         {
-            var existing = await GetAsync(id);
-            if (existing == null) return null;
-            existing.State = orderState;
-            return await UpdateAsync(existing);
+            using (await _syncRoot.LockAsync())
+            {
+                var existing = await GetAsync(id);
+                if (existing == null) return null;
+                existing.State = orderState;
+                return await UpdateAsync(existing);
+            }
         }
     }
     ```
@@ -332,33 +350,45 @@ The following diagram illustrates how various classes are used in the execution 
     - Inject `IOrderRepository`, `CreateOrderSaga` into the constructor.
     - In the `Handle` method, call `StartSagaAsync` on the saga, then query the order repository to return the newly created order.
     ```csharp
-    public class StartCreateOrderSagaCommandHandler :
-        ICommandHandler<Order, StartCreateOrderSaga>
+    public class StartCreateOrderSagaHandler : ICommandHandler<Order, StartCreateOrderSaga>
     {
         private readonly IOrderRepository _repository;
-        private readonly CreateOrderSaga _saga;
+        private readonly ISagaPool<CreateOrderSaga> _sagaPool;
+        private readonly ILogger<StartCreateOrderSagaHandler> _logger;
 
-        public StartCreateOrderSagaCommandHandler(
+        public StartCreateOrderSagaHandler(
             IOrderRepository repository,
-            CreateOrderSaga createOrderSaga)
+            ISagaPool<CreateOrderSaga> sagaPool,
+            ILogger<StartCreateOrderSagaHandler> logger)
         {
             _repository = repository;
+            _sagaPool = sagaPool;
             _logger = logger;
-            _saga = createOrderSaga;
         }
 
-        public async Task<CommandResult<Order>> Handle(StartCreateOrderSaga command)
+        public async Task<CommandResult<Order>> Handle(StartCreateOrderSaga command, CancellationToken cancellationToken)
         {
+            if (command.Entity == null) return new CommandResult<Order>(CommandOutcome.InvalidCommand);
+            var domainEvent = command.Entity.Process(command);
+            command.Entity.Apply(domainEvent);
+            
             try
             {
-                await _saga.StartSagaAsync(command.Entity);
-                var order = await _repository.GetOrderAsync(command.EntityId);
+                // Create saga
+                var saga = _sagaPool.CreateSaga();
+                
+                // Start create order saga
+                await saga.StartSagaAsync(command.Entity, command.OrderMetadata, cancellationToken);
+                
+                // Return created order
+                var order = await _repository.GetAsync(command.Entity.Id);
                 return order == null
                     ? new CommandResult<Order>(CommandOutcome.NotFound)
                     : new CommandResult<Order>(CommandOutcome.Accepted, order);
             }
             catch (SagaLockedException e)
             {
+                _logger.LogError(e, "{Message}", e.Message);
                 return new CommandResult<Order>(CommandOutcome.Conflict, e.ToErrors());
             }
         }
@@ -370,25 +400,27 @@ The following diagram illustrates how various classes are used in the execution 
     - Do the same for `CustomerCreditReleaseFulfilledEventHandler`.
     ```csharp
     public class CustomerCreditReserveFulfilledEventHandler : 
-        IntegrationEventHandler<CustomerCreditReserveFulfilled>,
-        ISagaCommandResultDispatcher<CustomerCreditReserveResponse>
+        IntegrationEventHandler<CustomerCreditReserveFulfilled>
     {
+        private readonly ISagaPool<CreateOrderSaga> _sagaPool;
         private readonly ILogger<CustomerCreditReserveFulfilledEventHandler> _logger;
-        public Type? SagaType { get; set; } = typeof(CreateOrderSaga);
-        public ISagaCommandResultHandler SagaCommandResultHandler { get; set; } = null!;
 
-        public async Task DispatchCommandResultAsync(CustomerCreditReserveResponse commandResult, bool compensating)
-        {
-            if (SagaCommandResultHandler is ISagaCommandResultHandler<CustomerCreditReserveResponse> handler)
-                await handler.HandleCommandResultAsync(commandResult, compensating);
-        }
-        
         public CustomerCreditReserveFulfilledEventHandler(
+            ISagaPool<CreateOrderSaga> sagaPool,
             ILogger<CustomerCreditReserveFulfilledEventHandler> logger)
         {
+            _sagaPool = sagaPool;
             _logger = logger;
         }
 
+        public async Task DispatchCommandResultAsync(CustomerCreditReserveResponse commandResult, 
+            bool compensating)
+        {
+            // Get saga from pool to handle command result
+            var saga = _sagaPool[commandResult.CorrelationId];
+            await saga.HandleCommandResultAsync(commandResult, compensating);
+        }
+        
         public override async Task HandleAsync(CustomerCreditReserveFulfilled @event)
         {
             _logger.LogInformation("Handling event: {EventName}", $"v1.{nameof(CustomerCreditReserveFulfilled)}");
@@ -396,8 +428,9 @@ The following diagram illustrates how various classes are used in the execution 
                 @event.CustomerCreditReserveResponse.CustomerId,
                 @event.CustomerCreditReserveResponse.CreditRequested,
                 @event.CustomerCreditReserveResponse.CreditAvailable,
-                @event.CustomerCreditReserveResponse.Success
-            ), !@event.CustomerCreditReserveResponse.Success);
+                @event.CustomerCreditReserveResponse.Success,
+                @event.CustomerCreditReserveResponse.CorrelationId
+            ), false);
         }
     }
     ```
@@ -452,7 +485,7 @@ The following diagram illustrates how various classes are used in the execution 
     ```
     - Event Bus and event handlers
     ```csharp
-    builder.Services.AddDaprEventBus(builder.Configuration, true);
+    builder.Services.AddDaprEventBus(builder.Configuration);
     builder.Services.AddDaprMongoEventCache(builder.Configuration);
     builder.Services.AddSingleton<CustomerCreditReserveFulfilledEventHandler>();
     builder.Services.AddSingleton<CustomerCreditReleaseFulfilledEventHandler>();
@@ -590,10 +623,13 @@ The following diagram illustrates how various classes are used in the execution 
     ```csharp
     public override async Task HandleAsync(CustomerCreditReserveRequested @event)
     {
+        _logger.LogInformation("Handling event: {EventName}", $"v1.{nameof(CustomerCreditReserveRequested)}");
+
         var command = new ReserveCredit(
             @event.CustomerCreditReserveRequest.CustomerId,
-            @event.CustomerCreditReserveRequest.CreditReserved);
-        await _commandHandler.Handle(command);
+            @event.CustomerCreditReserveRequest.CreditReserved,
+            @event.CustomerCreditReserveRequest.CorrelationId);
+        await _commandHandler.Handle(command, CancellationToken.None);
     }
     ```
     - Repeat with a `CustomerCreditReserveReleaseEventHandler` class.
@@ -611,6 +647,8 @@ The following diagram illustrates how various classes are used in the execution 
     ```csharp
     public class CustomerRepository : DocumentRepository<Customer>, ICustomerRepository
     {
+        private readonly AsyncLock _syncRoot = new();
+
         public CustomerRepository(
             IMongoCollection<Customer> collection) : base(collection)
         {
@@ -624,20 +662,26 @@ The following diagram illustrates how various classes are used in the execution 
 
         public async Task<Customer?> AddAsync(Customer entity)
         {
-            var existing = await FindOneAsync(e => e.Id == entity.Id);
-            if (existing != null) return null;
-            entity.ETag = Guid.NewGuid().ToString();
-            return await InsertOneAsync(entity);
+            using (await _syncRoot.LockAsync())
+            {
+                var existing = await FindOneAsync(e => e.Id == entity.Id);
+                if (existing != null) return null;
+                entity.ETag = Guid.NewGuid().ToString();
+                return await InsertOneAsync(entity);
+            }
         }
 
         public async Task<Customer?> UpdateAsync(Customer entity)
         {
-            var existing = await GetAsync(entity.Id);
-            if (existing == null) return null;
-            if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0 )
-                throw new ConcurrencyException();
-            entity.ETag = Guid.NewGuid().ToString();
-            return await FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+            using (await _syncRoot.LockAsync())
+            {
+                var existing = await GetAsync(entity.Id);
+                if (existing == null) return null;
+                if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
+                    throw new ConcurrencyException();
+                entity.ETag = Guid.NewGuid().ToString();
+                return await FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+            }
         }
 
         public async Task<int> RemoveAsync(Guid id) =>
@@ -740,7 +784,7 @@ The following diagram illustrates how various classes are used in the execution 
     ```
     - Event Bus and event handlers
     ```csharp
-    builder.Services.AddDaprEventBus(builder.Configuration, true);
+    builder.Services.AddDaprEventBus(builder.Configuration);
     builder.Services.AddDaprMongoEventCache(builder.Configuration);
     builder.Services.AddSingleton<CustomerCreditReserveRequestedEventHandler>();
     builder.Services.AddSingleton<CustomerCreditReleaseRequestedEventHandler>();

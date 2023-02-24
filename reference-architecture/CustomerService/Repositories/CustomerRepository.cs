@@ -1,12 +1,15 @@
 using CustomerService.Domain.CustomerAggregate;
 using EventDriven.DDD.Abstractions.Repositories;
 using MongoDB.Driver;
+using NeoSmart.AsyncLock;
 using URF.Core.Mongo;
 
 namespace CustomerService.Repositories;
 
 public class CustomerRepository : DocumentRepository<Customer>, ICustomerRepository
 {
+    private readonly AsyncLock _syncRoot = new();
+
     public CustomerRepository(
         IMongoCollection<Customer> collection) : base(collection)
     {
@@ -20,20 +23,26 @@ public class CustomerRepository : DocumentRepository<Customer>, ICustomerReposit
 
     public async Task<Customer?> AddAsync(Customer entity)
     {
-        var existing = await FindOneAsync(e => e.Id == entity.Id);
-        if (existing != null) return null;
-        entity.ETag = Guid.NewGuid().ToString();
-        return await InsertOneAsync(entity);
+        using (await _syncRoot.LockAsync())
+        {
+            var existing = await FindOneAsync(e => e.Id == entity.Id);
+            if (existing != null) return null;
+            entity.ETag = Guid.NewGuid().ToString();
+            return await InsertOneAsync(entity);
+        }
     }
 
     public async Task<Customer?> UpdateAsync(Customer entity)
     {
-        var existing = await GetAsync(entity.Id);
-        if (existing == null) return null;
-        if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0 )
-            throw new ConcurrencyException();
-        entity.ETag = Guid.NewGuid().ToString();
-        return await FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+        using (await _syncRoot.LockAsync())
+        {
+            var existing = await GetAsync(entity.Id);
+            if (existing == null) return null;
+            if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
+                throw new ConcurrencyException();
+            entity.ETag = Guid.NewGuid().ToString();
+            return await FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+        }
     }
 
     public async Task<int> RemoveAsync(Guid id) =>

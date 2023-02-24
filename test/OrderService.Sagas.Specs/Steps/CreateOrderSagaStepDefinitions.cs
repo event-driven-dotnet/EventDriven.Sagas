@@ -22,6 +22,7 @@ namespace OrderService.Sagas.Specs.Steps;
 public class CreateOrderSagaStepDefinitions
 {
     private HttpResponseMessage Response { get; set; } = null!;
+    private List<HttpResponseMessage> Responses { get; set; } = new();
     private JsonSerializerOptions JsonSerializerOptions { get; } = new()
     {
         AllowTrailingCommas = true,
@@ -39,6 +40,7 @@ public class CreateOrderSagaStepDefinitions
     public Customer? Customer { get; set; }
     public Inventory? Inventory { get; set; }
     public Order? Order { get; set; }
+    public List<Order?> Orders { get; } = new();
 
     public CreateOrderSagaStepDefinitions(
         OrderServiceSpecsSettings serviceSpecsSettings,
@@ -115,11 +117,35 @@ public class CreateOrderSagaStepDefinitions
         Response = await Client.PostAsync(endpoint, content);
     }
 
+    [When(@"I make POST requests with '(.*)' to '(.*)'")]
+    public async Task WhenIMakePostRequestsWithTo(string fileList, string endpoint)
+    {
+        var files = fileList.Split(',');
+        foreach (var file in files)
+        {
+            var json = JsonFilesRepo.Files[file];
+            var content = new StringContent(json, Encoding.UTF8, MediaTypeNames.Application.Json);
+            var response = await Client.PostAsync(endpoint, content);
+            Responses.Add(response);
+        }
+    }
+
     [Then(@"the response status code is '(.*)'")]
     public void ThenTheResponseStatusCodeIs(int statusCode)
     {
         var expected = (HttpStatusCode)statusCode;
         Assert.Equal(expected, Response.StatusCode);
+    }
+
+    [Then(@"the response status codes are '(.*)'")]
+    public void ThenTheResponseStatusCodesAre(int statusCode)
+    {
+        Assert.True(Responses.Count > 0);
+        var expected = (HttpStatusCode)statusCode;
+        foreach (var response in Responses)
+        {
+            Assert.Equal(expected, response.StatusCode);
+        }
     }
 
     [Then(@"the location header is '(.*)'")]
@@ -133,16 +159,34 @@ public class CreateOrderSagaStepDefinitions
     public async Task ThenTheResponseEntityShouldBe(string file)
     {
         var json = JsonFilesRepo.Files[file];
-        Order = JsonSerializer.Deserialize<Order>(json, JsonSerializerOptions);
-        var actual = await Response.Content.ReadFromJsonAsync<Order>();
-        Assert.Equal(Order, actual, new OrderComparer()!);
+        var expected = JsonSerializer.Deserialize<Order>(json, JsonSerializerOptions);
+        Order = await Response.Content.ReadFromJsonAsync<Order>();
+        Assert.Equal(expected, Order, new OrderComparer()!);
+    }
+
+    [Then(@"the response entities should be '(.*)'")]
+    public async Task ThenTheResponseEntitiesShouldBe(string fileList)
+    {
+        Assert.True(Responses.Count > 0);
+        var files = fileList.Split(',');
+        for (var i = 0; i < Responses.Count; i++)
+        {
+            var json = JsonFilesRepo.Files[files[i]];
+            var expected = JsonSerializer.Deserialize<Order>(json, JsonSerializerOptions);
+            var order = await Responses[i].Content.ReadFromJsonAsync<Order>();
+            Orders.Add(order);
+            Assert.Equal(expected, order, new OrderComparer()!);
+        }
     }
 
     [Then(@"the customer credit should equal (.*)")]
     public async Task ThenTheCustomerCreditShouldEqual(decimal creditAvailable)
     {
         if (Customer == null) return;
-        await Task.Delay(ServiceSpecsSettings.SagaCompletionTimeout);
+        var timeout = Responses.Count == 0
+            ? ServiceSpecsSettings.SagaCompletionTimeout
+            : ServiceSpecsSettings.MultipleSagaCompletionTimeout;
+        await Task.Delay(timeout);
         var customer = await CustomerRepository.GetAsync(Customer.Id);
         Assert.Equal(creditAvailable, customer?.CreditAvailable);
     }
@@ -151,7 +195,10 @@ public class CreateOrderSagaStepDefinitions
     public async Task ThenTheInventoryLevelShouldBe(int amountAvailable)
     {
         if (Inventory == null) return;
-        await Task.Delay(ServiceSpecsSettings.SagaCompletionTimeout);
+        var timeout = Responses.Count == 0
+            ? ServiceSpecsSettings.SagaCompletionTimeout
+            : ServiceSpecsSettings.MultipleSagaCompletionTimeout;
+        await Task.Delay(timeout);
         var inventory = await InventoryRepository.GetAsync(ServiceSpecsSettings.InventoryId);
         Assert.Equal(amountAvailable, inventory?.AmountAvailable);
     }
@@ -160,8 +207,26 @@ public class CreateOrderSagaStepDefinitions
     public async Task ThenTheOrderStateShouldBe(OrderState state)
     {
         if (Order == null) return;
-        await Task.Delay(ServiceSpecsSettings.SagaCompletionTimeout);
+        var timeout = Responses.Count == 0
+            ? ServiceSpecsSettings.SagaCompletionTimeout
+            : ServiceSpecsSettings.MultipleSagaCompletionTimeout;
+        await Task.Delay(timeout);
         var orderState = await OrderRepository.GetOrderStateAsync(Order.Id);
         Assert.Equal(state, orderState);
+    }
+
+    [Then(@"the order states should be '(.*)'")]
+    public async Task ThenTheOrderStatesShouldBe(OrderState state)
+    {
+        Assert.True(Orders.Count > 0);
+        var timeout = Responses.Count == 0
+            ? ServiceSpecsSettings.SagaCompletionTimeout
+            : ServiceSpecsSettings.MultipleSagaCompletionTimeout;
+        await Task.Delay(timeout);
+        foreach (var order in Orders)
+        {
+            var orderState = await OrderRepository.GetOrderStateAsync(order!.Id);
+            Assert.Equal(state, orderState);
+        }
     }
 }

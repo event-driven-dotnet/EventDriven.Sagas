@@ -44,13 +44,14 @@ public class ReleaseCreditHandler : ICommandHandler<Customer, ReleaseCredit>
             if (entity == null) return new CommandResult<Customer>(CommandOutcome.NotFound);
             
             // Publish event
-            result = await PublishCreditReleasedResponse(entity, command.AmountReleased, true);
+            result = await PublishCreditReleasedResponse(entity, command.AmountReleased,
+                true, command.CorrelationId);
             
             // Reverse persistence if publish is unsuccessful
             if (result.Outcome != CommandOutcome.Accepted)
             {
                 var creditReleasedEvent = customer.Process(
-                    new ReleaseCredit(customer.Id, command.AmountReleased));
+                    new ReleaseCredit(customer.Id, command.AmountReleased, command.CorrelationId));
                 customer.Apply(creditReleasedEvent);
                 entity = await _repository.UpdateAsync(customer);
                 if (entity == null) return new CommandResult<Customer>(CommandOutcome.NotFound);
@@ -59,13 +60,15 @@ public class ReleaseCreditHandler : ICommandHandler<Customer, ReleaseCredit>
         catch (ConcurrencyException e)
         {
             _logger.LogError("{Message}", e.Message);
-            result = await PublishCreditReleasedResponse(entity ?? customer, command.AmountReleased, false);
+            result = await PublishCreditReleasedResponse(entity ?? customer, command.AmountReleased,
+                false, command.CorrelationId);
         }
 
         return result;
     }
     
-    private async Task<CommandResult<Customer>> PublishCreditReleasedResponse(Customer customer, decimal creditRequested, bool success)
+    private async Task<CommandResult<Customer>> PublishCreditReleasedResponse(Customer customer, decimal creditRequested,
+        bool success, Guid correlationId)
     {
         // Publish response to event bus
         _logger.LogInformation("Publishing event: {EventName}", $"v1.{nameof(CustomerCreditReleaseFulfilled)}");
@@ -73,7 +76,7 @@ public class ReleaseCreditHandler : ICommandHandler<Customer, ReleaseCredit>
         {
             var @event = new CustomerCreditReleaseFulfilled(
                 new CustomerCreditReleaseResponse(customer.Id, creditRequested,
-                    customer.CreditAvailable, success));
+                    customer.CreditAvailable, success, correlationId));
             await _eventBus.PublishAsync(@event,
                 nameof(CustomerCreditReleaseFulfilled), "v1");
             return new CommandResult<Customer>(CommandOutcome.Accepted, customer);

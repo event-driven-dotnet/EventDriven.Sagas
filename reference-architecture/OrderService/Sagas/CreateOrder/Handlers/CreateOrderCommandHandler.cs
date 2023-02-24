@@ -29,14 +29,14 @@ public class CreateOrderCommandHandler :
             order.State = OrderState.Pending;
             var addedOrder = await _repository.AddUpdateAsync(order);
             if (addedOrder != null)
-                await DispatchCommandResultAsync(addedOrder.State, false);
+                await DispatchCommandResultAsync(addedOrder.State, false, command.SagaId);
             else
-                await DispatchCommandResultAsync(OrderState.Initial, true);
+                await DispatchCommandResultAsync(OrderState.Initial, true, command.SagaId);
         }
         catch (ConcurrencyException e)
         {
             _logger.LogError(e, "{Message}", e.Message);
-            await DispatchCommandResultAsync(OrderState.Initial, true);
+            await DispatchCommandResultAsync(OrderState.Initial, true, command.SagaId);
         }
     }
 }

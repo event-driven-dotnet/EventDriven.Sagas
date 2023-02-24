@@ -26,7 +26,8 @@ public class ProductInventoryReserveRequestedEventHandler :
 
         var command = new ReserveInventory(
             @event.ProductInventoryReserveRequest.InventoryId,
-            @event.ProductInventoryReserveRequest.AmountReserved);
+            @event.ProductInventoryReserveRequest.AmountReserved,
+            @event.ProductInventoryReserveRequest.CorrelationId);
         await _commandHandler.Handle(command, CancellationToken.None);
     }
 }
