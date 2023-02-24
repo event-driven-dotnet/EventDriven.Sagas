@@ -29,7 +29,7 @@ public class ReleaseCustomerCreditCommandHandler :
         {
             _logger.LogInformation("Publishing event: {EventName}", $"v1.{nameof(ReleaseCustomerCredit)}");
             var @event = new CustomerCreditReleaseRequested(
-                new CustomerCreditReleaseRequest(command.CustomerId, command.CreditReleased));
+                new CustomerCreditReleaseRequest(command.CustomerId, command.CreditReleased, command.SagaId));
             await _eventBus.PublishAsync(@event,
                 null, "v1");
         }
@@ -38,7 +38,7 @@ public class ReleaseCustomerCreditCommandHandler :
             _logger.LogError("{Message}", e.Message);
             await DispatchCommandResultAsync(new CustomerCreditReleaseResponse(
                 command.CustomerId, command.CreditReleased,
-                0, false), true);
+                0, false, command.SagaId), true, command.SagaId);
         }
     }
 }

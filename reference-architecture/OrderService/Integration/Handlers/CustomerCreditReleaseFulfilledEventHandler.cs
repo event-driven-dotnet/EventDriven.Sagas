@@ -1,31 +1,29 @@
 using Common.Integration.Events;
 using Common.Integration.Models;
 using EventDriven.EventBus.Abstractions;
-using EventDriven.Sagas.Abstractions.Dispatchers;
-using EventDriven.Sagas.Abstractions.Handlers;
+using EventDriven.Sagas.Abstractions.Pools;
 using OrderService.Sagas.CreateOrder;
 
 namespace OrderService.Integration.Handlers;
 
 public class CustomerCreditReleaseFulfilledEventHandler : 
-    IntegrationEventHandler<CustomerCreditReleaseFulfilled>,
-    ISagaCommandResultDispatcher<CustomerCreditReleaseResponse>
+    IntegrationEventHandler<CustomerCreditReleaseFulfilled>
 {
+    private readonly ISagaPool<CreateOrderSaga> _sagaPool;
     private readonly ILogger<CustomerCreditReleaseFulfilledEventHandler> _logger;
-
-    public Type? SagaType { get; set; } = typeof(CreateOrderSaga);
 
     public async Task DispatchCommandResultAsync(CustomerCreditReleaseResponse commandResult, bool compensating)
     {
-        if (SagaCommandResultHandler is ISagaCommandResultHandler<CustomerCreditReleaseResponse> handler)
-            await handler.HandleCommandResultAsync(commandResult, compensating);
+        // Get saga from pool to handle command result
+        var saga = _sagaPool[commandResult.CorrelationId];
+        await saga.HandleCommandResultAsync(commandResult, compensating);
     }
-
-    public ISagaCommandResultHandler SagaCommandResultHandler { get; set; } = null!;
-
+    
     public CustomerCreditReleaseFulfilledEventHandler(
+        ISagaPool<CreateOrderSaga> sagaPool,
         ILogger<CustomerCreditReleaseFulfilledEventHandler> logger)
     {
+        _sagaPool = sagaPool;
         _logger = logger;
     }
 
@@ -36,7 +34,8 @@ public class CustomerCreditReleaseFulfilledEventHandler :
             @event.CustomerCreditReleaseResponse.CustomerId,
             @event.CustomerCreditReleaseResponse.CreditRequested,
             @event.CustomerCreditReleaseResponse.CreditRemaining,
-            @event.CustomerCreditReleaseResponse.Success
+            @event.CustomerCreditReleaseResponse.Success,
+            @event.CustomerCreditReleaseResponse.CorrelationId
         ), true);
     }
 }

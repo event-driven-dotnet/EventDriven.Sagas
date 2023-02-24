@@ -1,3 +1,4 @@
+using EventDriven.Sagas.Abstractions.Pools;
 using EventDriven.Sagas.DependencyInjection.Tests.Fakes.Configuration;
 using EventDriven.Sagas.DependencyInjection.Tests.Fakes.Sagas.CreateOrder;
 using EventDriven.Sagas.DependencyInjection.Tests.Fakes.Sagas.CreateOrder.Dispatchers;
@@ -28,7 +29,7 @@ public class AddSagaTests
             false, typeof(AddSagaTests));
         
         var provider = services.BuildServiceProvider();
-        var saga = provider.GetService<CreateOrderSaga>();
+        var sagaPool = provider.GetService<ISagaPool<CreateOrderSaga>>();
         var sagaConfigSettings = provider.GetService<CreateSagaConfigSettings>();
         var dispatcher = provider.GetService<CreateOrderSagaCommandDispatcher>();
         var handler1 = provider.GetService<CreateOrderCommandHandler>();
@@ -36,7 +37,7 @@ public class AddSagaTests
         var evaluator1 = provider.GetService<SetOrderStateResultEvaluator>();
         var evaluator2 = provider.GetService<ReserveCustomerCreditResultEvaluator>();
 
-        saga.Should().NotBeNull();
+        sagaPool.Should().NotBeNull();
         sagaConfigSettings?.SagaConfigId.Should().Be(_createSagaConfigId);
         dispatcher.Should().NotBeNull();
         handler1.Should().NotBeNull();
@@ -55,7 +56,7 @@ public class AddSagaTests
             false, typeof(AddSagaTests));
         
         var provider = services.BuildServiceProvider();
-        var saga = provider.GetService<UpdateOrderSaga>();
+        var sagaPool = provider.GetService<ISagaPool<UpdateOrderSaga>>();
         var sagaConfigSettings = provider.GetService<UpdateSagaConfigSettings>();
         var dispatcher = provider.GetService<UpdateOrderSagaCommandDispatcher>();
         var handler1 = provider.GetService<UpdateOrderCommandHandler>();
@@ -63,7 +64,7 @@ public class AddSagaTests
         var evaluator1 = provider.GetService<SetOrderStateResultEvaluator2>();
         var evaluator2 = provider.GetService<ReleaseCustomerCreditResultEvaluator>();
 
-        saga.Should().NotBeNull();
+        sagaPool.Should().NotBeNull();
         sagaConfigSettings?.SagaConfigId.Should().Be(_updateSagaConfigId);
         dispatcher.Should().NotBeNull();
         handler1.Should().NotBeNull();
@@ -85,7 +86,7 @@ public class AddSagaTests
             false, typeof(AddSagaTests));
         
         var provider = services.BuildServiceProvider();
-        var createSaga = provider.GetService<CreateOrderSaga>();
+        var createSagaPool = provider.GetService<ISagaPool<CreateOrderSaga>>();
         var createSagaConfigSettings = provider.GetService<CreateSagaConfigSettings>();
         var createDispatcher = provider.GetService<CreateOrderSagaCommandDispatcher>();
         var createHandler1 = provider.GetService<CreateOrderCommandHandler>();
@@ -93,7 +94,7 @@ public class AddSagaTests
         var createEvaluator1 = provider.GetService<SetOrderStateResultEvaluator>();
         var createEvaluator2 = provider.GetService<ReserveCustomerCreditResultEvaluator>();
 
-        var updateSaga = provider.GetService<UpdateOrderSaga>();
+        var updateSagaPool = provider.GetService<ISagaPool<UpdateOrderSaga>>();
         var updateSagaConfigSettings = provider.GetService<UpdateSagaConfigSettings>();
         var updateDispatcher = provider.GetService<UpdateOrderSagaCommandDispatcher>();
         var updateHandler1 = provider.GetService<UpdateOrderCommandHandler>();
@@ -101,7 +102,7 @@ public class AddSagaTests
         var updateEvaluator1 = provider.GetService<SetOrderStateResultEvaluator2>();
         var updateEvaluator2 = provider.GetService<ReleaseCustomerCreditResultEvaluator>();
 
-        createSaga.Should().NotBeNull();
+        createSagaPool.Should().NotBeNull();
         createSagaConfigSettings?.SagaConfigId.Should().Be(_createSagaConfigId);
         createDispatcher.Should().NotBeNull();
         createHandler1.Should().NotBeNull();
@@ -109,7 +110,7 @@ public class AddSagaTests
         createEvaluator1.Should().NotBeNull();
         createEvaluator2.Should().NotBeNull();
         
-        updateSaga.Should().NotBeNull();
+        updateSagaPool.Should().NotBeNull();
         updateSagaConfigSettings?.SagaConfigId.Should().Be(_updateSagaConfigId);
         updateDispatcher.Should().NotBeNull();
         updateHandler1.Should().NotBeNull();

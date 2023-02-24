@@ -44,13 +44,14 @@ public class ReleaseInventoryHandler : ICommandHandler<Inventory, ReleaseInvento
             if (entity == null) return new CommandResult<Inventory>(CommandOutcome.NotFound);
             
             // Publish event
-            result = await PublishInventoryReleasedResponse(entity, command.AmountReleased, true);
+            result = await PublishInventoryReleasedResponse(entity, command.AmountReleased,
+                true, command.CorrelationId);
             
             // Reverse persistence if publish is unsuccessful
             if (result.Outcome != CommandOutcome.Accepted)
             {
                 var inventoryReleasedEvent = inventory.Process(
-                    new ReleaseInventory(inventory.Id, command.AmountReleased));
+                    new ReleaseInventory(inventory.Id, command.AmountReleased, command.CorrelationId));
                 inventory.Apply(inventoryReleasedEvent);
                 entity = await _repository.UpdateAsync(inventory);
                 if (entity == null) return new CommandResult<Inventory>(CommandOutcome.NotFound);
@@ -59,13 +60,15 @@ public class ReleaseInventoryHandler : ICommandHandler<Inventory, ReleaseInvento
         catch (ConcurrencyException e)
         {
             _logger.LogError("{Message}", e.Message);
-            result = await PublishInventoryReleasedResponse(entity ?? inventory, command.AmountReleased, false);
+            result = await PublishInventoryReleasedResponse(entity ?? inventory, command.AmountReleased,
+                false, command.CorrelationId);
         }
 
         return result;
     }
 
-    private async Task<CommandResult<Inventory>> PublishInventoryReleasedResponse(Inventory inventory, decimal amountRequested, bool success)
+    private async Task<CommandResult<Inventory>> PublishInventoryReleasedResponse(Inventory inventory,
+        decimal amountRequested, bool success, Guid correlationId)
     {
         // Publish response to event bus
         _logger.LogInformation("Publishing event: {EventName}", $"v1.{nameof(ProductInventoryReleaseFulfilled)}");
@@ -73,7 +76,7 @@ public class ReleaseInventoryHandler : ICommandHandler<Inventory, ReleaseInvento
         {
             var @event = new ProductInventoryReleaseFulfilled(
                 new ProductInventoryReleaseResponse(inventory.Id, amountRequested,
-                    inventory.AmountAvailable, success));
+                    inventory.AmountAvailable, success, correlationId));
             await _eventBus.PublishAsync(@event,
                 nameof(ProductInventoryReleaseFulfilled), "v1");
             return new CommandResult<Inventory>(CommandOutcome.Accepted, inventory);

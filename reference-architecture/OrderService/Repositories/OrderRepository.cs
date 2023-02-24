@@ -1,5 +1,6 @@
 ﻿using EventDriven.DDD.Abstractions.Repositories;
 using MongoDB.Driver;
+using NeoSmart.AsyncLock;
 using OrderService.Domain.OrderAggregate;
 using URF.Core.Mongo;
 
@@ -7,6 +8,8 @@ namespace OrderService.Repositories;
 
 public class OrderRepository : DocumentRepository<Order>, IOrderRepository
 {
+    private readonly AsyncLock _syncRoot = new();
+
     public OrderRepository(
         IMongoCollection<Order> collection) : base(collection)
     {
@@ -23,33 +26,43 @@ public class OrderRepository : DocumentRepository<Order>, IOrderRepository
 
     public async Task<Order?> AddOAsync(Order entity)
     {
-        var existing = await GetAsync(entity.Id);
-        if (existing != null) throw new ConcurrencyException(entity.Id);
-        entity.ETag = Guid.NewGuid().ToString();
-        return await InsertOneAsync(entity);
+        using (await _syncRoot.LockAsync())
+        {
+            var existing = await GetAsync(entity.Id);
+            if (existing != null) throw new ConcurrencyException(entity.Id);
+            entity.ETag = Guid.NewGuid().ToString();
+            return await InsertOneAsync(entity);
+        }
     }
 
     public async Task<Order?> UpdateAsync(Order entity)
     {
-        var existing = await GetAsync(entity.Id);
-        if (existing == null) return null;
-        if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
-            throw new ConcurrencyException(entity.Id);
-        entity.ETag = Guid.NewGuid().ToString();
-        return await FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+        using (await _syncRoot.LockAsync())
+        {
+            var existing = await GetAsync(entity.Id);
+            if (existing == null) return null;
+            if (string.Compare(entity.ETag, existing.ETag, StringComparison.OrdinalIgnoreCase) != 0)
+                throw new ConcurrencyException(entity.Id);
+            entity.ETag = Guid.NewGuid().ToString();
+            return await FindOneAndReplaceAsync(e => e.Id == entity.Id, entity);
+        }
     }
 
     public async Task<Order?> AddUpdateAsync(Order entity)
     {
-        Order? result;
-        var existing = await GetAsync(entity.Id);
-        if (existing == null) result = await AddOAsync(entity);
-        else
+        using (await _syncRoot.LockAsync())
         {
-            entity.ETag = existing.ETag;
-            result = await UpdateAsync(entity);
+            Order? result;
+            var existing = await GetAsync(entity.Id);
+            if (existing == null) result = await AddOAsync(entity);
+            else
+            {
+                entity.ETag = existing.ETag;
+                result = await UpdateAsync(entity);
+            }
+
+            return result;
         }
-        return result;
     }
 
     public async Task<int> RemoveAsync(Guid id) =>
@@ -57,15 +70,21 @@ public class OrderRepository : DocumentRepository<Order>, IOrderRepository
 
     public async Task<OrderState?> GetOrderStateAsync(Guid id)
     {
-        var existing = await GetAsync(id);
-        return existing?.State;
+        using (await _syncRoot.LockAsync())
+        {
+            var existing = await GetAsync(id);
+            return existing?.State;
+        }
     }
 
     public async Task<Order?> UpdateOrderStateAsync(Guid id, OrderState orderState)
     {
-        var existing = await GetAsync(id);
-        if (existing == null) return null;
-        existing.State = orderState;
-        return await UpdateAsync(existing);
+        using (await _syncRoot.LockAsync())
+        {
+            var existing = await GetAsync(id);
+            if (existing == null) return null;
+            existing.State = orderState;
+            return await UpdateAsync(existing);
+        }
     }
 }

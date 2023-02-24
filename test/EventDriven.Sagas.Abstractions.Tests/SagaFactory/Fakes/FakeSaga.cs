@@ -27,7 +27,8 @@ public class FakeSaga :
         await SagaCommandDispatcher.DispatchCommandAsync(new FakeSagaCommand
         {
             Name = "Fake Saga Command",
-            ExpectedResult = "Success"
+            ExpectedResult = "Success", 
+            SagaId = Id
         }, false);
 
     protected override Task ExecuteCurrentCompensatingActionAsync() => throw new NotImplementedException();

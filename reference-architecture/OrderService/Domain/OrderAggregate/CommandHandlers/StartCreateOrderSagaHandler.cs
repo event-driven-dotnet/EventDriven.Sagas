@@ -1,5 +1,6 @@
 using EventDriven.CQRS.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions;
+using EventDriven.Sagas.Abstractions.Pools;
 using OrderService.Domain.OrderAggregate.Commands;
 using OrderService.Helpers;
 using OrderService.Repositories;
@@ -10,16 +11,16 @@ namespace OrderService.Domain.OrderAggregate.CommandHandlers;
 public class StartCreateOrderSagaHandler : ICommandHandler<Order, StartCreateOrderSaga>
 {
     private readonly IOrderRepository _repository;
-    private readonly CreateOrderSaga _createOrderSaga;
+    private readonly ISagaPool<CreateOrderSaga> _sagaPool;
     private readonly ILogger<StartCreateOrderSagaHandler> _logger;
 
     public StartCreateOrderSagaHandler(
         IOrderRepository repository,
-        CreateOrderSaga createOrderSaga,
+        ISagaPool<CreateOrderSaga> sagaPool,
         ILogger<StartCreateOrderSagaHandler> logger)
     {
         _repository = repository;
-        _createOrderSaga = createOrderSaga;
+        _sagaPool = sagaPool;
         _logger = logger;
     }
 
@@ -31,11 +32,14 @@ public class StartCreateOrderSagaHandler : ICommandHandler<Order, StartCreateOrd
         
         try
         {
+            // Create saga
+            var saga = _sagaPool.CreateSaga();
+            
             // Start create order saga
-            await _createOrderSaga.StartSagaAsync(command.Entity, command.OrderMetadata, cancellationToken);
+            await saga.StartSagaAsync(command.Entity, command.OrderMetadata, cancellationToken);
             
             // Return created order
-            var order = await _repository.GetAsync(command.EntityId);
+            var order = await _repository.GetAsync(command.Entity.Id);
             return order == null
                 ? new CommandResult<Order>(CommandOutcome.NotFound)
                 : new CommandResult<Order>(CommandOutcome.Accepted, order);

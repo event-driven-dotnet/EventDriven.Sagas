@@ -35,7 +35,8 @@ public class ReserveInventoryHandler : ICommandHandler<Inventory, ReserveInvento
 
         // Return if inventory reservation unsuccessful
         if (domainEvent is not InventoryReserveSucceeded succeededEvent)
-            return await PublishInventoryReservedResponse(inventory, command.AmountRequested, false);
+            return await PublishInventoryReservedResponse(inventory, command.AmountRequested,
+                false, command.CorrelationId);
 
         // Apply events to reserve inventory
         inventory.Apply(succeededEvent);
@@ -49,13 +50,14 @@ public class ReserveInventoryHandler : ICommandHandler<Inventory, ReserveInvento
             if (entity == null) return new CommandResult<Inventory>(CommandOutcome.NotFound);
             
             // Publish event
-            result = await PublishInventoryReservedResponse(entity, command.AmountRequested, true);
+            result = await PublishInventoryReservedResponse(entity, command.AmountRequested,
+                true, command.CorrelationId);
             
             // Reverse persistence if publish is unsuccessful
             if (result.Outcome != CommandOutcome.Accepted)
             {
                 var inventoryReleasedEvent = inventory.Process(
-                    new ReleaseInventory(inventory.Id, command.AmountRequested));
+                    new ReleaseInventory(inventory.Id, command.AmountRequested, command.CorrelationId));
                 inventory.Apply(inventoryReleasedEvent);
                 entity = await _repository.UpdateAsync(inventory);
                 if (entity == null) return new CommandResult<Inventory>(CommandOutcome.NotFound);
@@ -64,13 +66,15 @@ public class ReserveInventoryHandler : ICommandHandler<Inventory, ReserveInvento
         catch (ConcurrencyException e)
         {
             _logger.LogError("{Message}", e.Message);
-            result = await PublishInventoryReservedResponse(entity ?? inventory, command.AmountRequested, false);
+            result = await PublishInventoryReservedResponse(entity ?? inventory, command.AmountRequested,
+                false, command.CorrelationId);
         }
 
         return result;
     }
     
-    private async Task<CommandResult<Inventory>> PublishInventoryReservedResponse(Inventory inventory, int amountRequested, bool success)
+    private async Task<CommandResult<Inventory>> PublishInventoryReservedResponse(Inventory inventory, 
+        int amountRequested, bool success, Guid correlationId)
     {
         // Publish response to event bus
         _logger.LogInformation("Publishing event: {EventName}", $"v1.{nameof(ProductInventoryReserveFulfilled)}");
@@ -78,7 +82,7 @@ public class ReserveInventoryHandler : ICommandHandler<Inventory, ReserveInvento
         {
             var @event = new ProductInventoryReserveFulfilled(
                 new ProductInventoryReserveResponse(inventory.Id, amountRequested,
-                    inventory.AmountAvailable, success));
+                    inventory.AmountAvailable, success, correlationId));
             await _eventBus.PublishAsync(@event,
                 nameof(ProductInventoryReserveFulfilled), "v1");
             return new CommandResult<Inventory>(CommandOutcome.Accepted, inventory);

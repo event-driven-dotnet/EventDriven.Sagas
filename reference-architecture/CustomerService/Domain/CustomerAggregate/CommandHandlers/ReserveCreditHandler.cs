@@ -35,7 +35,8 @@ public class ReserveCreditHandler : ICommandHandler<Customer, ReserveCredit>
 
         // Return if credit reservation unsuccessful
         if (domainEvent is not CreditReserveSucceeded succeededEvent)
-            return await PublishCreditReservedResponse(customer, command.AmountRequested, false);
+            return await PublishCreditReservedResponse(customer, command.AmountRequested,
+                false, command.CorrelationId);
 
         // Apply events to reserve credit
         customer.Apply(succeededEvent);
@@ -49,13 +50,14 @@ public class ReserveCreditHandler : ICommandHandler<Customer, ReserveCredit>
             if (entity == null) return new CommandResult<Customer>(CommandOutcome.NotFound);
             
             // Publish event
-            result = await PublishCreditReservedResponse(entity, command.AmountRequested, true);
+            result = await PublishCreditReservedResponse(entity, command.AmountRequested,
+                true, command.CorrelationId);
             
             // Reverse persistence if publish is unsuccessful
             if (result.Outcome != CommandOutcome.Accepted)
             {
                 var creditReleasedEvent = customer.Process(
-                    new ReleaseCredit(customer.Id, command.AmountRequested));
+                    new ReleaseCredit(customer.Id, command.AmountRequested, command.CorrelationId));
                 customer.Apply(creditReleasedEvent);
                 entity = await _repository.UpdateAsync(customer);
                 if (entity == null) return new CommandResult<Customer>(CommandOutcome.NotFound);
@@ -64,13 +66,15 @@ public class ReserveCreditHandler : ICommandHandler<Customer, ReserveCredit>
         catch (ConcurrencyException e)
         {
             _logger.LogError("{Message}", e.Message);
-            result = await PublishCreditReservedResponse(entity ?? customer, command.AmountRequested, false);
+            result = await PublishCreditReservedResponse(entity ?? customer, command.AmountRequested,
+                false, command.CorrelationId);
         }
 
         return result;
     }
     
-    private async Task<CommandResult<Customer>> PublishCreditReservedResponse(Customer customer, decimal creditRequested, bool success)
+    private async Task<CommandResult<Customer>> PublishCreditReservedResponse(Customer customer, decimal creditRequested,
+        bool success, Guid correlationId)
     {
         // Publish response to event bus
         _logger.LogInformation("Publishing event: {EventName}", $"v1.{nameof(CustomerCreditReserveFulfilled)}");
@@ -78,7 +82,7 @@ public class ReserveCreditHandler : ICommandHandler<Customer, ReserveCredit>
         {
             var @event = new CustomerCreditReserveFulfilled(
                 new CustomerCreditReserveResponse(customer.Id, creditRequested,
-                    customer.CreditAvailable, success));
+                    customer.CreditAvailable, success, correlationId));
             await _eventBus.PublishAsync(@event,
                 nameof(CustomerCreditReserveFulfilled), "v1");
             return new CommandResult<Customer>(CommandOutcome.Accepted, customer);

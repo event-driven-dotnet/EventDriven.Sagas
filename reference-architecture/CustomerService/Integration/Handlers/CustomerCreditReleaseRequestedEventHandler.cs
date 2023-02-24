@@ -26,7 +26,8 @@ public class CustomerCreditReleaseRequestedEventHandler :
 
         var command = new ReleaseCredit(
             @event.CustomerCreditReleaseRequest.CustomerId,
-            @event.CustomerCreditReleaseRequest.CreditReleased);
+            @event.CustomerCreditReleaseRequest.CreditReleased,
+            @event.CustomerCreditReleaseRequest.CorrelationId);
         await _commandHandler.Handle(command, CancellationToken.None);
     }
 }

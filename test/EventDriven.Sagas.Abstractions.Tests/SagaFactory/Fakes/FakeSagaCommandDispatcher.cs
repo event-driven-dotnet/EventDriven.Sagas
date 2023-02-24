@@ -21,7 +21,8 @@ public class FakeSagaCommandDispatcher : SagaCommandDispatcher
         {
             await handler.HandleCommandAsync(new FakeSagaCommand
             {
-                Name = command.Name
+                Name = command.Name,
+                SagaId = command.SagaId
             });
         }
     }

@@ -29,7 +29,7 @@ public class ReleaseProductInventoryCommandHandler :
         {
             _logger.LogInformation("Publishing event: {EventName}", $"v1.{nameof(ReleaseProductInventory)}");
             var @event = new ProductInventoryReleaseRequested(
-                new ProductInventoryReleaseRequest(command.InventoryId, command.AmountRequested));
+                new ProductInventoryReleaseRequest(command.InventoryId, command.AmountRequested, command.SagaId));
             await _eventBus.PublishAsync(@event,
                 null, "v1");
         }
@@ -38,7 +38,7 @@ public class ReleaseProductInventoryCommandHandler :
             _logger.LogError("{Message}", e.Message);
             await DispatchCommandResultAsync(new ProductInventoryReleaseResponse(
                 command.InventoryId, command.AmountRequested,
-                0, false), true);
+                0, false, command.SagaId), true, command.SagaId);
         }
     }
 }

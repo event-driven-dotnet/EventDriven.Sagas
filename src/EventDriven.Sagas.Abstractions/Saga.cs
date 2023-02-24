@@ -189,15 +189,23 @@ public abstract class Saga
     /// Get current action.
     /// </summary>
     /// <returns>The current action.</returns>
-    protected virtual SagaAction GetCurrentAction() =>
-        Steps.Single(s => s.Sequence == CurrentStep).Action;
+    protected virtual SagaAction GetCurrentAction()
+    {
+        var action = Steps.Single(s => s.Sequence == CurrentStep).Action;
+        action.Command.SagaId = Id;
+        return action;
+    }
 
     /// <summary>
     /// Get current compensating action.
     /// </summary>
     /// <returns>The current compensating action.</returns>
-    protected virtual SagaAction GetCurrentCompensatingAction() =>
-        Steps.Single(s => s.Sequence == CurrentStep).CompensatingAction;
+    protected virtual SagaAction GetCurrentCompensatingAction()
+    {
+        var action = Steps.Single(s => s.Sequence == CurrentStep).CompensatingAction;
+        action.Command.SagaId = Id;
+        return action;
+    }
 
     /// <summary>
     /// Set action state and started time.

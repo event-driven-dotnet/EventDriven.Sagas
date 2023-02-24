@@ -9,6 +9,9 @@ public abstract record SagaCommand(Guid? EntityId = default, IEntity? Entity = n
 {
     /// <inheritdoc />
     public string? Name { get; set; }
+
+    /// <inheritdoc />
+    public Guid SagaId { get; set; }
 }
 
 /// <summary>

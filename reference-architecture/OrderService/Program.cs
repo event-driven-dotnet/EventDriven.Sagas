@@ -47,7 +47,7 @@ builder.Services.AddSaga<CreateOrderSaga, CreateOrderSagaConfigSettings, CreateO
     SagaConfigRepository, SagaSnapshotRepository>(builder.Configuration);
 
 // Event Bus and event handlers
-builder.Services.AddDaprEventBus(builder.Configuration, true);
+builder.Services.AddDaprEventBus(builder.Configuration);
 builder.Services.AddDaprMongoEventCache(builder.Configuration);
 builder.Services.AddSingleton<CustomerCreditReserveFulfilledEventHandler>();
 builder.Services.AddSingleton<CustomerCreditReleaseFulfilledEventHandler>();

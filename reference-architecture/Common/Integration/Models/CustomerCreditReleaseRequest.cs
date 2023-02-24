@@ -1,3 +1,3 @@
 namespace Common.Integration.Models;
 
-public record CustomerCreditReleaseRequest(Guid CustomerId, decimal CreditReleased);
+public record CustomerCreditReleaseRequest(Guid CustomerId, decimal CreditReleased, Guid CorrelationId);

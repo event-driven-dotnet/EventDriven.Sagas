@@ -76,6 +76,9 @@ namespace OrderService.Sagas.Specs.Hooks
             await ClearData(customerRepository, settings.CustomerId);
             await ClearData(inventoryRepository, settings.InventoryId);
             await ClearData(orderRepository, settings.OrderId);
+            await ClearData(orderRepository, settings.OrderId1);
+            await ClearData(orderRepository, settings.OrderId2);
+            await ClearData(orderRepository, settings.OrderId3);
             
             _objectContainer.RegisterInstanceAs(settings);
             _objectContainer.RegisterInstanceAs(httpClient);

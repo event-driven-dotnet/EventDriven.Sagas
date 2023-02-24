@@ -26,7 +26,8 @@ public class ProductInventoryReleaseRequestedEventHandler :
 
         var command = new ReleaseInventory(
             @event.ProductInventoryReleaseRequests.InventoryId,
-            @event.ProductInventoryReleaseRequests.AmountReleased);
+            @event.ProductInventoryReleaseRequests.AmountReleased,
+            @event.ProductInventoryReleaseRequests.CorrelationId);
         await _commandHandler.Handle(command, CancellationToken.None);
     }
 }

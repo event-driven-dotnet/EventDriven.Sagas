@@ -1,3 +1,3 @@
 namespace Common.Integration.Models;
 
-public record ProductInventoryReserveRequest(Guid InventoryId, int AmountReserved);
+public record ProductInventoryReserveRequest(Guid InventoryId, int AmountReserved, Guid CorrelationId);

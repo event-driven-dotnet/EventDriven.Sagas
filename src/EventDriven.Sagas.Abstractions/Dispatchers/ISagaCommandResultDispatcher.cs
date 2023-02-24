@@ -1,4 +1,4 @@
-using EventDriven.Sagas.Abstractions.Handlers;
+using EventDriven.Sagas.Abstractions.Pools;
 
 namespace EventDriven.Sagas.Abstractions.Dispatchers;
 
@@ -8,9 +8,9 @@ namespace EventDriven.Sagas.Abstractions.Dispatchers;
 public interface ISagaCommandResultDispatcher
 {
     /// <summary>
-    /// Saga command result handler.
+    /// Saga pool.
     /// </summary>
-    public ISagaCommandResultHandler SagaCommandResultHandler { get; set; }
+    public ISagaPool SagaPool { get; set; }
 
     /// <summary>
     /// Saga type.
@@ -29,6 +29,7 @@ public interface ISagaCommandResultDispatcher<in TResult> : ISagaCommandResultDi
     /// </summary>
     /// <param name="commandResult">Command result.</param>
     /// <param name="compensating">True if compensating command.</param>
+    /// <param name="sagaId">Saga identifier.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task DispatchCommandResultAsync(TResult commandResult, bool compensating);
+    Task DispatchCommandResultAsync(TResult commandResult, bool compensating, Guid sagaId);
 }

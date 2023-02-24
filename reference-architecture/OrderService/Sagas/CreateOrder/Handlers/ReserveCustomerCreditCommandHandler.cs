@@ -29,7 +29,7 @@ public class ReserveCustomerCreditCommandHandler :
         {
             _logger.LogInformation("Publishing event: {EventName}", $"v1.{nameof(ReserveCustomerCredit)}");
             var @event = new CustomerCreditReserveRequested(
-                new CustomerCreditReserveRequest(command.CustomerId, command.CreditRequested));
+                new CustomerCreditReserveRequest(command.CustomerId, command.CreditRequested, command.SagaId));
             await _eventBus.PublishAsync(@event,
                 nameof(CustomerCreditReserveRequested), "v1");
         }
@@ -38,7 +38,7 @@ public class ReserveCustomerCreditCommandHandler :
             _logger.LogError("{Message}", e.Message);
             await DispatchCommandResultAsync(new CustomerCreditReserveResponse(
                 command.CustomerId, command.CreditRequested,
-                0, false), true);
+                0, false, command.SagaId), true, command.SagaId);
         }
     }
 }

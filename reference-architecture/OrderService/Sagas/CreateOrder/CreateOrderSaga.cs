@@ -36,8 +36,9 @@ public class CreateOrderSaga :
     {
         // Retrieve order metadata
         Debug.Print("Order metadata: {0}: {1}, {2}, {3}",
-            Metadata?.VendorInfo.Name, Metadata?.VendorInfo.City, Metadata?.VendorInfo.State, Metadata?.VendorInfo.Country);
-        
+            Metadata?.VendorInfo.Name, Metadata?.VendorInfo.City, Metadata?.VendorInfo.State,
+            Metadata?.VendorInfo.Country);
+
         var action = GetCurrentAction();
         if (Entity is Order order)
         {
@@ -68,8 +69,10 @@ public class CreateOrderSaga :
                     await SagaCommandDispatcher.DispatchCommandAsync(action.Command, false);
                     break;
             }
+
             return;
         }
+
         await base.ExecuteCurrentActionAsync();
     }
 
@@ -100,8 +103,10 @@ public class CreateOrderSaga :
                     await SagaCommandDispatcher.DispatchCommandAsync(action.Command, true);
                     break;
             }
+
             return;
         }
+
         await base.ExecuteCurrentCompensatingActionAsync();
     }
 
