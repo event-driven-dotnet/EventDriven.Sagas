@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EventDriven.Sagas.Abstractions.Factories;
+using EventDriven.Sagas.Abstractions.Handlers;
+using EventDriven.Sagas.Abstractions.Pools;
 using EventDriven.Sagas.Abstractions.Tests.Saga.Fakes;
 using Xunit;
 
@@ -24,8 +27,14 @@ public class SagaTests
         var resultEvaluators = new List<FakeCommandResultEvaluator>{ new() };
         var config = await configRepo.GetAsync(Guid.Empty);
         var steps = new List<SagaStep>(config?.Steps.Where(s => s.Sequence <= step)
-                                       ?? Array.Empty<SagaStep>());
-        var saga = new FakeSaga(steps, dispatcher, resultEvaluators, snapshotRepo);
+            ?? Array.Empty<SagaStep>());
+        var factory = new SagaFactory<FakeSaga>(dispatcher, resultEvaluators,
+            Enumerable.Empty<ICheckSagaLockCommandHandler>());
+        var sagaPool = new SagaPool<FakeSaga>(factory, null!, false);
+        var saga = new FakeSaga(steps, dispatcher, resultEvaluators, snapshotRepo, sagaPool);
+        var sagaId = Guid.NewGuid();
+        saga.Id = sagaId;
+        sagaPool[sagaId] = saga;
         var order = new Order();
         var customer = new Customer();
         var inventory = new Inventory();
@@ -81,6 +90,7 @@ public class SagaTests
         Assert.Equal(expectedActionStates, actionStates);
         Assert.Equal(expectedCompensatingActionStates, compensatingActionStates);
         Assert.Equal(step, snapshotRepo.Sagas.Count);
+        Assert.Throws<KeyNotFoundException>(() => sagaPool[saga.Id]);
     }
 
     [Theory]
@@ -101,7 +111,13 @@ public class SagaTests
         var steps = new List<SagaStep>(config?.Steps.Where(s => s.Sequence <= step)
             ?? Array.Empty<SagaStep>());
         var cancelOnStep = cancel ? step : 0;
-        var saga = new FakeSaga(steps, dispatcher, resultEvaluators, snapshotRepo, cancelOnStep, tokenSource);
+        var factory = new SagaFactory<FakeSaga>(dispatcher, resultEvaluators,
+            Enumerable.Empty<ICheckSagaLockCommandHandler>());
+        var sagaPool = new SagaPool<FakeSaga>(factory, null!, false);
+        var saga = new FakeSaga(steps, dispatcher, resultEvaluators, snapshotRepo, sagaPool, cancelOnStep, tokenSource);
+        var sagaId = Guid.NewGuid();
+        saga.Id = sagaId;
+        sagaPool[sagaId] = saga;
         var order = new Order();
         var customer = new Customer();
         var inventory = new Inventory();
@@ -170,5 +186,6 @@ public class SagaTests
         Assert.Equal(expectedStateInfos, stateInfos);
         Assert.Equal(expectedSagaState, saga.StateInfo);
         Assert.Equal(step * 2, snapshotRepo.Sagas.Count);
+        Assert.Throws<KeyNotFoundException>(() => sagaPool[saga.Id]);
     }
 }

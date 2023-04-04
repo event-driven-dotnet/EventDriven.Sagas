@@ -1,6 +1,7 @@
 using EventDriven.DDD.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
+using EventDriven.Sagas.Abstractions.Pools;
 using EventDriven.Sagas.Configuration.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 
@@ -14,8 +15,9 @@ public abstract class PersistableSaga : ConfigurableSaga
     /// <inheritdoc />
     protected PersistableSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
-        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) : 
-        base(sagaCommandDispatcher, commandResultEvaluators)
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
+        ISagaPool sagaPool) : 
+        base(sagaCommandDispatcher, commandResultEvaluators, sagaPool)
     {
     }
 
@@ -45,8 +47,9 @@ public abstract class PersistableSaga<TMetadata> : PersistableSaga
 
     /// <inheritdoc />
     protected PersistableSaga(ISagaCommandDispatcher sagaCommandDispatcher,
-        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) :
-        base(sagaCommandDispatcher, commandResultEvaluators)
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
+        ISagaPool sagaPool) :
+        base(sagaCommandDispatcher, commandResultEvaluators, sagaPool)
     {
     }
     

@@ -5,7 +5,7 @@ using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Handlers;
 
-namespace EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
+namespace EventDriven.Sagas.Abstractions.Tests.SagaFactories.Fakes;
 
 public class FakeSagaCommandDispatcher : SagaCommandDispatcher
 {

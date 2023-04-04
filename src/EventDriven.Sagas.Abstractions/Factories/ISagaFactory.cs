@@ -1,3 +1,5 @@
+using EventDriven.Sagas.Abstractions.Pools;
+
 namespace EventDriven.Sagas.Abstractions.Factories;
 
 /// <summary>
@@ -11,5 +13,6 @@ public interface ISagaFactory<out TSaga>
     /// </summary>
     /// <param name="overrideLockCheck">True to override lock check.</param>
     /// <returns>Newly created saga.</returns>
-    TSaga CreateSaga(bool overrideLockCheck);
+    /// <param name="sagaPool">Saga pool.</param>
+    TSaga CreateSaga(ISagaPool sagaPool, bool overrideLockCheck);
 }

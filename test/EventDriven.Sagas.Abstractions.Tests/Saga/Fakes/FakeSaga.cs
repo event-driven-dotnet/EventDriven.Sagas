@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Handlers;
+using EventDriven.Sagas.Abstractions.Pools;
 using EventDriven.Sagas.Persistence.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 
@@ -22,8 +23,9 @@ public class FakeSaga : PersistableSaga,
     public FakeSaga(List<SagaStep> steps, ISagaCommandDispatcher commandDispatcher,
         IEnumerable<ISagaCommandResultEvaluator<string?, string?>> resultEvaluators, 
         ISagaSnapshotRepository sagaSnapshotRepository,
+        ISagaPool sagaPool,
         int cancelOnStep = 0, CancellationTokenSource? tokenSource = null) :
-        base(commandDispatcher, resultEvaluators)
+        base(commandDispatcher, resultEvaluators, sagaPool)
     {
         SagaCommandDispatcher = commandDispatcher;
         _cancelOnStep = cancelOnStep;

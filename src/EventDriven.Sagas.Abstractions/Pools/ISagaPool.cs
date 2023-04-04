@@ -3,20 +3,20 @@ namespace EventDriven.Sagas.Abstractions.Pools;
 /// <summary>
 /// Saga pool generic interface.
 /// </summary>
-public interface ISagaPool<TSaga> : ISagaPool
+public interface ISagaPool<out TSaga> : ISagaPool
     where TSaga : Saga
 {
     /// <summary>
     /// Create saga and add to the pool.
     /// </summary>
     /// <returns>Newly created saga.</returns>
-    TSaga CreateSaga();
+    new TSaga CreateSaga();
     
     /// <summary>
     /// Saga pool indexer.
     /// </summary>
     /// <param name="index">Saga pool index.</param>
-    TSaga this[Guid index] { get; set; }
+    new TSaga this[Guid index] { get; }
 }
 
 /// <summary>
@@ -25,8 +25,20 @@ public interface ISagaPool<TSaga> : ISagaPool
 public interface ISagaPool
 {
     /// <summary>
+    /// Create saga and add to the pool.
+    /// </summary>
+    /// <returns>Newly created saga.</returns>
+    Saga CreateSaga();
+    
+    /// <summary>
     /// Remove saga from the pool.
     /// </summary>
     /// <param name="sagaId">Id of saga to remove.</param>
     void RemoveSaga(Guid sagaId);
+    
+    /// <summary>
+    /// Saga pool indexer.
+    /// </summary>
+    /// <param name="index">Saga pool index.</param>
+    Saga this[Guid index] { get; }
 }
