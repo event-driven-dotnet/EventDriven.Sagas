@@ -41,21 +41,25 @@ public class SagaPool<TSaga> : ISagaPool<TSaga>
             .Where(d => d.SagaType == null || d.SagaType == typeof(TSaga)))
             commandResultDispatcher.SagaPool = this;
 
-        var saga = _sagaFactory.CreateSaga(_overrideLockCheck);
+        var saga = _sagaFactory.CreateSaga(this, _overrideLockCheck);
         _sagaPool.TryAdd(saga.Id, saga);
         return saga;
     }
+
+    Saga ISagaPool.CreateSaga() => CreateSaga();
 
     /// <inheritdoc />
     public void RemoveSaga(Guid sagaId)
     {
         _sagaPool.TryRemove(sagaId, out _);
     }
-
+    
     /// <inheritdoc />
     public TSaga this[Guid index]
     {
         get => (TSaga)_sagaPool[index];
         set => _sagaPool[index] = value;
     }
+    
+    Saga ISagaPool.this[Guid index] => this[index];
 }

@@ -2,6 +2,7 @@ using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Factories;
 using EventDriven.Sagas.Abstractions.Handlers;
+using EventDriven.Sagas.Abstractions.Pools;
 using EventDriven.Sagas.Configuration.Abstractions;
 using EventDriven.Sagas.Configuration.Abstractions.Repositories;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
@@ -32,11 +33,10 @@ public class PersistableSagaFactory<TSaga>
         _sagaSnapshotRepository = sagaSnapshotRepository;
     }
 
-    /// <param name="overrideLock"></param>
     /// <inheritdoc />
-    public override TSaga CreateSaga(bool overrideLock)
+    public override TSaga CreateSaga(ISagaPool sagaPool, bool overrideLock)
     {
-        var saga = base.CreateSaga(overrideLock);
+        var saga = base.CreateSaga(sagaPool, overrideLock);
         saga.SagaConfigSettings = _sagaConfigOptions;
         saga.SagaConfigRepository = _sagaConfigRepository;
         saga.SagaSnapshotRepository = _sagaSnapshotRepository;

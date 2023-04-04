@@ -1,28 +1,19 @@
 using System.Linq;
-using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Factories;
 using EventDriven.Sagas.Abstractions.Handlers;
-using EventDriven.Sagas.Abstractions.Pools;
-using EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
+using EventDriven.Sagas.Abstractions.Tests.SagaFactories.Fakes;
 using EventDriven.Sagas.Configuration.Abstractions.Factories;
 using EventDriven.Sagas.Persistence.Abstractions.Factories;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
-namespace EventDriven.Sagas.Abstractions.Tests.SagaFactory;
+namespace EventDriven.Sagas.Abstractions.Tests.Helpers;
 
-public class SagaFactoryTests
+public static class ServiceCollectionExtensions
 {
-    [Theory]
-    [InlineData(SagaType.Basic)]
-    [InlineData(SagaType.Configurable)]
-    [InlineData(SagaType.Persistable)]
-    public async Task SagaFactoryShouldCreateConfigurableSaga(SagaType sagaType)
+    public static IServiceCollection AddFakeSagaFactory(this IServiceCollection services, SagaType sagaType)
     {
-        // Arrange
-        var services = new ServiceCollection();
         services.AddSingleton<FakeSagaCommandDispatcher>();
         services.AddSingleton<FakeSagaCommandHandler<FakeSaga>>();
         services.AddSingleton<FakeSagaCommandHandler<FakeConfigurableSaga>>();
@@ -75,37 +66,6 @@ public class SagaFactoryTests
             }
             return factory;
         });
-
-        Abstractions.Saga saga;
-        var provider = services.BuildServiceProvider();
-        var factory = provider.GetRequiredService<ISagaFactory<Abstractions.Saga>>();
-        var resultDispatchers = provider.GetServices<ISagaCommandResultDispatcher>();
-        switch (sagaType)
-        {
-            case SagaType.Configurable:
-                var sagaPool1 = new SagaPool<FakeConfigurableSaga>((ConfigurableSagaFactory<FakeConfigurableSaga>)factory,
-                    resultDispatchers,true);
-                saga = sagaPool1.CreateSaga();
-                break;
-            case SagaType.Persistable:
-                var sagaPool2 = new SagaPool<FakePersistableSaga>((PersistableSagaFactory<FakePersistableSaga>)factory,
-                    resultDispatchers,true);
-                saga = sagaPool2.CreateSaga();
-                break;
-            default:
-                var sagaPool3 = new SagaPool<FakeSaga>((SagaFactory<FakeSaga>)factory,
-                    resultDispatchers,true);
-                saga = sagaPool3.CreateSaga();
-                break;
-        }
-
-        // Act
-        await saga.StartSagaAsync();
-
-        // Assert
-        var expectedState = sagaType == SagaType.Basic ? SagaState.Executing : SagaState.Executed;
-        var expectedInfo = sagaType == SagaType.Basic ? null : FakeSaga.SuccessState;
-        Assert.Equal(expectedState, saga.State);
-        Assert.Equal(expectedInfo, saga.StateInfo);
+        return services;
     }
 }

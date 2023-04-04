@@ -1,6 +1,7 @@
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Handlers;
+using EventDriven.Sagas.Abstractions.Pools;
 
 namespace EventDriven.Sagas.Abstractions.Factories;
 
@@ -43,10 +44,10 @@ public class SagaFactory<TSaga> : ISagaFactory<TSaga>
     public virtual IEnumerable<ICheckSagaLockCommandHandler> CheckLockCommandHandlers { get; }
 
     /// <inheritdoc />
-    public virtual TSaga CreateSaga(bool overrideLock)
+    public virtual TSaga CreateSaga(ISagaPool sagaPool, bool overrideLock)
     {
         var saga = (TSaga?)Activator.CreateInstance(
-            typeof(TSaga), SagaCommandDispatcher, SagaCommandResultEvaluators);
+            typeof(TSaga), SagaCommandDispatcher, SagaCommandResultEvaluators, sagaPool);
         if (saga == null)
             throw new Exception($"Unable to create instance of {typeof(TSaga).Name}");
         var checkLockHandler = CheckLockCommandHandlers.FirstOrDefault(

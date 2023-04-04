@@ -4,21 +4,22 @@ using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Handlers;
-using EventDriven.Sagas.Configuration.Abstractions;
+using EventDriven.Sagas.Abstractions.Pools;
 
-namespace EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
+namespace EventDriven.Sagas.Abstractions.Tests.SagaFactories.Fakes;
 
-public class FakeConfigurableSaga :
-    ConfigurableSaga,
-    ISagaCommandResultHandler<string>
+public class FakeSaga :
+    Abstractions.Saga,
+    ISagaCommandResultHandler<FakeEntity>
 {
     public const string SuccessState = "Success";
     public const string FailureState = "Failure";
 
-    public FakeConfigurableSaga(
+    public FakeSaga(
         ISagaCommandDispatcher sagaCommandDispatcher, 
-        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) : 
-        base(sagaCommandDispatcher, commandResultEvaluators)
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
+        ISagaPool sagaPool) : 
+        base(sagaCommandDispatcher, commandResultEvaluators, sagaPool)
     {
     }
 
@@ -28,17 +29,17 @@ public class FakeConfigurableSaga :
         await SagaCommandDispatcher.DispatchCommandAsync(new FakeSagaCommand
         {
             Name = "Fake Saga Command",
-            ExpectedResult = "Success",
+            ExpectedResult = "Success", 
             SagaId = Id
         }, false);
 
     protected override Task ExecuteCurrentCompensatingActionAsync() => throw new NotImplementedException();
 
-    public async Task HandleCommandResultAsync(string result, bool compensating)
+    public async Task HandleCommandResultAsync(FakeEntity result, bool compensating)
     {
         var evaluator = GetCommandResultEvaluatorByResultType<FakeSaga, string, string>();
         var success = evaluator != null
-            && await evaluator.EvaluateCommandResultAsync(result, SuccessState);
+            && await evaluator.EvaluateCommandResultAsync(result.State, SuccessState);
         StateInfo = success ? SuccessState : FailureState;
         State = SagaState.Executed;
     }

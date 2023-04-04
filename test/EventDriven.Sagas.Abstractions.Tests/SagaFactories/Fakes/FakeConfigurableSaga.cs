@@ -4,21 +4,23 @@ using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Handlers;
-using EventDriven.Sagas.Persistence.Abstractions;
+using EventDriven.Sagas.Abstractions.Pools;
+using EventDriven.Sagas.Configuration.Abstractions;
 
-namespace EventDriven.Sagas.Abstractions.Tests.SagaFactory.Fakes;
+namespace EventDriven.Sagas.Abstractions.Tests.SagaFactories.Fakes;
 
-public class FakePersistableSaga : 
-    PersistableSaga,
+public class FakeConfigurableSaga :
+    ConfigurableSaga,
     ISagaCommandResultHandler<string>
 {
     public const string SuccessState = "Success";
     public const string FailureState = "Failure";
 
-    public FakePersistableSaga(
+    public FakeConfigurableSaga(
         ISagaCommandDispatcher sagaCommandDispatcher, 
-        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) : 
-        base(sagaCommandDispatcher, commandResultEvaluators)
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
+        ISagaPool sagaPool) : 
+        base(sagaCommandDispatcher, commandResultEvaluators, sagaPool)
     {
     }
 

@@ -3,6 +3,7 @@ using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Handlers;
+using EventDriven.Sagas.Abstractions.Pools;
 using NeoSmart.AsyncLock;
 
 namespace EventDriven.Sagas.Abstractions;
@@ -13,18 +14,21 @@ namespace EventDriven.Sagas.Abstractions;
 public abstract class Saga
 {
     private readonly AsyncLock _syncRoot = new();
-    
+
     /// <summary>
     /// Constructor.
     /// </summary>
     /// <param name="sagaCommandDispatcher">Saga command dispatcher.</param>
     /// <param name="commandResultEvaluators">Command result evaluators.</param>
+    /// <param name="sagaPool">Saga pool.</param>
     protected Saga(
         ISagaCommandDispatcher sagaCommandDispatcher,
-        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators)
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
+        ISagaPool sagaPool)
     {
         SagaCommandDispatcher = sagaCommandDispatcher;
         CommandResultEvaluators = commandResultEvaluators;
+        SagaPool = sagaPool;
     }
 
     /// <summary>
@@ -112,6 +116,11 @@ public abstract class Saga
     /// Command result evaluators.
     /// </summary>
     protected IEnumerable<ISagaCommandResultEvaluator> CommandResultEvaluators { get; }
+
+    /// <summary>
+    /// Saga pool.
+    /// </summary>
+    protected ISagaPool SagaPool { get; }
 
     /// <summary>
     /// Check if saga is locked.
@@ -265,7 +274,7 @@ public abstract class Saga
         var result = command.Result;
         var expectedResult = command.ExpectedResult;
         var commandSuccessful = !isCancelled
-                                && await evaluator.EvaluateCommandResultAsync(command.Result, command.ExpectedResult);
+            && await evaluator.EvaluateCommandResultAsync(command.Result, command.ExpectedResult);
 
         // Check timeout
         action.Completed = DateTime.UtcNow;
@@ -367,6 +376,10 @@ public abstract class Saga
                             if (!reverseOnFailure) CurrentStep--;
                             await ExecuteCurrentCompensatingActionAsync();
                         }
+                        else
+                        {
+                            SagaPool.RemoveSaga(Id);
+                        }
                     }
                     return;
                 case SagaState.Compensating:
@@ -380,6 +393,7 @@ public abstract class Saga
                     else
                     {
                         State = SagaState.Compensated;
+                        SagaPool.RemoveSaga(Id);
                     }
                     return;
                 default:
@@ -434,8 +448,9 @@ public abstract class Saga<TMetadata> : Saga
 
     /// <inheritdoc />
     protected Saga(ISagaCommandDispatcher sagaCommandDispatcher,
-        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) :
-        base(sagaCommandDispatcher, commandResultEvaluators)
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
+        ISagaPool sagaPool) :
+        base(sagaCommandDispatcher, commandResultEvaluators, sagaPool)
     {
     }
     

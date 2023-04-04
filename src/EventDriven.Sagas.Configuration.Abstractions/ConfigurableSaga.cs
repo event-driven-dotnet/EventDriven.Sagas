@@ -2,6 +2,7 @@
 using EventDriven.Sagas.Abstractions;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
+using EventDriven.Sagas.Abstractions.Pools;
 using EventDriven.Sagas.Configuration.Abstractions.Repositories;
 
 namespace EventDriven.Sagas.Configuration.Abstractions;
@@ -14,8 +15,9 @@ public abstract class ConfigurableSaga : Saga
     /// <inheritdoc />
     protected ConfigurableSaga(
         ISagaCommandDispatcher sagaCommandDispatcher,
-        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) : 
-        base(sagaCommandDispatcher, commandResultEvaluators)
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
+        ISagaPool sagaPool) : 
+        base(sagaCommandDispatcher, commandResultEvaluators, sagaPool)
     {
     }
     
@@ -73,8 +75,9 @@ public abstract class ConfigurableSaga<TMetadata> : ConfigurableSaga
 
     /// <inheritdoc />
     protected ConfigurableSaga(ISagaCommandDispatcher sagaCommandDispatcher,
-        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators) :
-        base(sagaCommandDispatcher, commandResultEvaluators)
+        IEnumerable<ISagaCommandResultEvaluator> commandResultEvaluators,
+        ISagaPool sagaPool) :
+        base(sagaCommandDispatcher, commandResultEvaluators, sagaPool)
     {
     }
     
