@@ -42,7 +42,6 @@ public abstract class SagaCommandDispatcher : ISagaCommandDispatcher
             await handler.HandleCommandAsync(sagaCommand);
             return true;
         }
-
         return false;
     }
     

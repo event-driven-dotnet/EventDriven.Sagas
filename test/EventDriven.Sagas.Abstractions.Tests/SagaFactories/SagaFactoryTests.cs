@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Factories;
@@ -26,7 +25,7 @@ public class SagaFactoryTests
         services.AddFakeSagaFactory(sagaType);
         var provider = services.BuildServiceProvider();
         var sagaPool = GetSagaPool(provider, sagaType);
-        var saga = sagaPool.CreateSaga();
+        var saga = await sagaPool.CreateSagaAsync();
         
         // Act
         await saga.StartSagaAsync();
@@ -45,15 +44,15 @@ public class SagaFactoryTests
         switch (sagaType)
         {
             case SagaType.Configurable:
-                var sagaPool1 = new SagaPool<FakeConfigurableSaga>((ConfigurableSagaFactory<FakeConfigurableSaga>)factory,
+                var sagaPool1 = new InMemorySagaPool<FakeConfigurableSaga>((ConfigurableSagaFactory<FakeConfigurableSaga>)factory,
                     resultDispatchers,true);
                 return sagaPool1;
             case SagaType.Persistable:
-                var sagaPool2 = new SagaPool<FakePersistableSaga>((PersistableSagaFactory<FakePersistableSaga>)factory,
+                var sagaPool2 = new InMemorySagaPool<FakePersistableSaga>((PersistableSagaFactory<FakePersistableSaga>)factory,
                     resultDispatchers,true);
                 return sagaPool2;
             default:
-                var sagaPool3 = new SagaPool<FakeSaga>((SagaFactory<FakeSaga>)factory,
+                var sagaPool3 = new InMemorySagaPool<FakeSaga>((SagaFactory<FakeSaga>)factory,
                     resultDispatchers,true);
                 return sagaPool3;
         }

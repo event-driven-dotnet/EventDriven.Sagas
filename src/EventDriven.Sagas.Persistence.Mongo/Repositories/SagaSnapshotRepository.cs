@@ -11,7 +11,8 @@ namespace EventDriven.Sagas.Persistence.Mongo.Repositories;
 /// <summary>
 /// Saga history repository.
 /// </summary>
-public class SagaSnapshotRepository : DocumentRepository<SagaSnapshotDto>, ISagaSnapshotRepository
+public class SagaSnapshotRepository :
+    DocumentRepository<SagaSnapshotDto>, ISagaSnapshotRepository
 {
     private readonly IMapper _mapper;
 

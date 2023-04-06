@@ -38,7 +38,7 @@ public class ReleaseProductInventoryCommandHandler :
             _logger.LogError("{Message}", e.Message);
             await DispatchCommandResultAsync(new ProductInventoryReleaseResponse(
                 command.InventoryId, command.AmountRequested,
-                0, false, command.SagaId), true, command.SagaId);
+                0, false, command.SagaId), true, command.SagaId, command.Entity);
         }
     }
 }

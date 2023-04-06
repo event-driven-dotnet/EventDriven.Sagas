@@ -38,7 +38,7 @@ public class ReserveCustomerCreditCommandHandler :
             _logger.LogError("{Message}", e.Message);
             await DispatchCommandResultAsync(new CustomerCreditReserveResponse(
                 command.CustomerId, command.CreditRequested,
-                0, false, command.SagaId), true, command.SagaId);
+                0, false, command.SagaId), true, command.SagaId, command.Entity);
         }
     }
 }

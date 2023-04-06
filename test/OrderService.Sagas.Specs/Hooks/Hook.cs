@@ -11,11 +11,15 @@ using EventDriven.DependencyInjection;
 using EventDriven.DependencyInjection.URF.Mongo;
 using EventDriven.Sagas.Configuration.Abstractions.DTO;
 using EventDriven.Sagas.Persistence.Abstractions.DTO;
+using EventDriven.Sagas.Persistence.Abstractions.Repositories;
+using EventDriven.Sagas.Persistence.Mongo.Repositories;
 using InventoryService.Configuration;
 using InventoryService.Domain.InventoryAggregate;
 using InventoryService.Repositories;
 using OrderService.Configuration;
 using OrderService.Domain.OrderAggregate;
+using OrderService.Mapping;
+using OrderService.Sagas.CreateOrder;
 using OrderService.Sagas.Specs.Configuration;
 using OrderService.Sagas.Specs.Repositories;
 using SagaConfigService.Repositories;
@@ -44,15 +48,18 @@ namespace OrderService.Sagas.Specs.Hooks
                 {
                     var config = services.BuildServiceProvider()
                         .GetRequiredService<IConfiguration>();
+                    services.AddAutoMapper(typeof(AutoMapperProfile));
                     services.AddAppSettings<OrderServiceSpecsSettings>(config);
                     services.AddHttpClient();
                     services.AddSingleton<ISagaConfigDtoRepository, SagaConfigDtoRepository>();
                     services.AddSingleton<ISagaSnapshotDtoRepository, SagaSnapshotDtoRepository>();
+                    services.AddSingleton<IPersistableSagaRepository<CreateOrderSaga>, PersistableSagaRepository<CreateOrderSaga>>();
                     services.AddSingleton<ICustomerRepository, CustomerRepository>();
                     services.AddSingleton<IInventoryRepository, InventoryRepository>();
                     services.AddSingleton<IOrderRepository, OrderRepository>();
                     services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfigurationDto>(config);
                     services.AddMongoDbSettings<SagaSnapshotDatabaseSettings, SagaSnapshotDto>(config);
+                    services.AddMongoDbSettings<PersistableSagaDatabaseSettings, PersistableSagaDto>(config);
                     services.AddMongoDbSettings<CustomerDatabaseSettings, Customer>(config);
                     services.AddMongoDbSettings<InventoryDatabaseSettings, Inventory>(config);
                     services.AddMongoDbSettings<OrderDatabaseSettings, Order>(config);
@@ -62,6 +69,7 @@ namespace OrderService.Sagas.Specs.Hooks
             var settings = host.Services.GetRequiredService<OrderServiceSpecsSettings>();
             var sagaConfigRepository = host.Services.GetRequiredService<ISagaConfigDtoRepository>();
             var sagaSnapshotRepository = host.Services.GetRequiredService<ISagaSnapshotDtoRepository>();
+            var persistableSagaRepository = host.Services.GetRequiredService<IPersistableSagaRepository<CreateOrderSaga>>();
             var customerRepository = host.Services.GetRequiredService<ICustomerRepository>();
             var inventoryRepository = host.Services.GetRequiredService<IInventoryRepository>();
             var orderRepository = host.Services.GetRequiredService<IOrderRepository>();
@@ -73,6 +81,7 @@ namespace OrderService.Sagas.Specs.Hooks
 
             await ClearData(sagaConfigRepository, settings.SagaConfigId);
             await ClearData(sagaSnapshotRepository, settings.SagaConfigId);
+            await ClearData(persistableSagaRepository, settings.SagaConfigId);
             await ClearData(customerRepository, settings.CustomerId);
             await ClearData(inventoryRepository, settings.InventoryId);
             await ClearData(orderRepository, settings.OrderId);
@@ -109,6 +118,8 @@ namespace OrderService.Sagas.Specs.Hooks
                 await sagaConfigRepository.RemoveAsync(entityId);
             if (repository is ISagaSnapshotDtoRepository sagaSnapshotRepository)
                 await sagaSnapshotRepository.RemoveSagaAsync(entityId);
+            if (repository is IPersistableSagaRepository<CreateOrderSaga> persistableSagaRepository)
+                await persistableSagaRepository.RemoveAsync(entityId);
             if (repository is ICustomerRepository customerRepository)
                 await customerRepository.RemoveAsync(entityId);
             if (repository is IInventoryRepository inventoryRepository)

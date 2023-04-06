@@ -50,11 +50,11 @@ public abstract class ResultDispatchingSagaCommandHandler<TSaga, TEntity, TSagaC
     }
 
     /// <inheritdoc />
-    public async Task DispatchCommandResultAsync(TResult commandResult, bool compensating, Guid sagaId)
+    public async Task DispatchCommandResultAsync(TResult commandResult, bool compensating, Guid sagaId, IEntity? entity)
     {
         // Use Saga Pool to get saga
-        var sagaPool = (SagaPool<TSaga>)SagaPool;
-        var saga = sagaPool[sagaId];
+        var saga = await SagaPool.GetSagaAsync(sagaId);
+        saga.Entity = entity;
         if (saga is ISagaCommandResultHandler<TResult> handler)
             await handler.HandleCommandResultAsync(commandResult, compensating);
     }

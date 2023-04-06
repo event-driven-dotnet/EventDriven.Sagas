@@ -10,6 +10,6 @@ public class FakeSagaCommandHandler<TSaga> :
     public override async Task HandleCommandAsync(FakeSagaCommand command)
     {
         command.Result = "Success";
-        await DispatchCommandResultAsync(command.Result, false, command.SagaId);
+        await DispatchCommandResultAsync(command.Result, false, command.SagaId, command.Entity);
     }
 }

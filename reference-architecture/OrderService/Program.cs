@@ -32,6 +32,7 @@ builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
 builder.Services.AddMongoDbSettings<OrderDatabaseSettings, Order>(builder.Configuration);
 builder.Services.AddMongoDbSettings<SagaConfigDatabaseSettings, SagaConfigurationDto>(builder.Configuration);
 builder.Services.AddMongoDbSettings<SagaSnapshotDatabaseSettings, SagaSnapshotDto>(builder.Configuration);
+builder.Services.AddMongoDbSettings<PersistableSagaDatabaseSettings, PersistableSagaDto>(builder.Configuration);
 
 // Add command and query handlers
 builder.Services.AddHandlers(typeof(Program));
@@ -44,7 +45,7 @@ builder.Services.AddAppSettings<CreateOrderSagaConfigSettings>(builder.Configura
 
 // Sagas
 builder.Services.AddSaga<CreateOrderSaga, CreateOrderSagaConfigSettings, CreateOrderSagaCommandDispatcher,
-    SagaConfigRepository, SagaSnapshotRepository>(builder.Configuration);
+    SagaConfigRepository, SagaSnapshotRepository, PersistableSagaRepository<CreateOrderSaga>>(builder.Configuration);
 
 // Event Bus and event handlers
 builder.Services.AddDaprEventBus(builder.Configuration);

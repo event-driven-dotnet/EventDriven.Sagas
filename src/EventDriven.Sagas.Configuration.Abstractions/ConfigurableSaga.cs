@@ -40,7 +40,7 @@ public abstract class ConfigurableSaga : Saga
     /// Configure saga.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    protected virtual async Task ConfigureAsync()
+    public virtual async Task ConfigureAsync()
     {
         if (SagaConfigSettings?.SagaConfigId != null && SagaConfigRepository != null)
         {
@@ -51,16 +51,6 @@ public abstract class ConfigurableSaga : Saga
             SagaConfigName = sagaConfig.Name;
             Steps = sagaConfig.Steps;
         }
-    }
-    
-    /// <inheritdoc />
-    public override async Task StartSagaAsync(Guid entityId = default, CancellationToken cancellationToken = default)
-    {
-        // Set steps from config
-        await ConfigureAsync();
-        
-        // Start saga
-        await base.StartSagaAsync(entityId, cancellationToken);
     }
 }
         

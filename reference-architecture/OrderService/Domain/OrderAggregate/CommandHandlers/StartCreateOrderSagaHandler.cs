@@ -33,7 +33,7 @@ public class StartCreateOrderSagaHandler : ICommandHandler<Order, StartCreateOrd
         try
         {
             // Create saga
-            var saga = _sagaPool.CreateSaga();
+            var saga = await _sagaPool.CreateSagaAsync();
             
             // Start create order saga
             await saga.StartSagaAsync(command.Entity, command.OrderMetadata, cancellationToken);
