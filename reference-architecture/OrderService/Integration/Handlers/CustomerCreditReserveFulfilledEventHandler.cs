@@ -2,6 +2,7 @@ using Common.Integration.Events;
 using Common.Integration.Models;
 using EventDriven.EventBus.Abstractions;
 using EventDriven.Sagas.Abstractions.Pools;
+using OrderService.Repositories;
 using OrderService.Sagas.CreateOrder;
 
 namespace OrderService.Integration.Handlers;
@@ -10,13 +11,16 @@ public class CustomerCreditReserveFulfilledEventHandler :
     IntegrationEventHandler<CustomerCreditReserveFulfilled>
 {
     private readonly ISagaPool<CreateOrderSaga> _sagaPool;
+    private readonly IOrderRepository _orderRepository;
     private readonly ILogger<CustomerCreditReserveFulfilledEventHandler> _logger;
 
     public CustomerCreditReserveFulfilledEventHandler(
         ISagaPool<CreateOrderSaga> sagaPool,
+        IOrderRepository orderRepository,
         ILogger<CustomerCreditReserveFulfilledEventHandler> logger)
     {
         _sagaPool = sagaPool;
+        _orderRepository = orderRepository;
         _logger = logger;
     }
 
@@ -24,7 +28,8 @@ public class CustomerCreditReserveFulfilledEventHandler :
         bool compensating)
     {
         // Get saga from pool to handle command result
-        var saga = _sagaPool[commandResult.CorrelationId];
+        var saga = await _sagaPool.GetSagaAsync(commandResult.CorrelationId,
+            async entityId => await _orderRepository.GetAsync(entityId));
         await saga.HandleCommandResultAsync(commandResult, compensating);
     }
     

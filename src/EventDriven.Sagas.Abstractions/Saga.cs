@@ -330,11 +330,11 @@ public abstract class Saga
             : $"'{result}' returned when '{expectedResult}' was expected.";
     
     /// <summary>
-    /// 
+    /// Get timeout message.
     /// </summary>
-    /// <param name="timeout"></param>
-    /// <param name="duration"></param>
-    /// <returns></returns>
+    /// <param name="timeout">Set timeout.</param>
+    /// <param name="duration">Step duration.</param>
+    /// <returns>Timeout message.</returns>
     protected virtual string GetTimeoutMessage(
         TimeSpan? timeout ,TimeSpan? duration) =>
         timeout == null || duration == null
@@ -359,12 +359,14 @@ public abstract class Saga
                         if (commandSuccessful)
                         {
                             CurrentStep++;
+                            await SagaPool.ReplaceSagaAsync(this);
                             await ExecuteCurrentActionAsync();
                         }
                         else
                         {
                             if (!reverseOnFailure) CurrentStep--;
                             State = SagaState.Compensating;
+                            await SagaPool.ReplaceSagaAsync(this);
                             await ExecuteCurrentCompensatingActionAsync();
                         }
                     }
@@ -374,11 +376,12 @@ public abstract class Saga
                         if (!commandSuccessful)
                         {
                             if (!reverseOnFailure) CurrentStep--;
+                            await SagaPool.ReplaceSagaAsync(this);
                             await ExecuteCurrentCompensatingActionAsync();
                         }
                         else
                         {
-                            SagaPool.RemoveSaga(Id);
+                            await SagaPool.RemoveSagaAsync(Id);
                         }
                     }
                     return;
@@ -388,12 +391,13 @@ public abstract class Saga
                     if (CurrentStep > Steps.Min(s => s.Sequence))
                     {
                         CurrentStep--;
+                        await SagaPool.ReplaceSagaAsync(this);
                         await ExecuteCurrentCompensatingActionAsync();
                     }
                     else
                     {
                         State = SagaState.Compensated;
-                        SagaPool.RemoveSaga(Id);
+                        await SagaPool.RemoveSagaAsync(Id);
                     }
                     return;
                 default:
@@ -419,6 +423,9 @@ public abstract class Saga
         CurrentStep = 1;
         EntityId = entityId;
         CancellationToken = cancellationToken;
+        
+        // Save saga
+        await SagaPool.ReplaceSagaAsync(this);
 
         // Dispatch current step command
         await ExecuteCurrentActionAsync();

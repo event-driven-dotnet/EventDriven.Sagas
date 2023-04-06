@@ -30,14 +30,14 @@ public class SetOrderStateInitialCommandHandler :
             var updatedOrder = await _repository.UpdateOrderStateAsync(
                 command.EntityId.GetValueOrDefault(), OrderState.Initial);
             if (updatedOrder != null)
-                await DispatchCommandResultAsync(updatedOrder.State, true, command.SagaId);
+                await DispatchCommandResultAsync(updatedOrder.State, true, command.SagaId, command.Entity);
             else
-                await DispatchCommandResultAsync(OrderState.Pending, true, command.SagaId);
+                await DispatchCommandResultAsync(OrderState.Pending, true, command.SagaId, command.Entity);
         }
         catch (ConcurrencyException e)
         {
             _logger.LogError(e, "{Message}", e.Message);
-            await DispatchCommandResultAsync(OrderState.Pending, true, command.SagaId);
+            await DispatchCommandResultAsync(OrderState.Pending, true, command.SagaId, command.Entity);
         }
     }
 }

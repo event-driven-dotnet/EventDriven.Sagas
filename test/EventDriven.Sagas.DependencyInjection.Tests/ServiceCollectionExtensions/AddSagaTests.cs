@@ -25,7 +25,7 @@ public class AddSagaTests
         var services = new ServiceCollection();
 
         services.AddSaga<CreateOrderSaga, CreateSagaConfigSettings, CreateOrderSagaCommandDispatcher,
-            SagaConfigRepository, SagaSnapshotRepository>(_createSagaConfigId,
+            FakeSagaConfigRepository, FakeSagaSnapshotRepository, FakePersistableSagaRepository<CreateOrderSaga>>(_createSagaConfigId,
             false, typeof(AddSagaTests));
         
         var provider = services.BuildServiceProvider();
@@ -52,7 +52,7 @@ public class AddSagaTests
         var services = new ServiceCollection();
 
         services.AddSaga<UpdateOrderSaga, UpdateSagaConfigSettings, UpdateOrderSagaCommandDispatcher,
-            SagaConfigRepository, SagaSnapshotRepository>(_updateSagaConfigId,
+            FakeSagaConfigRepository, FakeSagaSnapshotRepository, FakePersistableSagaRepository<UpdateOrderSaga>>(_updateSagaConfigId,
             false, typeof(AddSagaTests));
         
         var provider = services.BuildServiceProvider();
@@ -79,10 +79,10 @@ public class AddSagaTests
         var services = new ServiceCollection();
 
         services.AddSaga<CreateOrderSaga, CreateSagaConfigSettings, CreateOrderSagaCommandDispatcher,
-            SagaConfigRepository, SagaSnapshotRepository>(_createSagaConfigId,
+            FakeSagaConfigRepository, FakeSagaSnapshotRepository, FakePersistableSagaRepository<CreateOrderSaga>>(_createSagaConfigId,
             false, typeof(AddSagaTests));
         services.AddSaga<UpdateOrderSaga, UpdateSagaConfigSettings, UpdateOrderSagaCommandDispatcher,
-            SagaConfigRepository, SagaSnapshotRepository>(_updateSagaConfigId,
+            FakeSagaConfigRepository, FakeSagaSnapshotRepository, FakePersistableSagaRepository<UpdateOrderSaga>>(_updateSagaConfigId,
             false, typeof(AddSagaTests));
         
         var provider = services.BuildServiceProvider();

@@ -1,11 +1,12 @@
 using System.Collections.Concurrent;
+using EventDriven.DDD.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Factories;
 
 namespace EventDriven.Sagas.Abstractions.Pools;
 
 /// <inheritdoc />
-public class SagaPool<TSaga> : ISagaPool<TSaga>
+public class InMemorySagaPool<TSaga> : ISagaPool<TSaga>
     where TSaga : Saga
 {
     private readonly bool _overrideLockCheck;
@@ -23,7 +24,7 @@ public class SagaPool<TSaga> : ISagaPool<TSaga>
     /// <param name="sagaFactory">Saga factory.</param>
     /// <param name="commandResultDispatchers">Command result dispatchers.</param>
     /// <param name="overrideLockCheck">Override lock check.</param>
-    public SagaPool(
+    public InMemorySagaPool(
         ISagaFactory<TSaga> sagaFactory,
         IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers,
         bool overrideLockCheck)
@@ -34,32 +35,51 @@ public class SagaPool<TSaga> : ISagaPool<TSaga>
     }
 
     /// <inheritdoc />
-    public TSaga CreateSaga()
+    public Task<TSaga> GetSagaAsync(Guid id, Func<Guid, Task<IEntity?>>? retrieveEntity = null)
+    {
+        var success = _sagaPool.TryGetValue(id, out var saga);
+        if (!success) throw new KeyNotFoundException();
+        return Task.FromResult((TSaga)saga!);
+    }
+
+    async Task<Saga> ISagaPool.GetSagaAsync(Guid id, Func<Guid, Task<IEntity?>>? retrieveEntity) =>
+        await GetSagaAsync(id, retrieveEntity);
+
+    /// <inheritdoc />
+    public Task<TSaga> CreateSagaAsync()
     {
         // Connect command result dispatchers to saga pool
         foreach (var commandResultDispatcher in SagaCommandResultDispatchers
             .Where(d => d.SagaType == null || d.SagaType == typeof(TSaga)))
             commandResultDispatcher.SagaPool = this;
-
+        
         var saga = _sagaFactory.CreateSaga(this, _overrideLockCheck);
         _sagaPool.TryAdd(saga.Id, saga);
-        return saga;
+        return Task.FromResult(saga);
     }
 
-    Saga ISagaPool.CreateSaga() => CreateSaga();
+    async Task<Saga> ISagaPool.CreateSagaAsync() => await CreateSagaAsync();
 
     /// <inheritdoc />
-    public void RemoveSaga(Guid sagaId)
+    public Task<TSaga> ReplaceSagaAsync(TSaga saga)
     {
-        _sagaPool.TryRemove(sagaId, out _);
+        var success = _sagaPool.TryGetValue(saga.Id, out var existing);
+        if (success && existing is not null)
+            _sagaPool.TryUpdate(saga.Id, saga, existing);
+        else
+            _sagaPool.TryAdd(saga.Id, saga);
+        return Task.FromResult(saga);
     }
-    
+
     /// <inheritdoc />
-    public TSaga this[Guid index]
+    async Task<Saga> ISagaPool.ReplaceSagaAsync(Saga saga) => await ReplaceSagaAsync((TSaga)saga);
+
+    /// <inheritdoc />
+    public Task RemoveSagaAsync(Guid id)
     {
-        get => (TSaga)_sagaPool[index];
-        set => _sagaPool[index] = value;
+        _sagaPool.TryRemove(id, out _);
+        return Task.CompletedTask;
     }
-    
-    Saga ISagaPool.this[Guid index] => this[index];
+
+    async Task ISagaPool.RemoveSagaAsync(Guid id) => await RemoveSagaAsync(id);
 }

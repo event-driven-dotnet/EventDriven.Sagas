@@ -10,6 +10,7 @@ using EventDriven.Sagas.Configuration.Abstractions;
 using EventDriven.Sagas.Configuration.Abstractions.Repositories;
 using EventDriven.Sagas.Persistence.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions.Factories;
+using EventDriven.Sagas.Persistence.Abstractions.Pools;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,10 +34,11 @@ public static class ServiceCollectionExtensions
     /// <typeparam name="TSagaCommandDispatcher">Saga command dispatcher type.</typeparam>
     /// <typeparam name="TSagaConfigRepository">Saga config repository type.</typeparam>
     /// <typeparam name="TSagaSnapshotRepository">Saga snapshot repository type.</typeparam>
+    /// <typeparam name="TPersistableSagaRepository">Persistable saga repository type.</typeparam>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddSaga<TPersistableSaga,
         TSagaConfigSettings, TSagaCommandDispatcher,
-        TSagaConfigRepository, TSagaSnapshotRepository>(
+        TSagaConfigRepository, TSagaSnapshotRepository, TPersistableSagaRepository>(
         this IServiceCollection services, 
         IConfiguration configuration,
         params Type[] assemblyMarkerTypes)
@@ -45,6 +47,7 @@ public static class ServiceCollectionExtensions
         where TSagaCommandDispatcher : ISagaCommandDispatcher
         where TSagaConfigRepository : class, ISagaConfigRepository
         where TSagaSnapshotRepository : class, ISagaSnapshotRepository
+        where TPersistableSagaRepository : class, IPersistableSagaRepository<TPersistableSaga>
     {
         var settings = new TSagaConfigSettings();
         var configTypeName = typeof(TSagaConfigSettings).Name;
@@ -53,7 +56,7 @@ public static class ServiceCollectionExtensions
         if (settings.SagaConfigId == Guid.Empty)
             throw new Exception($"'SagaConfigId' property not present in configuration section {configTypeName}");
         return services.AddSaga<TPersistableSaga, TSagaConfigSettings, TSagaCommandDispatcher,
-            TSagaConfigRepository, TSagaSnapshotRepository>(
+            TSagaConfigRepository, TSagaSnapshotRepository, TPersistableSagaRepository>(
             settings.SagaConfigId, settings.OverrideLockCheck, assemblyMarkerTypes);
     }
 
@@ -69,10 +72,11 @@ public static class ServiceCollectionExtensions
     /// <typeparam name="TSagaCommandDispatcher">Saga command dispatcher type.</typeparam>
     /// <typeparam name="TSagaConfigRepository">Saga config repository type.</typeparam>
     /// <typeparam name="TSagaSnapshotRepository">Saga snapshot repository type.</typeparam>
+    /// <typeparam name="TPersistableSagaRepository">Persistable saga repository type.</typeparam>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddSaga<TPersistableSaga,
         TSagaConfigSettings, TSagaCommandDispatcher,
-        TSagaConfigRepository, TSagaSnapshotRepository>(
+        TSagaConfigRepository, TSagaSnapshotRepository, TPersistableSagaRepository>(
         this IServiceCollection services, 
         Guid? sagaConfigId = null,
         bool overrideLockCheck = false,
@@ -82,8 +86,9 @@ public static class ServiceCollectionExtensions
         where TSagaCommandDispatcher : ISagaCommandDispatcher
         where TSagaConfigRepository : class, ISagaConfigRepository
         where TSagaSnapshotRepository : class, ISagaSnapshotRepository
+        where TPersistableSagaRepository : class, IPersistableSagaRepository<TPersistableSaga>
         => services.AddSaga<TPersistableSaga, TSagaConfigSettings, TSagaCommandDispatcher,
-            TSagaConfigRepository, TSagaSnapshotRepository>(options =>
+            TSagaConfigRepository, TSagaSnapshotRepository, TPersistableSagaRepository>(options =>
         {
             options.SagaConfigId = sagaConfigId;
             options.OverrideLockCheck = overrideLockCheck;
@@ -100,10 +105,11 @@ public static class ServiceCollectionExtensions
     /// <typeparam name="TSagaCommandDispatcher">Saga command dispatcher type.</typeparam>
     /// <typeparam name="TSagaConfigRepository">Saga config repository type.</typeparam>
     /// <typeparam name="TSagaSnapshotRepository">Saga snapshot repository type.</typeparam>
+    /// <typeparam name="TPersistableSagaRepository">Persistable saga repository type.</typeparam>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddSaga<
         TPersistableSaga, TSagaConfigSettings, TSagaCommandDispatcher,
-        TSagaConfigRepository, TSagaSnapshotRepository>(
+        TSagaConfigRepository, TSagaSnapshotRepository, TPersistableSagaRepository>(
         this IServiceCollection services, 
         Action<TSagaConfigSettings> configure,
         params Type[] assemblyMarkerTypes)
@@ -112,6 +118,7 @@ public static class ServiceCollectionExtensions
         where TSagaCommandDispatcher : ISagaCommandDispatcher
         where TSagaConfigRepository : class, ISagaConfigRepository
         where TSagaSnapshotRepository : class, ISagaSnapshotRepository
+        where TPersistableSagaRepository : class, IPersistableSagaRepository<TPersistableSaga>
     {
         var sagaConfigOptions = new TSagaConfigSettings();
         configure(sagaConfigOptions);
@@ -121,6 +128,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton(sagaConfigOptions)
             .AddSingleton<ISagaConfigRepository, TSagaConfigRepository>()
             .AddSingleton<ISagaSnapshotRepository, TSagaSnapshotRepository>()
+            .AddSingleton<IPersistableSagaRepository<TPersistableSaga>, TPersistableSagaRepository>()
             .AddSingleton<ISagaCommandTypeResolver, SagaCommandTypeResolver>(_ => resolver)
             .AddAutoMapper(cfg =>
             {
@@ -144,10 +152,11 @@ public static class ServiceCollectionExtensions
             .AddSingleton<ISagaPool<TPersistableSaga>>(sp =>
             {
                 var factory = sp.GetRequiredService<ISagaFactory<TPersistableSaga>>();
+                var repository = sp.GetRequiredService<IPersistableSagaRepository<TPersistableSaga>>();
                 var configOptions = sp.GetRequiredService<TSagaConfigSettings>();
                 var resultDispatchers = 
                     sp.GetServices<ISagaCommandResultDispatcher>().DistinctBy(e => e.GetType()).ToList();
-                var sagaPool = new SagaPool<TPersistableSaga>(factory, resultDispatchers, configOptions.OverrideLockCheck);
+                var sagaPool = new PersistableSagaPool<TPersistableSaga>(factory, resultDispatchers, repository, configOptions.OverrideLockCheck);
                 return sagaPool;
             });
         return services;

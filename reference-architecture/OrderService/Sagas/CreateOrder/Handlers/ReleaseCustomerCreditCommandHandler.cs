@@ -38,7 +38,7 @@ public class ReleaseCustomerCreditCommandHandler :
             _logger.LogError("{Message}", e.Message);
             await DispatchCommandResultAsync(new CustomerCreditReleaseResponse(
                 command.CustomerId, command.CreditReleased,
-                0, false, command.SagaId), true, command.SagaId);
+                0, false, command.SagaId), true, command.SagaId, command.Entity);
         }
     }
 }

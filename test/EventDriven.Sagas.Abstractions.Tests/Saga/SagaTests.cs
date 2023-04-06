@@ -30,11 +30,11 @@ public class SagaTests
             ?? Array.Empty<SagaStep>());
         var factory = new SagaFactory<FakeSaga>(dispatcher, resultEvaluators,
             Enumerable.Empty<ICheckSagaLockCommandHandler>());
-        var sagaPool = new SagaPool<FakeSaga>(factory, null!, false);
+        var sagaPool = new InMemorySagaPool<FakeSaga>(factory, null!, false);
         var saga = new FakeSaga(steps, dispatcher, resultEvaluators, snapshotRepo, sagaPool);
         var sagaId = Guid.NewGuid();
         saga.Id = sagaId;
-        sagaPool[sagaId] = saga;
+        await sagaPool.ReplaceSagaAsync(saga);
         var order = new Order();
         var customer = new Customer();
         var inventory = new Inventory();
@@ -90,7 +90,7 @@ public class SagaTests
         Assert.Equal(expectedActionStates, actionStates);
         Assert.Equal(expectedCompensatingActionStates, compensatingActionStates);
         Assert.Equal(step, snapshotRepo.Sagas.Count);
-        Assert.Throws<KeyNotFoundException>(() => sagaPool[saga.Id]);
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => sagaPool.GetSagaAsync(saga.Id));
     }
 
     [Theory]
@@ -113,11 +113,11 @@ public class SagaTests
         var cancelOnStep = cancel ? step : 0;
         var factory = new SagaFactory<FakeSaga>(dispatcher, resultEvaluators,
             Enumerable.Empty<ICheckSagaLockCommandHandler>());
-        var sagaPool = new SagaPool<FakeSaga>(factory, null!, false);
+        var sagaPool = new InMemorySagaPool<FakeSaga>(factory, null!, false);
         var saga = new FakeSaga(steps, dispatcher, resultEvaluators, snapshotRepo, sagaPool, cancelOnStep, tokenSource);
         var sagaId = Guid.NewGuid();
         saga.Id = sagaId;
-        sagaPool[sagaId] = saga;
+        await sagaPool.ReplaceSagaAsync(saga);
         var order = new Order();
         var customer = new Customer();
         var inventory = new Inventory();
@@ -186,6 +186,6 @@ public class SagaTests
         Assert.Equal(expectedStateInfos, stateInfos);
         Assert.Equal(expectedSagaState, saga.StateInfo);
         Assert.Equal(step * 2, snapshotRepo.Sagas.Count);
-        Assert.Throws<KeyNotFoundException>(() => sagaPool[saga.Id]);
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => sagaPool.GetSagaAsync(saga.Id));
     }
 }

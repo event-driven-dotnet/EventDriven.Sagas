@@ -43,5 +43,19 @@ public class SagaPersistAutoMapperProfile: Profile
                 opt.MapFrom(src => src.SagaId))
             .ForMember(dest => dest.Started, opt =>
                 opt.MapFrom(src => src.SagaStarted));
+        CreateMap<PersistableSaga, PersistableSagaDto>()
+            .ForMember(dest => dest.Id, opt =>
+                opt.MapFrom(src => Guid.Empty))
+            .ForMember(dest => dest.SagaId, opt =>
+                opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.SagaStarted, opt =>
+                opt.MapFrom(src => src.Started));
+        CreateMap<PersistableSagaDto, PersistableSaga>()
+            .ForMember(dest => dest.Id, opt =>
+                opt.MapFrom(src => Guid.Empty))
+            .ForMember(dest => dest.Id, opt =>
+                opt.MapFrom(src => src.SagaId))
+            .ForMember(dest => dest.Started, opt =>
+                opt.MapFrom(src => src.SagaStarted));
     }
 }
