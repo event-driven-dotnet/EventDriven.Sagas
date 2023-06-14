@@ -4,7 +4,7 @@ using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Mapping;
 using EventDriven.Sagas.Persistence.Abstractions.DTO;
 
-namespace EventDriven.Sagas.Persistence.Abstractions;
+namespace EventDriven.Sagas.Persistence.Abstractions.Mapping;
 
 /// <summary>
 ///  Saga auto mapper configuration.
@@ -57,5 +57,15 @@ public class SagaPersistAutoMapperProfile: Profile
                 opt.MapFrom(src => src.SagaId))
             .ForMember(dest => dest.Started, opt =>
                 opt.MapFrom(src => src.SagaStarted));
+        CreateMap(typeof(PersistableSaga<>), typeof(PersistableSagaMetadataDto))
+            .ForMember("Id", opt => opt.MapFrom(src => Guid.NewGuid()))
+            .ForMember("SagaId", opt => opt.MapFrom(typeof(IdToSagaIdValueResolver<>)))
+            .ForMember("SagaStarted", opt => opt.MapFrom(typeof(StartedToSagaStartedValueResolver<>)))
+            .ForMember("Metadata", opt => opt.MapFrom(typeof(SagaMetadataToStringValueResolver<>)));
+        CreateMap(typeof(PersistableSagaMetadataDto), typeof(PersistableSaga<>))
+            .ForMember("Id", opt => opt.MapFrom(src => Guid.NewGuid()))
+            .ForMember("Id", opt => opt.MapFrom(typeof(SagaIdToIdValueResolver<>)))
+            .ForMember("Started", opt => opt.MapFrom(typeof(SagaStartedToStartedValueResolver<>)))
+            .ForMember("Metadata", opt => opt.Ignore());
     }
 }

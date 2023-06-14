@@ -1,6 +1,6 @@
 using EventDriven.CQRS.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions;
-using EventDriven.Sagas.Abstractions.Pools;
+using EventDriven.Sagas.Persistence.Abstractions.Pools;
 using OrderService.Domain.OrderAggregate.Commands;
 using OrderService.Helpers;
 using OrderService.Repositories;
@@ -11,12 +11,12 @@ namespace OrderService.Domain.OrderAggregate.CommandHandlers;
 public class StartCreateOrderSagaHandler : ICommandHandler<Order, StartCreateOrderSaga>
 {
     private readonly IOrderRepository _repository;
-    private readonly ISagaPool<CreateOrderSaga> _sagaPool;
+    private readonly IPersistableSagaPool<CreateOrderSaga, OrderMetadata> _sagaPool;
     private readonly ILogger<StartCreateOrderSagaHandler> _logger;
 
     public StartCreateOrderSagaHandler(
         IOrderRepository repository,
-        ISagaPool<CreateOrderSaga> sagaPool,
+        IPersistableSagaPool<CreateOrderSaga, OrderMetadata> sagaPool,
         ILogger<StartCreateOrderSagaHandler> logger)
     {
         _repository = repository;
@@ -32,11 +32,11 @@ public class StartCreateOrderSagaHandler : ICommandHandler<Order, StartCreateOrd
         
         try
         {
-            // Create saga
-            var saga = await _sagaPool.CreateSagaAsync();
+            // When you emerge from here its the persistable saga has been saved
+            var saga = await _sagaPool.CreateSagaAsync(command.OrderMetadata);
             
             // Start create order saga
-            await saga.StartSagaAsync(command.Entity, command.OrderMetadata, cancellationToken);
+            await saga.StartSagaAsync(command.Entity, cancellationToken);
             
             // Return created order
             var order = await _repository.GetAsync(command.Entity.Id);

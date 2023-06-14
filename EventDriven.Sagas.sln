@@ -70,6 +70,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "reference-archite
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.DependencyInjection.Tests", "test\EventDriven.Sagas.DependencyInjection.Tests\EventDriven.Sagas.DependencyInjection.Tests.csproj", "{75635BC4-39E9-45D6-AB55-DE9AEE0670F1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventDriven.Sagas.Persistence.Abstractions.Tests", "test\EventDriven.Sagas.Persistence.Abstractions.Tests\EventDriven.Sagas.Persistence.Abstractions.Tests.csproj", "{F61E2F95-2A59-4E0B-98E4-78204D78590D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -148,6 +150,10 @@ Global
 		{75635BC4-39E9-45D6-AB55-DE9AEE0670F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75635BC4-39E9-45D6-AB55-DE9AEE0670F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75635BC4-39E9-45D6-AB55-DE9AEE0670F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F61E2F95-2A59-4E0B-98E4-78204D78590D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F61E2F95-2A59-4E0B-98E4-78204D78590D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F61E2F95-2A59-4E0B-98E4-78204D78590D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F61E2F95-2A59-4E0B-98E4-78204D78590D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -174,6 +180,7 @@ Global
 		{E64FBA81-81E0-429E-B83D-213BDD880284} = {2F6C2678-B38D-4784-AEDA-1DF293E1296A}
 		{C67BF2F3-1B5E-44EB-93A5-634FEC0E073F} = {2F6C2678-B38D-4784-AEDA-1DF293E1296A}
 		{75635BC4-39E9-45D6-AB55-DE9AEE0670F1} = {7340565F-A10B-4B7D-B75E-9320CAE5BD05}
+		{F61E2F95-2A59-4E0B-98E4-78204D78590D} = {7340565F-A10B-4B7D-B75E-9320CAE5BD05}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3BFC4ACA-7DDF-4583-A578-5CAB3893AE40}

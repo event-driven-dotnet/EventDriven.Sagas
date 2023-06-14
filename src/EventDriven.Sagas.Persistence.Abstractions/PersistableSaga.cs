@@ -57,13 +57,11 @@ public abstract class PersistableSaga<TMetadata> : PersistableSaga
     /// Start the saga.
     /// </summary>
     /// <param name="entity">Entity.</param>
-    /// <param name="metadata">Saga metadata.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public virtual async Task StartSagaAsync(IEntity entity, TMetadata metadata,
+    public override async Task StartSagaAsync(IEntity entity,
         CancellationToken cancellationToken = default)
     {
-        Metadata = metadata;
         Entity = entity;
         await StartSagaAsync(entity.Id, cancellationToken);
     }

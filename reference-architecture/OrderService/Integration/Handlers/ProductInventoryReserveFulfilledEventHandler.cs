@@ -1,7 +1,8 @@
 using Common.Integration.Events;
 using Common.Integration.Models;
 using EventDriven.EventBus.Abstractions;
-using EventDriven.Sagas.Abstractions.Pools;
+using EventDriven.Sagas.Persistence.Abstractions.Pools;
+using OrderService.Domain.OrderAggregate;
 using OrderService.Repositories;
 using OrderService.Sagas.CreateOrder;
 
@@ -10,13 +11,13 @@ namespace OrderService.Integration.Handlers;
 public class ProductInventoryReserveFulfilledEventHandler : 
     IntegrationEventHandler<ProductInventoryReserveFulfilled>
 {
-    private readonly ISagaPool<CreateOrderSaga> _sagaPool;
+    private readonly IPersistableSagaPool<CreateOrderSaga, OrderMetadata> _sagaPool;
     private readonly IOrderRepository _orderRepository;
     private readonly ILogger<ProductInventoryReserveFulfilledEventHandler> _logger;
     public Type? SagaType { get; set; } = typeof(CreateOrderSaga);
 
     public ProductInventoryReserveFulfilledEventHandler(
-        ISagaPool<CreateOrderSaga> sagaPool,
+        IPersistableSagaPool<CreateOrderSaga,OrderMetadata> sagaPool,
         IOrderRepository orderRepository,
         ILogger<ProductInventoryReserveFulfilledEventHandler> logger)
     {
