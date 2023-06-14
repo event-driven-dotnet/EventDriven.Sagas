@@ -9,12 +9,16 @@ using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 namespace EventDriven.Sagas.Persistence.Abstractions.Pools;
 
 /// <inheritdoc />
-public class PersistableSagaPool<TSaga> : ISagaPool<TSaga>
-    where TSaga : Saga
+public class PersistableSagaPool<TSaga> : IPersistableSagaPool<TSaga>
+    where TSaga : PersistableSaga
 {
     private readonly bool _overrideLockCheck;
     private readonly ISagaFactory<TSaga> _sagaFactory;
-    private readonly IPersistableSagaRepository<TSaga> _sagaRepository;
+
+    /// <summary>
+    /// Saga Repository
+    /// </summary>
+    protected readonly IPersistableSagaRepository<TSaga> SagaRepository;
 
     /// <summary>
     /// Command result dispatchers.
@@ -36,7 +40,7 @@ public class PersistableSagaPool<TSaga> : ISagaPool<TSaga>
     {
         SagaCommandResultDispatchers = commandResultDispatchers;
         _sagaFactory = sagaFactory;
-        _sagaRepository = sagaRepository;
+        SagaRepository = sagaRepository;
         _overrideLockCheck = overrideLockCheck;
     }
 
@@ -44,7 +48,7 @@ public class PersistableSagaPool<TSaga> : ISagaPool<TSaga>
     public async Task<TSaga> GetSagaAsync(Guid id, Func<Guid, Task<IEntity?>>? retrieveEntity = null)
     {
         var newSaga = await ConfigureSagaAsync();
-        var savedSaga =  await _sagaRepository.GetAsync(id, newSaga);
+        var savedSaga =  await SagaRepository.GetAsync(id, newSaga);
         if (savedSaga is null)
             throw new KeyNotFoundException();
         if (retrieveEntity is not null)
@@ -59,7 +63,7 @@ public class PersistableSagaPool<TSaga> : ISagaPool<TSaga>
     public async Task<TSaga> CreateSagaAsync()
     {
         var newSaga = await ConfigureSagaAsync();
-        var savedSaga = await _sagaRepository.CreateAsync(newSaga);
+        var savedSaga = await SagaRepository.CreateAsync(newSaga);
         return savedSaga;
     }
     
@@ -69,18 +73,22 @@ public class PersistableSagaPool<TSaga> : ISagaPool<TSaga>
     public async Task<TSaga> ReplaceSagaAsync(TSaga saga)
     {
         var newSaga = await ConfigureSagaAsync();
-        return await _sagaRepository.SaveAsync(saga, newSaga);
+        return await SagaRepository.SaveAsync(saga, newSaga);
     }
 
     /// <inheritdoc />
     async Task<Saga> ISagaPool.ReplaceSagaAsync(Saga saga) => await ReplaceSagaAsync((TSaga)saga);
 
     /// <inheritdoc />
-    public async Task RemoveSagaAsync(Guid id) => await _sagaRepository.RemoveAsync(id);
+    public async Task RemoveSagaAsync(Guid id) => await SagaRepository.RemoveAsync(id);
 
     async Task ISagaPool.RemoveSagaAsync(Guid id) => await RemoveSagaAsync(id);
     
-    private async Task<TSaga> ConfigureSagaAsync()
+    /// <summary>
+    /// Configure the reconstituted saga for operation.
+    /// </summary>
+    /// <returns>Configured saga.</returns>
+    protected async Task<TSaga> ConfigureSagaAsync()
     {
         foreach (var commandResultDispatcher in SagaCommandResultDispatchers
             .Where(d => d.SagaType == null || d.SagaType == typeof(TSaga)))
@@ -90,5 +98,30 @@ public class PersistableSagaPool<TSaga> : ISagaPool<TSaga>
         if (saga is ConfigurableSaga configSaga)
             await configSaga.ConfigureAsync();
         return saga;
+    }
+}
+
+
+/// <summary>
+/// Persistable saga with metadata.
+/// </summary>
+/// <typeparam name="TSaga">Persistable saga.</typeparam>
+/// <typeparam name="TMetadata">Saga metadata.</typeparam>
+public class PersistableSagaPool<TSaga,TMetadata>: PersistableSagaPool<TSaga>, IPersistableSagaPool<TSaga, TMetadata>
+    where TSaga : PersistableSaga<TMetadata>
+    where TMetadata : class
+{
+    /// <inheritdoc />
+    public PersistableSagaPool(ISagaFactory<TSaga> sagaFactory, IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers, IPersistableSagaRepository<TSaga> sagaRepository, bool overrideLockCheck) : base(sagaFactory, commandResultDispatchers, sagaRepository, overrideLockCheck)
+    {
+    }
+
+    /// <inheritdoc />
+    public async Task<TSaga> CreateSagaAsync(TMetadata metaData)
+    {
+        var newSaga = await ConfigureSagaAsync();
+        newSaga.Metadata = metaData;
+        var savedSaga = await SagaRepository.CreateAsync(newSaga);
+        return savedSaga;
     }
 }

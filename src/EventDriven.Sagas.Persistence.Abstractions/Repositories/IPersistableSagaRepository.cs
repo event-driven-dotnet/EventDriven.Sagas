@@ -1,12 +1,10 @@
-using EventDriven.Sagas.Abstractions;
-
 namespace EventDriven.Sagas.Persistence.Abstractions.Repositories;
 
 /// <summary>
 /// Repository interface for saga persistence.
 /// </summary>
 public interface IPersistableSagaRepository<TSaga>
-    where TSaga : Saga
+    where TSaga : PersistableSaga
 {
     /// <summary>
     /// Retrieve saga.
@@ -36,4 +34,11 @@ public interface IPersistableSagaRepository<TSaga>
     /// </summary>
     /// <param name="id">Saga identifier.</param>
     Task RemoveAsync(Guid id);
+}
+
+/// <inheritdoc />
+public interface IPersistableSagaRepository<TSaga, TMetaData>: IPersistableSagaRepository<TSaga>
+    where TSaga : PersistableSaga<TMetaData> 
+    where TMetaData : class
+{
 }
