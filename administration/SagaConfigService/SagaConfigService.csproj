@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EventDriven.DependencyInjection.URF.Mongo" Version="1.2.1" />
-    <PackageReference Include="MongoDB.Driver" Version="2.20.0" />
+    <PackageReference Include="EventDriven.DependencyInjection.URF.Mongo" Version="1.2.2" />
+    <PackageReference Include="MongoDB.Driver" Version="2.21.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="URF.Core.Mongo" Version="7.0.0" />
   </ItemGroup>
