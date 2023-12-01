@@ -11,8 +11,8 @@ using EventDriven.Sagas.Configuration.Abstractions.Repositories;
 using EventDriven.Sagas.Persistence.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions.Factories;
 using EventDriven.Sagas.Persistence.Abstractions.Mapping;
-using EventDriven.Sagas.Persistence.Abstractions.Pools;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
+using EventDriven.Sagas.Persistence.Pool.Abstractions.Pools;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -4,9 +4,10 @@ using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Factories;
 using EventDriven.Sagas.Abstractions.Pools;
 using EventDriven.Sagas.Configuration.Abstractions;
+using EventDriven.Sagas.Persistence.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
 
-namespace EventDriven.Sagas.Persistence.Abstractions.Pools;
+namespace EventDriven.Sagas.Persistence.Pool.Abstractions.Pools;
 
 /// <inheritdoc />
 public class PersistableSagaPool<TSaga> : IPersistableSagaPool<TSaga>

@@ -1,6 +1,7 @@
 using EventDriven.Sagas.Abstractions.Pools;
+using EventDriven.Sagas.Persistence.Abstractions;
 
-namespace EventDriven.Sagas.Persistence.Abstractions.Pools;
+namespace EventDriven.Sagas.Persistence.Pool.Abstractions.Pools;
 
 /// <inheritdoc />
 public interface IPersistableSagaPool<TSaga>: ISagaPool<TSaga>

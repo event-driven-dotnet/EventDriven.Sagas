@@ -35,6 +35,7 @@
       <ProjectReference Include="..\EventDriven.Sagas.Abstractions\EventDriven.Sagas.Abstractions.csproj" />
       <ProjectReference Include="..\EventDriven.Sagas.Configuration.Abstractions\EventDriven.Sagas.Configuration.Abstractions.csproj" />
       <ProjectReference Include="..\EventDriven.Sagas.Persistence.Abstractions\EventDriven.Sagas.Persistence.Abstractions.csproj" />
+      <ProjectReference Include="..\EventDriven.Sagas.Persistence.Pool.Abstractions\EventDriven.Sagas.Persistence.Pool.Abstractions.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 using EventDriven.CQRS.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions;
-using EventDriven.Sagas.Persistence.Abstractions.Pools;
+using EventDriven.Sagas.Persistence.Pool.Abstractions.Pools;
 using OrderService.Domain.OrderAggregate.Commands;
 using OrderService.Helpers;
 using OrderService.Repositories;
