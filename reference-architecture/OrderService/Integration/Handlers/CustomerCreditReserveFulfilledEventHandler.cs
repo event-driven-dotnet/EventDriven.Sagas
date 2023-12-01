@@ -1,7 +1,7 @@
 using Common.Integration.Events;
 using Common.Integration.Models;
 using EventDriven.EventBus.Abstractions;
-using EventDriven.Sagas.Persistence.Abstractions.Pools;
+using EventDriven.Sagas.Persistence.Pool.Abstractions.Pools;
 using OrderService.Domain.OrderAggregate;
 using OrderService.Repositories;
 using OrderService.Sagas.CreateOrder;
