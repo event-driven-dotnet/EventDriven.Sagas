@@ -57,7 +57,7 @@ public static class ServiceCollectionExtensions
             throw new Exception($"'SagaConfigId' property not present in configuration section {configTypeName}");
         return services.AddSaga<TPersistableSaga, TSagaConfigSettings, TSagaCommandDispatcher,
             TSagaConfigRepository, TSagaSnapshotRepository, TPersistableSagaRepository>(
-            settings.SagaConfigId, settings.OverrideLockCheck, assemblyMarkerTypes);
+            settings.SagaConfigId, settings.OverrideLockCheck, settings.EnableSagaSnapshots, assemblyMarkerTypes);
     }
 
     /// <summary>
@@ -94,9 +94,9 @@ public static class ServiceCollectionExtensions
         configSection.Bind(settings);
         if (settings.SagaConfigId == Guid.Empty)
             throw new Exception($"'SagaConfigId' property not present in configuration section {configTypeName}");
-        return services.AddSaga<TPersistableSaga, TMetadata ,TSagaConfigSettings, TSagaCommandDispatcher,
+        return services.AddSaga<TPersistableSaga, TMetadata,TSagaConfigSettings, TSagaCommandDispatcher,
             TSagaConfigRepository, TSagaSnapshotRepository, TPersistableSagaRepository>(
-            settings.SagaConfigId, settings.OverrideLockCheck, assemblyMarkerTypes);
+            settings.SagaConfigId, settings.OverrideLockCheck, settings.EnableSagaSnapshots, assemblyMarkerTypes);
     }
 
     /// <summary>
@@ -105,6 +105,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
     /// <param name="sagaConfigId">Optional saga configuration identifier.</param>
     /// <param name="overrideLockCheck">True to override lock check.</param>
+    /// <param name="enableSagaSnapshots">Enable saga snapshots. Defaults to true.</param>
     /// <param name="assemblyMarkerTypes">Assembly marker types.</param>
     /// <typeparam name="TPersistableSaga">Concrete saga type that extends PersistableSaga.</typeparam>
     /// <typeparam name="TSagaConfigSettings">Saga configuration settings type.</typeparam>
@@ -119,6 +120,7 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services, 
         Guid? sagaConfigId = null,
         bool overrideLockCheck = false,
+        bool enableSagaSnapshots = true,
         params Type[] assemblyMarkerTypes)
         where TPersistableSaga : PersistableSaga, ISagaCommandResultHandler
         where TSagaConfigSettings : class, ISagaConfigSettings, new()
@@ -131,6 +133,7 @@ public static class ServiceCollectionExtensions
         {
             options.SagaConfigId = sagaConfigId;
             options.OverrideLockCheck = overrideLockCheck;
+            options.EnableSagaSnapshots = enableSagaSnapshots;
         }, assemblyMarkerTypes);
 
     /// <summary>
@@ -139,6 +142,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
     /// <param name="sagaConfigId">Optional saga configuration identifier.</param>
     /// <param name="overrideLockCheck">True to override lock check.</param>
+    /// <param name="enableSagaSnapshots">Enable saga snapshots. Defaults to true.</param>
     /// <param name="assemblyMarkerTypes">Assembly marker types.</param>
     /// <typeparam name="TPersistableSaga">Concrete saga type that extends PersistableSaga.</typeparam>
     /// <typeparam name="TSagaConfigSettings">Saga configuration settings type.</typeparam>
@@ -154,6 +158,7 @@ public static class ServiceCollectionExtensions
         this IServiceCollection services, 
         Guid? sagaConfigId = null,
         bool overrideLockCheck = false,
+        bool enableSagaSnapshots = true,
         params Type[] assemblyMarkerTypes)
         where TPersistableSaga : PersistableSaga<TMetadata>, ISagaCommandResultHandler
         where TSagaConfigSettings : class, ISagaConfigSettings, new()
@@ -166,6 +171,7 @@ public static class ServiceCollectionExtensions
         {
             options.SagaConfigId = sagaConfigId;
             options.OverrideLockCheck = overrideLockCheck;
+            options.EnableSagaSnapshots = enableSagaSnapshots;
         }, assemblyMarkerTypes);
 
     /// <summary>
@@ -230,7 +236,8 @@ public static class ServiceCollectionExtensions
                 var configOptions = sp.GetRequiredService<TSagaConfigSettings>();
                 var resultDispatchers = 
                     sp.GetServices<ISagaCommandResultDispatcher>().DistinctBy(e => e.GetType()).ToList();
-                var sagaPool = new PersistableSagaPool<TPersistableSaga>(factory, resultDispatchers, repository, configOptions.OverrideLockCheck);
+                var sagaPool = new PersistableSagaPool<TPersistableSaga>(factory, resultDispatchers, repository,
+                    configOptions.OverrideLockCheck, configOptions.EnableSagaSnapshots);
                 return sagaPool;
             });
         return services;
@@ -300,7 +307,8 @@ public static class ServiceCollectionExtensions
                 var configOptions = sp.GetRequiredService<TSagaConfigSettings>();
                 var resultDispatchers = 
                     sp.GetServices<ISagaCommandResultDispatcher>().DistinctBy(e => e.GetType()).ToList();
-                var sagaPool = new PersistableSagaPool<TPersistableSaga, TMetadata>(factory, resultDispatchers, repository, configOptions.OverrideLockCheck);
+                var sagaPool = new PersistableSagaPool<TPersistableSaga, TMetadata>(factory, resultDispatchers, repository, 
+                    configOptions.OverrideLockCheck, configOptions.EnableSagaSnapshots);
                 return sagaPool;
             });
         return services;

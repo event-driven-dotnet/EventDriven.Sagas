@@ -31,7 +31,7 @@ public abstract class PersistableSaga : ConfigurableSaga
     /// </summary>
     protected virtual async Task PersistAsync()
     {
-        if (SagaSnapshotRepository != null)
+        if (SagaSnapshotRepository != null && EnableSagaSnapshots)
             await SagaSnapshotRepository.PersistAsync(this);
     }
 }

@@ -45,15 +45,15 @@ public class SagaFactoryTests
         {
             case SagaType.Configurable:
                 var sagaPool1 = new InMemorySagaPool<FakeConfigurableSaga>((ConfigurableSagaFactory<FakeConfigurableSaga>)factory,
-                    resultDispatchers,true);
+                    resultDispatchers,true, true);
                 return sagaPool1;
             case SagaType.Persistable:
                 var sagaPool2 = new InMemorySagaPool<FakePersistableSaga>((PersistableSagaFactory<FakePersistableSaga>)factory,
-                    resultDispatchers,true);
+                    resultDispatchers,true, true);
                 return sagaPool2;
             default:
                 var sagaPool3 = new InMemorySagaPool<FakeSaga>((SagaFactory<FakeSaga>)factory,
-                    resultDispatchers,true);
+                    resultDispatchers,true, true);
                 return sagaPool3;
         }
     }

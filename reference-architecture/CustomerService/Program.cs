@@ -30,7 +30,7 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavi
 
 // Add Dapr Event Bus and event handlers
 builder.Services.AddDaprEventBus(builder.Configuration);
-builder.Services.AddDaprMongoEventCache(builder.Configuration);
+builder.Services.AddMongoEventCache(builder.Configuration);
 builder.Services.AddSingleton<CustomerCreditReserveRequestedEventHandler>();
 builder.Services.AddSingleton<CustomerCreditReleaseRequestedEventHandler>();
 

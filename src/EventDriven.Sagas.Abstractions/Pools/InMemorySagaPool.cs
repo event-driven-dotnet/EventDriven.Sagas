@@ -10,6 +10,7 @@ public class InMemorySagaPool<TSaga> : ISagaPool<TSaga>
     where TSaga : Saga
 {
     private readonly bool _overrideLockCheck;
+    private readonly bool _enableSagaSnapshots;
     private readonly ISagaFactory<TSaga> _sagaFactory;
     private readonly ConcurrentDictionary<Guid, Saga> _sagaPool = new();
 
@@ -24,13 +25,15 @@ public class InMemorySagaPool<TSaga> : ISagaPool<TSaga>
     /// <param name="sagaFactory">Saga factory.</param>
     /// <param name="commandResultDispatchers">Command result dispatchers.</param>
     /// <param name="overrideLockCheck">Override lock check.</param>
+    /// <param name="enableSagaSnapshots">Enable saga snapshots.</param>
     public InMemorySagaPool(
         ISagaFactory<TSaga> sagaFactory,
         IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers,
-        bool overrideLockCheck)
+        bool overrideLockCheck, bool enableSagaSnapshots)
     {
         SagaCommandResultDispatchers = commandResultDispatchers;
         _overrideLockCheck = overrideLockCheck;
+        _enableSagaSnapshots = enableSagaSnapshots;
         _sagaFactory = sagaFactory;
     }
 
@@ -53,7 +56,7 @@ public class InMemorySagaPool<TSaga> : ISagaPool<TSaga>
             .Where(d => d.SagaType == null || d.SagaType == typeof(TSaga)))
             commandResultDispatcher.SagaPool = this;
         
-        var saga = _sagaFactory.CreateSaga(this, _overrideLockCheck);
+        var saga = _sagaFactory.CreateSaga(this, _overrideLockCheck, _enableSagaSnapshots);
         _sagaPool.TryAdd(saga.Id, saga);
         return Task.FromResult(saga);
     }

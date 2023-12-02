@@ -90,6 +90,11 @@ public abstract class Saga
     /// If true override lock check.
     /// </summary>
     public bool OverrideLockCheck { get; set; }
+    
+    /// <summary>
+    /// Enable saga snapshots. Defaults to true.
+    /// </summary>
+    public bool EnableSagaSnapshots { get; set; } = true;
 
     /// <summary>
     /// Represents a unique ID that must change atomically with each store of the entity

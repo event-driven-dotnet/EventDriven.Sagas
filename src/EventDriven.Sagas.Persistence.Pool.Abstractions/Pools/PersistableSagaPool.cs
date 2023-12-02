@@ -14,6 +14,7 @@ public class PersistableSagaPool<TSaga> : IPersistableSagaPool<TSaga>
     where TSaga : PersistableSaga
 {
     private readonly bool _overrideLockCheck;
+    private readonly bool _enableSagaSnapshots;
     private readonly ISagaFactory<TSaga> _sagaFactory;
 
     /// <summary>
@@ -29,20 +30,22 @@ public class PersistableSagaPool<TSaga> : IPersistableSagaPool<TSaga>
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="sagaRepository">Saga repository.</param>
     /// <param name="sagaFactory">Saga factory.</param>
     /// <param name="commandResultDispatchers">Command result dispatchers.</param>
+    /// <param name="sagaRepository">Saga repository.</param>
     /// <param name="overrideLockCheck">Override lock check.</param>
+    /// <param name="enableSagaSnapshots">Enable saga snapshots.</param>
     public PersistableSagaPool(
         ISagaFactory<TSaga> sagaFactory,
         IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers,
         IPersistableSagaRepository<TSaga> sagaRepository,
-        bool overrideLockCheck)
+        bool overrideLockCheck , bool enableSagaSnapshots)
     {
         SagaCommandResultDispatchers = commandResultDispatchers;
         _sagaFactory = sagaFactory;
         SagaRepository = sagaRepository;
         _overrideLockCheck = overrideLockCheck;
+        _enableSagaSnapshots = enableSagaSnapshots;
     }
 
     /// <inheritdoc />
@@ -95,7 +98,7 @@ public class PersistableSagaPool<TSaga> : IPersistableSagaPool<TSaga>
             .Where(d => d.SagaType == null || d.SagaType == typeof(TSaga)))
             commandResultDispatcher.SagaPool = this;
 
-        var saga = _sagaFactory.CreateSaga(this, _overrideLockCheck);
+        var saga = _sagaFactory.CreateSaga(this, _overrideLockCheck, _enableSagaSnapshots);
         if (saga is ConfigurableSaga configSaga)
             await configSaga.ConfigureAsync();
         return saga;
@@ -113,7 +116,12 @@ public class PersistableSagaPool<TSaga,TMetadata>: PersistableSagaPool<TSaga>, I
     where TMetadata : class
 {
     /// <inheritdoc />
-    public PersistableSagaPool(ISagaFactory<TSaga> sagaFactory, IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers, IPersistableSagaRepository<TSaga> sagaRepository, bool overrideLockCheck) : base(sagaFactory, commandResultDispatchers, sagaRepository, overrideLockCheck)
+    public PersistableSagaPool(ISagaFactory<TSaga> sagaFactory,
+        IEnumerable<ISagaCommandResultDispatcher> commandResultDispatchers,
+        IPersistableSagaRepository<TSaga> sagaRepository,
+        bool overrideLockCheck, bool enableSagaSnapshots)
+        : base(sagaFactory, commandResultDispatchers, sagaRepository,
+            overrideLockCheck, enableSagaSnapshots)
     {
     }
 
