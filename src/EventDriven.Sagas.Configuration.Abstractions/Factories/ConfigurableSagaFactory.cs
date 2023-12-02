@@ -29,9 +29,9 @@ public class ConfigurableSagaFactory<TSaga>
     }
 
     /// <inheritdoc />
-    public override TSaga CreateSaga(ISagaPool sagaPool, bool overrideLock)
+    public override TSaga CreateSaga(ISagaPool sagaPool, bool overrideLock, bool enableSagaSnapshots)
     {
-        var saga = base.CreateSaga(sagaPool, overrideLock);
+        var saga = base.CreateSaga(sagaPool, overrideLock, enableSagaSnapshots);
         saga.SagaConfigSettings = _sagaConfigOptions;
         saga.SagaConfigRepository = _sagaConfigRepository;
         return saga;

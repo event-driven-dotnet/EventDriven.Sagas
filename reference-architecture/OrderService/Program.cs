@@ -8,6 +8,8 @@ using EventDriven.Sagas.Configuration.Mongo.Repositories;
 using EventDriven.Sagas.DependencyInjection;
 using EventDriven.Sagas.Persistence.Abstractions.DTO;
 using EventDriven.Sagas.Persistence.Mongo.Repositories;
+using EventDriven.Sagas.Persistence.Redis;
+using EventDriven.Sagas.Persistence.Redis.Repositories;
 using MediatR;
 using OrderService.Configuration;
 using OrderService.Domain.OrderAggregate;
@@ -40,16 +42,17 @@ builder.Services.AddHandlers(typeof(Program));
 // Add behaviors
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
-// App settings
+// Add settings
 builder.Services.AddAppSettings<CreateOrderSagaConfigSettings>(builder.Configuration);
+builder.Services.AddSagaRedisSettings(builder.Configuration);
 
 // Sagas
 builder.Services.AddSaga<CreateOrderSaga, OrderMetadata, CreateOrderSagaConfigSettings, CreateOrderSagaCommandDispatcher,
-    SagaConfigRepository, SagaSnapshotRepository, PersistableSagaRepository<CreateOrderSaga,OrderMetadata>>(builder.Configuration);
+    SagaConfigRepository, SagaSnapshotRepository, RedisPersistableSagaRepository<CreateOrderSaga, OrderMetadata>>(builder.Configuration);
 
 // Event Bus and event handlers
 builder.Services.AddDaprEventBus(builder.Configuration);
-builder.Services.AddDaprMongoEventCache(builder.Configuration);
+builder.Services.AddMongoEventCache(builder.Configuration);
 builder.Services.AddSingleton<CustomerCreditReserveFulfilledEventHandler>();
 builder.Services.AddSingleton<CustomerCreditReleaseFulfilledEventHandler>();
 builder.Services.AddSingleton<ProductInventoryReserveFulfilledEventHandler>();

@@ -14,4 +14,9 @@ public interface ISagaConfigSettings
     /// Override lock check.
     /// </summary>
     public bool OverrideLockCheck { get; set; }
+
+    /// <summary>
+    /// Enable saga snapshots. Defaults to true.
+    /// </summary>
+    public bool EnableSagaSnapshots { get; set; }
 }

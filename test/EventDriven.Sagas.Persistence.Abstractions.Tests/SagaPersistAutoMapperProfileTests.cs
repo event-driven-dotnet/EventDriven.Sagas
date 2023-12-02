@@ -75,7 +75,8 @@ public class SagaPersistAutoMapperProfileTests
         var resultEvaluators = new List<ISagaCommandResultEvaluator>();
         var factory = new SagaFactory<FakeSaga>(dispatcher, resultEvaluators,
             Enumerable.Empty<ICheckSagaLockCommandHandler>());
-        var sagaPool = new InMemorySagaPool<FakeSaga>(factory, new List<ISagaCommandResultDispatcher>(), false);
+        var sagaPool = new InMemorySagaPool<FakeSaga>(factory, new List<ISagaCommandResultDispatcher>(),
+            false, true);
         var metadata = new FakeMetadata { Age = 29, Name = "John" };
         var saga = new FakeSaga(metadata, config?.Steps!, dispatcher, resultEvaluators, sagaPool)
         {

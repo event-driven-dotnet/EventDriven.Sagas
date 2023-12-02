@@ -44,7 +44,7 @@ public class SagaFactory<TSaga> : ISagaFactory<TSaga>
     public virtual IEnumerable<ICheckSagaLockCommandHandler> CheckLockCommandHandlers { get; }
 
     /// <inheritdoc />
-    public virtual TSaga CreateSaga(ISagaPool sagaPool, bool overrideLock)
+    public virtual TSaga CreateSaga(ISagaPool sagaPool, bool overrideLock, bool enableSagaSnapshots)
     {
         var saga = (TSaga?)Activator.CreateInstance(
             typeof(TSaga), SagaCommandDispatcher, SagaCommandResultEvaluators, sagaPool);
@@ -53,6 +53,7 @@ public class SagaFactory<TSaga> : ISagaFactory<TSaga>
         var checkLockHandler = CheckLockCommandHandlers.FirstOrDefault(
             h => h.SagaType == typeof(TSaga));
         saga.OverrideLockCheck = overrideLock;
+        saga.EnableSagaSnapshots = enableSagaSnapshots;
         saga.CheckLockCommandHandler = checkLockHandler;
         saga.Id = Guid.NewGuid();
         return saga;

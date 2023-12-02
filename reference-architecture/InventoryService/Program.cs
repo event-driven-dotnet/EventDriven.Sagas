@@ -31,7 +31,7 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavi
 
 // Add Dapr Event Bus and event handler
 builder.Services.AddDaprEventBus(builder.Configuration);
-builder.Services.AddDaprMongoEventCache(builder.Configuration);
+builder.Services.AddMongoEventCache(builder.Configuration);
 builder.Services.AddSingleton<ProductInventoryReserveRequestedEventHandler>();
 builder.Services.AddSingleton<ProductInventoryReleaseRequestedEventHandler>();
 

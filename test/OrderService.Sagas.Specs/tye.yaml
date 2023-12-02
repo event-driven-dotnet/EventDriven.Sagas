@@ -39,3 +39,5 @@ services:
         value: SagaConfigTestDb
       - name: SagaSnapshotDatabaseSettings:DatabaseName
         value: SagaSnapshotTestDb
+      - name: CreateOrderSagaConfigSettings:EnableSagaSnapshots
+        value: false

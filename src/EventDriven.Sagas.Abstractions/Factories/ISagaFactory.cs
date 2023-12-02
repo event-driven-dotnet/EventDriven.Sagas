@@ -11,8 +11,9 @@ public interface ISagaFactory<out TSaga>
     /// <summary>
     /// Create a saga.
     /// </summary>
-    /// <param name="overrideLockCheck">True to override lock check.</param>
-    /// <returns>Newly created saga.</returns>
     /// <param name="sagaPool">Saga pool.</param>
-    TSaga CreateSaga(ISagaPool sagaPool, bool overrideLockCheck);
+    /// <param name="overrideLockCheck">True to override lock check.</param>
+    /// <param name="enableSagaSnapshots">Enable saga snapshots.</param>
+    /// <returns>Newly created saga.</returns>
+    TSaga CreateSaga(ISagaPool sagaPool, bool overrideLockCheck, bool enableSagaSnapshots);
 }

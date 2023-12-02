@@ -134,6 +134,35 @@ The Saga orchestrator coordinates the entire process by telling each participant
     - If the saga was unsuccessful due to insufficient credit, then the order `State` property should be set to `0` (`Initial`) and the customer credit should be unchanged.
     - If the saga was unsuccessul due to an error condition, the order `State` property may be set to `1` (`Pending`). If this is the case you may need to delete the order record in MongoDB, or reset the `State` property of the order to `0` (`Initial`).
 
+### Persist Sagas to Redis
+
+You have the option of using Redis for saga persistence, which offers performance advantages over MongoDB.
+
+1. Add `PersistableSagaRedisSettings` section to appsettings.json.
+
+```json
+"PersistableSagaRedisSettings": {
+  "ConnectionString": "localhost:6379",
+  "InstanceName": "OrderService",
+  "DistributedCacheEntryOptions": {
+    "SlidingExpiration": "00:05:00"
+  }
+}
+```
+
+2. Add saga Redis settings
+
+```csharp
+builder.Services.AddSagaRedisSettings(builder.Configuration);
+```
+
+3. Pass `RedisPersistableSagaRepository` to `AddSaga`.
+
+```csharp
+builder.Services.AddSaga<CreateOrderSaga, OrderMetadata, CreateOrderSagaConfigSettings, CreateOrderSagaCommandDispatcher,
+    SagaConfigRepository, SagaSnapshotRepository, RedisPersistableSagaRepository<CreateOrderSaga, OrderMetadata>>(builder.Configuration);
+```
+
 ## Development Guide
 
 ### Overview

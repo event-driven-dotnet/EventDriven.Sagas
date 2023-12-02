@@ -2,9 +2,6 @@ using EventDriven.DependencyInjection.URF.Mongo;
 
 namespace OrderService.Configuration;
 
-public class SagaSnapshotDatabaseSettings : IMongoDbSettings
+public class SagaSnapshotDatabaseSettings : MongoDbSettings
 {
-    public string CollectionName { get; set; } = null!;
-    public string ConnectionString { get; set; } = null!;
-    public string DatabaseName { get; set; } = null!;
 }

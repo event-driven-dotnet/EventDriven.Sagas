@@ -30,7 +30,7 @@ public class SagaTests
             ?? Array.Empty<SagaStep>());
         var factory = new SagaFactory<FakeSaga>(dispatcher, resultEvaluators,
             Enumerable.Empty<ICheckSagaLockCommandHandler>());
-        var sagaPool = new InMemorySagaPool<FakeSaga>(factory, null!, false);
+        var sagaPool = new InMemorySagaPool<FakeSaga>(factory, null!, false, true);
         var saga = new FakeSaga(steps, dispatcher, resultEvaluators, snapshotRepo, sagaPool);
         var sagaId = Guid.NewGuid();
         saga.Id = sagaId;
@@ -113,7 +113,7 @@ public class SagaTests
         var cancelOnStep = cancel ? step : 0;
         var factory = new SagaFactory<FakeSaga>(dispatcher, resultEvaluators,
             Enumerable.Empty<ICheckSagaLockCommandHandler>());
-        var sagaPool = new InMemorySagaPool<FakeSaga>(factory, null!, false);
+        var sagaPool = new InMemorySagaPool<FakeSaga>(factory, null!, false, true);
         var saga = new FakeSaga(steps, dispatcher, resultEvaluators, snapshotRepo, sagaPool, cancelOnStep, tokenSource);
         var sagaId = Guid.NewGuid();
         saga.Id = sagaId;

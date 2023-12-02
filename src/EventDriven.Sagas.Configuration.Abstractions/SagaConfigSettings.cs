@@ -8,4 +8,7 @@ public abstract class SagaConfigSettings : ISagaConfigSettings
 
     /// <inheritdoc />
     public bool OverrideLockCheck { get; set; }
+
+    /// <inheritdoc />
+    public bool EnableSagaSnapshots { get; set; } = true;
 }

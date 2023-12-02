@@ -767,7 +767,7 @@ The following diagram illustrates how various classes are used in the execution 
     - Call `Handler` on the command handler to process commands.
     - Map parameters and results to DTO's.
 10. Add a `CustomerDatabaseSettings` class to a **Configuration** folder.
-    - Implement `IMongoDbSettings`.
+    - Extend `MongoDbSettings`.
 11. Configure services and endpoints in `Program`.
     - Automapper
     ```csharp
