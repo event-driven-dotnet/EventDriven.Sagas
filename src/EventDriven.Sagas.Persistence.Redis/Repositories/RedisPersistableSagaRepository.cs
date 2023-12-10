@@ -1,6 +1,5 @@
 using System.Text.Json;
 using AutoMapper;
-using EventDriven.DDD.Abstractions.Repositories;
 using EventDriven.Sagas.Persistence.Abstractions;
 using EventDriven.Sagas.Persistence.Abstractions.DTO;
 using EventDriven.Sagas.Persistence.Abstractions.Repositories;
@@ -15,10 +14,22 @@ namespace EventDriven.Sagas.Persistence.Redis.Repositories;
 public class RedisPersistableSagaRepository<TSaga> : IPersistableSagaRepository<TSaga>
     where TSaga : PersistableSaga
 {
-    private readonly IDistributedCache _cache;
-    private readonly DistributedCacheEntryOptions _cacheOptions;
-    private readonly IMapper _mapper;
     private readonly AsyncLock _syncRoot = new();
+
+    /// <summary>
+    /// Distributed cache.
+    /// </summary>
+    protected readonly IDistributedCache Cache;
+    
+    /// <summary>
+    /// Distributed cache entry options.
+    /// </summary>
+    protected readonly DistributedCacheEntryOptions CacheOptions;
+    
+    /// <summary>
+    /// Auto mapper.
+    /// </summary>
+    protected readonly IMapper Mapper;
 
     /// <summary>
     /// PersistableSagaRepository constructor.
@@ -30,37 +41,40 @@ public class RedisPersistableSagaRepository<TSaga> : IPersistableSagaRepository<
         DistributedCacheEntryOptions cacheOptions,
         IMapper mapper)
     {
-        _cache = cache;
-        _cacheOptions = cacheOptions;
-        _mapper = mapper;
+        Cache = cache;
+        CacheOptions = cacheOptions;
+        Mapper = mapper;
     }
 
     /// <inheritdoc />
-    public async Task<TSaga?> GetAsync(Guid id, TSaga newEntity)
-    {
-        var json = await _cache.GetStringAsync(id.ToString());
-        if (json is null) return null;
-        var dto = JsonSerializer.Deserialize<PersistableSagaDto>(json);
-        _mapper.Map(dto, newEntity);
-        return newEntity;
-    }
-
-    /// <inheritdoc />
-    public async Task<TSaga> CreateAsync(TSaga newEntity)
+    public virtual async Task<TSaga?> GetAsync(Guid id, TSaga newEntity)
     {
         using (await _syncRoot.LockAsync())
         {
-            newEntity.ETag = Guid.NewGuid().ToString();
-            var dto = _mapper.Map<PersistableSagaDto>(newEntity);
-            dto.Id = Guid.NewGuid();
-            await InsertAsync(dto);
-            _mapper.Map(dto, newEntity);
+            var json = await Cache.GetStringAsync(id.ToString());
+            if (json is null) return null;
+            var dto = JsonSerializer.Deserialize<PersistableSagaDto>(json);
+            Mapper.Map(dto, newEntity);
             return newEntity;
         }
     }
 
     /// <inheritdoc />
-    public async Task<TSaga> SaveAsync(TSaga existingEntity, TSaga newEntity)
+    public virtual async Task<TSaga> CreateAsync(TSaga newEntity)
+    {
+        using (await _syncRoot.LockAsync())
+        {
+            newEntity.ETag = Guid.NewGuid().ToString();
+            var dto = Mapper.Map<PersistableSagaDto>(newEntity);
+            dto.Id = Guid.NewGuid();
+            await InsertAsync(dto);
+            Mapper.Map(dto, newEntity);
+            return newEntity;
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual async Task<TSaga> SaveAsync(TSaga existingEntity, TSaga newEntity)
     {
         using (await _syncRoot.LockAsync())
         {
@@ -69,23 +83,23 @@ public class RedisPersistableSagaRepository<TSaga> : IPersistableSagaRepository<
                 return await CreateAsync(newEntity);
 
             existingEntity.ETag = Guid.NewGuid().ToString();
-            var dto = _mapper.Map<PersistableSagaDto>(existingEntity);
+            var dto = Mapper.Map<PersistableSagaDto>(existingEntity);
             dto.Id = Guid.NewGuid();
             await RemoveAsync(existingEntity.Id);
             await InsertAsync(dto);
-            _mapper.Map(dto, newEntity);
+            Mapper.Map(dto, newEntity);
             return newEntity;
         }
     }
 
     /// <inheritdoc />
-    public async Task RemoveAsync(Guid id) =>
-        await _cache.RemoveAsync(id.ToString());
+    public virtual Task RemoveAsync(Guid id) =>
+        Cache.RemoveAsync(id.ToString());
     
-    private async Task InsertAsync(PersistableSagaDto dto)
+    private Task InsertAsync(PersistableSagaDto dto)
     {
         var json = JsonSerializer.Serialize(dto);
-        await _cache.SetStringAsync(dto.SagaId.ToString(), json, _cacheOptions);
+        return Cache.SetStringAsync(dto.SagaId.ToString(), json, CacheOptions);
     }
 }
 
@@ -100,10 +114,67 @@ public class RedisPersistableSagaRepository<TSaga, TMetaData> :
     where TSaga : PersistableSaga<TMetaData>
     where TMetaData : class
 {
+    private readonly AsyncLock _syncRoot = new();
+
     /// <inheritdoc />
     public RedisPersistableSagaRepository(IDistributedCache cache,
         DistributedCacheEntryOptions cacheOptions, IMapper mapper) :
         base(cache, cacheOptions, mapper)
     {
+    }
+    
+    /// <inheritdoc />
+    public override async Task<TSaga?> GetAsync(Guid id, TSaga newEntity)
+    {
+        using (await _syncRoot.LockAsync())
+        {
+            var json = await Cache.GetStringAsync(id.ToString());
+            if (json is null) return null;
+            var dto = JsonSerializer.Deserialize<PersistableSagaMetadataDto>(json);
+            if (dto is null) return null;
+            Mapper.Map(dto, newEntity);
+            var metadata = JsonSerializer.Deserialize<TMetaData>(dto.Metadata);
+            newEntity.Metadata = metadata;
+            return newEntity;
+        }
+    }
+    
+    /// <inheritdoc />
+    public override async Task<TSaga> CreateAsync(TSaga newEntity)
+    {
+        using (await _syncRoot.LockAsync())
+        {
+            newEntity.ETag = Guid.NewGuid().ToString();
+            var dto = Mapper.Map<PersistableSagaMetadataDto>(newEntity);
+            dto.Id = Guid.NewGuid();
+            await InsertAsync(dto);
+            Mapper.Map(dto, newEntity);
+            return newEntity;
+        }
+    }
+    
+    /// <inheritdoc />
+    public override async Task<TSaga> SaveAsync(TSaga existingEntity, TSaga newEntity)
+    {
+        using (await _syncRoot.LockAsync())
+        {
+            var existing = await GetAsync(existingEntity.Id, newEntity);
+            if (existing is null)
+                return await CreateAsync(newEntity);
+
+            existingEntity.ETag = Guid.NewGuid().ToString();
+            var dto = Mapper.Map<PersistableSagaMetadataDto>(existingEntity);
+            dto.Id = Guid.NewGuid();
+            await RemoveAsync(existingEntity.Id);
+            await InsertAsync(dto);
+            Mapper.Map(dto, newEntity);
+            return newEntity;
+        }
+    }
+    
+    private Task InsertAsync(PersistableSagaMetadataDto dto)
+    {
+        var json = JsonSerializer.Serialize(dto);
+        return Cache.SetStringAsync(dto.SagaId.ToString(), json, CacheOptions);
     }
 }
