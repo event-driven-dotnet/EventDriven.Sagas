@@ -111,7 +111,8 @@ public class PersistableSagaPool<TSaga> : IPersistableSagaPool<TSaga>
 /// </summary>
 /// <typeparam name="TSaga">Persistable saga.</typeparam>
 /// <typeparam name="TMetadata">Saga metadata.</typeparam>
-public class PersistableSagaPool<TSaga,TMetadata>: PersistableSagaPool<TSaga>, IPersistableSagaPool<TSaga, TMetadata>
+public class PersistableSagaPool<TSaga,TMetadata> :
+    PersistableSagaPool<TSaga>, IPersistableSagaPool<TSaga, TMetadata>
     where TSaga : PersistableSaga<TMetadata>
     where TMetadata : class
 {

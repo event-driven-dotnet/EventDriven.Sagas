@@ -34,10 +34,13 @@ public class PersistableSagaRepository<TSaga> :
     /// <inheritdoc />
     public async Task<TSaga?> GetAsync(Guid id, TSaga newEntity)
     {
-        var dto = await FindOneAsync(e => e.SagaId == id);
-        if (dto is null) return null;
-        _mapper.Map(dto, newEntity);
-        return newEntity;
+        using (await _syncRoot.LockAsync())
+        {
+            var dto = await FindOneAsync(e => e.SagaId == id);
+            if (dto is null) return null;
+            _mapper.Map(dto, newEntity);
+            return newEntity;
+        }
     }
 
     /// <inheritdoc />
