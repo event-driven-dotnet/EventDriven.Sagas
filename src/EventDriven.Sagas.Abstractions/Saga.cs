@@ -1,10 +1,10 @@
-﻿using EventDriven.DDD.Abstractions.Entities;
+﻿using AsyncKeyedLock;
+using EventDriven.DDD.Abstractions.Entities;
 using EventDriven.Sagas.Abstractions.Commands;
 using EventDriven.Sagas.Abstractions.Dispatchers;
 using EventDriven.Sagas.Abstractions.Evaluators;
 using EventDriven.Sagas.Abstractions.Handlers;
 using EventDriven.Sagas.Abstractions.Pools;
-using NeoSmart.AsyncLock;
 
 namespace EventDriven.Sagas.Abstractions;
 
@@ -13,7 +13,7 @@ namespace EventDriven.Sagas.Abstractions;
 /// </summary>
 public abstract class Saga
 {
-    private readonly AsyncLock _syncRoot = new();
+    private readonly AsyncNonKeyedLocker _syncRoot = new();
 
     /// <summary>
     /// Constructor.
